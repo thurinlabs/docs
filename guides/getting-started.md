@@ -66,13 +66,13 @@ You can verify your key is live at: `https://keys.openpgp.org/search?q=YOUR_FING
 You'll need a browser wallet (MetaMask, etc.) and ETH for gas.
 
 1. **Connect your wallet** on [thurin.id/attest](https://thurin.id/attest)
-2. **Sign your PGP fingerprint with your wallet** — paste your `gpg --fingerprint` output into the attest page, then click "Sign with Wallet"
+2. **Enter your PGP fingerprint** — paste your `gpg --fingerprint` output into the attest page; it picks out the 40-character fingerprint, then click "Use This Fingerprint"
 3. **Sign your ETH address with GnuPG** — the attest page shows you a command to run:
    ```bash
    echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
    ```
-   Paste the full signed output back into the attest page
-4. **Publish to the registry** — confirm the transaction in your wallet
+   Use the address exactly as the page shows it (lowercase). Paste the full signed output back into the attest page and verify. If your key isn't on keys.openpgp.org yet, the page asks you to paste your armored public key instead and shows the export command to run — either way works
+4. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, is what binds the address to your key on-chain
 
 After publishing, verify on Thurin: `https://thurin.id/eth/YOUR_ADDRESS`
 

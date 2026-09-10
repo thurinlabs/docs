@@ -38,7 +38,7 @@ GnuPG 2.2+ is required. 2.4+ is recommended (ships with Ed25519 as a default opt
 - **Fedora/RHEL:** `sudo dnf install gnupg2`
 - **Arch:** `sudo pacman -S gnupg`
 
-On macOS, the system may have an outdated GPG or none at all. Homebrew is the most reliable path. After installing, confirm with `gpg --version` — look for `gpg (GnuPG) 2.x.x`.
+On macOS, the system may have an outdated GnuPG or none at all. Homebrew is the most reliable path. After installing, confirm with `gpg --version` — look for `gpg (GnuPG) 2.x.x`.
 
 ### 2. Does the user have a PGP key?
 
@@ -57,7 +57,7 @@ gpg --full-generate-key
 ```
 
 When prompted:
-1. **Key type:** Select `EdDSA` (Ed25519). This is typically option 9 or 10, depending on GPG version. If EdDSA is not listed, the GPG version is too old — upgrade first.
+1. **Key type:** Select `EdDSA` (Ed25519). This is typically option 9 or 10, depending on the GnuPG version. If EdDSA is not listed, the GnuPG version is too old — upgrade first.
 2. **Key size:** Ed25519 is fixed at 256 bits (no prompt for this).
 3. **Expiration:** `0` for no expiration, or set a reasonable period (e.g., `2y` for 2 years). Expiration can be extended later.
 4. **Name and email:** Use the real name and email the user wants associated with their identity.
@@ -128,15 +128,19 @@ If the address shows no identity claims, the user needs to attest at thurin.id/a
 
 1. **Connect wallet** — Click the connect button. MetaMask, WalletConnect, and other providers are supported via RainbowKit.
 
-2. **Sign the PGP fingerprint with the wallet** — Run `gpg --fingerprint email@example.com` and paste the entire output into the attest page. It will detect the 40-character fingerprint automatically. Then click "Sign with Wallet" — this signs the message `I control the GPG key with fingerprint: FINGERPRINT` with the ETH wallet.
+2. **Enter the PGP fingerprint** — Run `gpg --fingerprint email@example.com` and paste the entire output into the attest page. It detects the 40-character fingerprint automatically; click "Use This Fingerprint". (There is no separate wallet signature at this step — the Ethereum side of the claim is the publish transaction itself, which comes from the connected wallet.)
 
 3. **Sign the ETH address with GnuPG** — the attest page displays a command to run in the terminal:
    ```bash
    echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
    ```
-   The user runs this, then pastes the full output (including `-----BEGIN PGP SIGNED MESSAGE-----` header) back into the attest page. Thurin verifies the signature — it tries fetching the public key from keys.openpgp.org first, and falls back to a manual key paste if the keyserver lookup fails.
+   Use the address exactly as the page shows it (it is lowercased). The user runs this, then pastes the full output (including the `-----BEGIN PGP SIGNED MESSAGE-----` header) back into the attest page and clicks verify. Thurin verifies the signature in the browser: it fetches the public key from keys.openpgp.org by key ID first. **If the key is not on the keyserver yet, the page asks for the armored public key instead** and shows the command:
+   ```bash
+   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
+   ```
+   Paste that block and verify. Either path produces the same claim. Upload the key to keys.openpgp.org anyway (`gpg --export YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org`) — the explorer reads proofs from the keyserver, so without the upload the identity page shows the attestation but "No proofs found".
 
-4. **Publish to the registry** — Review the attestation JSON, then click "Publish to Registry." This sends a transaction to the PGPRegistry contract on Ethereum mainnet. The user must confirm in their wallet and pay gas.
+4. **Publish to the registry** — Review the attestation JSON, then click "Publish to Registry." This sends a transaction to the PGPRegistry contract on Ethereum mainnet from the connected wallet (that transaction is what binds the address to the key). The user must confirm in their wallet and pay gas. Afterwards the page offers "View identity", "View Transaction" (Etherscan), "Copy Tx Hash", and "Copy JSON".
 
 After publishing, the identity claim is live. The user can verify by looking up their address on Thurin.
 
@@ -221,7 +225,7 @@ The repo can be empty — only the description matters. Make sure your account v
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Then in the interactive GPG prompt:
+Then at the interactive `gpg>` prompt:
 
 ```
 gpg> uid 1
@@ -286,7 +290,7 @@ This is typically done through your DNS provider's dashboard (Cloudflare, Namech
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Then in the interactive GPG prompt:
+Then at the interactive `gpg>` prompt:
 
 ```
 gpg> uid 1
@@ -360,7 +364,7 @@ Copy the cast URL from Farcaster and add it as a notation:
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Then in the interactive GPG prompt:
+Then at the interactive `gpg>` prompt:
 
 ```
 gpg> uid 1
@@ -434,7 +438,7 @@ Copy the gist URL and add it as a notation:
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Then in the interactive GPG prompt:
+Then at the interactive `gpg>` prompt:
 
 ```
 gpg> uid 1
@@ -502,7 +506,7 @@ This is the same format used by every other provider. If you'd prefer a clickabl
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Then in the interactive GPG prompt:
+Then at the interactive `gpg>` prompt:
 
 ```
 gpg> uid 1
@@ -705,7 +709,7 @@ For static sites (Jekyll, WordPress, plain HTML), use the standalone embed scrip
 
 ```html
 <div data-thurin-card="bendoubleu.eth" data-theme="thurin"></div>
-<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit/dist/embed.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@0/dist/embed.global.js"></script>
 ```
 
 Data attributes: `data-thurin-card` (ENS or address, required), `data-theme` (thurin/dark/light, default: thurin). The script bundles everything internally — no React or build tools needed.
@@ -744,14 +748,14 @@ All verification happens client-side in the browser.
 
 ## Common Pitfalls
 
-- **GPG version too old:** Ed25519 keys require GnuPG 2.2+. If `gpg --full-generate-key` doesn't show an EdDSA option, upgrade GnuPG first.
+- **GnuPG version too old:** Ed25519 keys require GnuPG 2.2+. If `gpg --full-generate-key` doesn't show an EdDSA option, upgrade GnuPG first.
 - **Key not uploaded:** After adding notations, the user MUST upload to keys.openpgp.org or Thurin won't see the changes.
 - **Email not verified on keyserver:** After uploading to keys.openpgp.org, the user must click the verification link sent to their email. Without this, the key won't be discoverable.
 - **Gist not public:** Private gists can't be fetched by the GitHub API without auth — the gist must be public.
 - **DNS propagation:** TXT records can take minutes to hours to propagate; verification may not work immediately.
 - **Wrong fingerprint format:** Must be the full 40-character hex fingerprint, not a key ID or short fingerprint.
 - **Deleted proofs:** Thurin re-verifies on each lookup; if the gist, TXT record, or cast is deleted, verification will fail.
-- **Interactive GPG prompts:** `gpg --edit-key` is interactive — it drops into a `gpg>` prompt. Commands like `uid 1`, `notation`, and `save` are entered one at a time at that prompt, not as CLI flags.
+- **Interactive GnuPG prompts:** `gpg --edit-key` is interactive — it drops into a `gpg>` prompt. Commands like `uid 1`, `notation`, and `save` are entered one at a time at that prompt, not as CLI flags.
 - **Passphrase prompts:** GnuPG will prompt for the key passphrase during signing and editing. The AI agent cannot enter this — the user must type it themselves.
 
 ---
@@ -762,7 +766,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 
 ### What you can do directly
 
-- Check GPG version and install instructions
+- Check the GnuPG version and give install instructions
 - Run `gpg --list-keys`, `gpg --fingerprint` to check existing keys
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
@@ -771,17 +775,17 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 
 ### What requires user interaction (guide them step by step)
 
-- **GPG passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
-- **GPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
+- **Passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
+- **GnuPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
 - **Key creation:** The `--quick-gen-key` one-liner works, but the user still needs to enter a passphrase.
-- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.). Walk the user through each of the four steps. You cannot sign transactions or interact with the wallet.
+- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the four steps. You cannot sign transactions or interact with the wallet. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
 - **Farcaster casts:** Requires an authenticated Farcaster client (Warpcast, etc.). Tell the user what to post.
 - **Mastodon profile:** Requires logging into the Mastodon instance. Tell the user what to add to their profile metadata fields.
 - **Codeberg repo:** Requires a Codeberg account. Tell the user what to put in the repo description.
 
 ### Recommended flow
 
-1. Check GPG version → install/upgrade if needed
+1. Check the GnuPG version → install/upgrade if needed
 2. Check for existing keys → create one if needed (recommend Ed25519)
 3. Check keyserver → upload and verify email if needed
 4. Check Thurin for existing registration → guide through thurin.id/attest if needed
@@ -796,7 +800,7 @@ The proof content (gist, TXT record, cast, repo, profile field) should be create
 
 ## Links
 
-- Thurin: https://thurin.id
+- Thurin: https://thurin.id (also served from ENS at https://id.thurinlabs.eth.limo — same app, same routes)
 - Attest: https://thurin.id/attest
 - Thurin Labs: https://thurinlabs.id
 - Documentation: https://docs.thurin.id
