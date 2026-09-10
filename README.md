@@ -4,19 +4,19 @@
 
 Thurin builds open, decentralized identity infrastructure. On-chain identity claims, public-key cryptography, and social proofs — no backends, no intermediaries, no data collection.
 
-## Scry
+## thurin.id
 
-[Scry](https://thurin.id) is Thurin's identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
+[thurin.id](https://thurin.id) is the Thurin identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
 
-- [Thurin Proofs](/scry/proofs) — Link your PGP key to your online accounts with verifiable, bidirectional proofs
-- [Managing Notations](/scry/gnupg) — Add, list, and remove proof notations from your PGP key
-- Providers: [Codeberg](/scry/codeberg) · [DNS](/scry/dns) · [Farcaster](/scry/farcaster) · [GitHub](/scry/github) · [Mastodon](/scry/mastodon)
+- [Thurin Proofs](/guides/proofs) — Link your PGP key to your online accounts with verifiable, bidirectional proofs
+- [Managing Notations](/guides/gnupg) — Add, list, and remove proof notations from your PGP key
+- Providers: [Codeberg](/guides/codeberg) · [DNS](/guides/dns) · [Farcaster](/guides/farcaster) · [GitHub](/guides/github) · [Mastodon](/guides/mastodon)
 
 ## SDK
 
 Embed Thurin identity data in your app with a single component.
 
-- [Identity Kit](/sdk) — React SDK with `ScryCard` component and hooks
+- [Identity Kit](/sdk) — React SDK with `ThurinCard` component and hooks
 - [PGPRegistry Contract](/contracts) — On-chain attestation contract reference
 
 #### AI Agents
@@ -25,7 +25,7 @@ A consolidated reference for AI assistants helping users set up Thurin Proofs is
 
 ## Links
 
-- [Scry](https://thurin.id) — Look up identities
-- [Signet](https://thurin.id/signet) — Create identity claims
+- [Thurin](https://thurin.id) — Look up identities
+- [Attest](https://thurin.id/attest) — Create identity claims
 - [Website](https://thurin.id) — Learn more
 - [GitHub](https://github.com/thurinlabs) — Source code

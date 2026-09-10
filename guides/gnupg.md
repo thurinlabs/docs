@@ -90,8 +90,8 @@ gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
 
 You can also use the web upload at [keys.openpgp.org/upload](https://keys.openpgp.org/upload).
 
-> **Note:** Scry fetches keys from the keyserver. Your updated notations won't appear in Scry until the key is uploaded.
+> **Note:** Thurin fetches keys from the keyserver. Your updated notations won't appear in Thurin until the key is uploaded.
 
-## Re-registering on Signet
+## Re-attesting on-chain
 
-If your on-chain key data is outdated, you may also need to re-register on [Signet](https://thurin.id/signet) so the on-chain key matches the keyserver version. Scry prefers the keyserver copy when available.
+If your on-chain key data is outdated, you may also need to re-attest at [thurin.id/attest](https://thurin.id/attest) so the on-chain key matches the keyserver version. Thurin prefers the keyserver copy when available.

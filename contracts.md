@@ -1,6 +1,6 @@
 # PGPRegistry Contract
 
-The `PGPRegistry` contract stores on-chain PGP-to-Ethereum identity claims created via [Signet](https://thurin.id/signet).
+The `PGPRegistry` contract stores on-chain PGP-to-Ethereum identity claims created via [thurin.id/attest](https://thurin.id/attest).
 
 ## Contract Details
 
@@ -9,7 +9,7 @@ The `PGPRegistry` contract stores on-chain PGP-to-Ethereum identity claims creat
 | Network | Ethereum Mainnet |
 | Address | [`0xf7a45BC662A78a6fb417ED5f52b3766cbf13EbBb`](https://etherscan.io/address/0xf7a45BC662A78a6fb417ED5f52b3766cbf13EbBb) |
 | Deploy Block | 24515891 |
-| Source | [github.com/thurinlabs/signet-pgp-registry](https://github.com/thurinlabs/signet-pgp-registry) |
+| Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry) |
 
 ## Functions
 

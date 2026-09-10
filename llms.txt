@@ -11,15 +11,15 @@
 Thurin is a decentralized identity stack for Ethereum. On-chain identity claims, public-key cryptography, and social proofs — no backends, no intermediaries, no data collection.
 
 Key tools:
-- **Scry** (https://thurin.id) — Identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
-- **Signet** (https://thurin.id/signet) — Create on-chain identity claims by registering your PGP key.
+- **thurin.id** (https://thurin.id) — Identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
+- **Attest** (https://thurin.id/attest) — Create on-chain identity claims by registering your PGP key.
 - **Identity Kit** (https://www.npmjs.com/package/@thurinlabs/identity-kit) — React SDK for embedding Thurin identity data.
 
 ---
 
 ## Getting Started — Onboarding Checklist
 
-Before setting up Thurin Proofs, the user needs three things: GnuPG, a PGP key on a keyserver, and an on-chain registration via Signet. Walk through these questions in order:
+Before setting up Thurin Proofs, the user needs three things: GnuPG, a PGP key on a keyserver, and an on-chain attestation via thurin.id/attest. Walk through these questions in order:
 
 ### 1. Is GnuPG installed?
 
@@ -114,33 +114,33 @@ gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
 
 Or upload via the web interface at https://keys.openpgp.org/upload.
 
-**Important:** After uploading, the user must **verify their email** via the confirmation link that keys.openpgp.org sends. Without email verification, the key won't be discoverable by email address, and Scry won't be able to fetch it.
+**Important:** After uploading, the user must **verify their email** via the confirmation link that keys.openpgp.org sends. Without email verification, the key won't be discoverable by email address, and Thurin won't be able to fetch it.
 
-### 4. Is the key registered on Signet?
+### 4. Is the key attested on-chain?
 
 Check by visiting: `https://thurin.id/eth/USER_ETH_ADDRESS`
 
-If the address shows no identity claims, the user needs to register on Signet.
+If the address shows no identity claims, the user needs to attest at thurin.id/attest.
 
-**Signet registration requires a browser with a wallet extension (MetaMask, etc.) and ETH for gas.** An AI agent cannot complete this step directly — guide the user through it.
+**On-chain attestation requires a browser with a wallet extension (MetaMask, etc.) and ETH for gas.** An AI agent cannot complete this step directly — guide the user through it.
 
-**Signet walkthrough (https://thurin.id/signet):**
+**Attest walkthrough (https://thurin.id/attest):**
 
 1. **Connect wallet** — Click the connect button. MetaMask, WalletConnect, and other providers are supported via RainbowKit.
 
-2. **Sign the PGP fingerprint with the wallet** — Run `gpg --fingerprint email@example.com` and paste the entire output into Signet. It will detect the 40-character fingerprint automatically. Then click "Sign with Wallet" — this signs the message `I control the GPG key with fingerprint: FINGERPRINT` with the ETH wallet.
+2. **Sign the PGP fingerprint with the wallet** — Run `gpg --fingerprint email@example.com` and paste the entire output into the attest page. It will detect the 40-character fingerprint automatically. Then click "Sign with Wallet" — this signs the message `I control the GPG key with fingerprint: FINGERPRINT` with the ETH wallet.
 
-3. **Sign the ETH address with GnuPG** — Signet displays a command to run in the terminal:
+3. **Sign the ETH address with GnuPG** — the attest page displays a command to run in the terminal:
    ```bash
    echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
    ```
-   The user runs this, then pastes the full output (including `-----BEGIN PGP SIGNED MESSAGE-----` header) back into Signet. Signet verifies the signature — it tries fetching the public key from keys.openpgp.org first, and falls back to a manual key paste if the keyserver lookup fails.
+   The user runs this, then pastes the full output (including `-----BEGIN PGP SIGNED MESSAGE-----` header) back into the attest page. Thurin verifies the signature — it tries fetching the public key from keys.openpgp.org first, and falls back to a manual key paste if the keyserver lookup fails.
 
 4. **Publish to the registry** — Review the attestation JSON, then click "Publish to Registry." This sends a transaction to the PGPRegistry contract on Ethereum mainnet. The user must confirm in their wallet and pay gas.
 
-After publishing, the identity claim is live. The user can verify by looking up their address on Scry.
+After publishing, the identity claim is live. The user can verify by looking up their address on Thurin.
 
-**Note:** If the user already has an old registration and their key has changed, they can re-register on Signet. The new attestation will be added alongside existing ones.
+**Note:** If the user already has an old registration and their key has changed, they can re-attest at thurin.id/attest. The new attestation will be added alongside existing ones.
 
 ### 5. Ready for proofs
 
@@ -150,7 +150,7 @@ Once all four prerequisites are met, proceed to the proof setup sections below.
 
 ## What are Thurin Proofs?
 
-Thurin Proofs are a decentralized identity verification system that links a user's PGP key to their online accounts. By adding cryptographic proofs to the PGP key and publishing verification tokens on supported platforms, the user creates a verifiable chain of identity that anyone can check using Scry.
+Thurin Proofs are a decentralized identity verification system that links a user's PGP key to their online accounts. By adding cryptographic proofs to the PGP key and publishing verification tokens on supported platforms, the user creates a verifiable chain of identity that anyone can check using Thurin.
 
 Proofs use a **bidirectional linking** model:
 
@@ -184,7 +184,7 @@ The recommended format — used consistently across every provider — is:
 thurin-id=openpgp4fpr:FINGERPRINT
 ```
 
-Lead with the `thurin-id=` label so the proof is self-explanatory. This string works on every provider (the `openpgp4fpr:` token satisfies GitHub, Codeberg, DNS, and Farcaster; the embedded fingerprint satisfies Mastodon). The `thurin-id=` label is not required by verification — Scry only checks for `openpgp4fpr:` followed by a matching fingerprint — so older proofs still work, but new proofs should include it.
+Lead with the `thurin-id=` label so the proof is self-explanatory. This string works on every provider (the `openpgp4fpr:` token satisfies GitHub, Codeberg, DNS, and Farcaster; the embedded fingerprint satisfies Mastodon). The `thurin-id=` label is not required by verification — Thurin only checks for `openpgp4fpr:` followed by a matching fingerprint — so older proofs still work, but new proofs should include it.
 
 ---
 
@@ -246,14 +246,14 @@ gpg> save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-### What Scry Checks
+### What Thurin Checks
 
 1. Extracts the username and repo name from the Codeberg URL
 2. Fetches the repository via the Codeberg API (`/api/v1/repos/:user/:repo`)
 3. Searches the repository description for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-### What It Looks Like in Scry
+### What It Looks Like on Thurin
 
 ```
 ✓  CODEBERG  username  [proof]
@@ -264,7 +264,7 @@ gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 - The repository must be **public**
 - Your account visibility must be set to **Public**
 - The repo URL must match `https://codeberg.org/:username/:repo`
-- Do not delete the repository — Scry re-verifies on each lookup
+- Do not delete the repository — Thurin re-verifies on each lookup
 
 ---
 
@@ -311,14 +311,14 @@ gpg> save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-### What Scry Checks
+### What Thurin Checks
 
 1. Extracts the domain from the DNS notation URI
 2. Queries TXT records via Cloudflare DNS-over-HTTPS
 3. Searches for a matching fingerprint in the TXT values
 4. Shows a green checkmark if the fingerprint matches
 
-### What It Looks Like in Scry
+### What It Looks Like on Thurin
 
 ```
 ✓  DNS  example.com  [proof]
@@ -350,7 +350,7 @@ Verifying my identity with @thurinlabs
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-Any other text is fine — a clickable Scry link (`https://thurin.id/pgp/YOUR_FINGERPRINT`) is a nice touch — as long as the cast contains `openpgp4fpr:` followed by the fingerprint.
+Any other text is fine — a clickable Thurin link (`https://thurin.id/pgp/YOUR_FINGERPRINT`) is a nice touch — as long as the cast contains `openpgp4fpr:` followed by the fingerprint.
 
 ### Step 2: Add the Notation to the PGP Key
 
@@ -385,14 +385,14 @@ gpg> save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-### What Scry Checks
+### What Thurin Checks
 
 1. Extracts the cast hash from the Farcaster URL
 2. Fetches the cast via a Farcaster Hub REST API
 3. Searches the cast text for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-### What It Looks Like in Scry
+### What It Looks Like on Thurin
 
 ```
 ✓  FARCASTER  @username  [proof]
@@ -402,7 +402,7 @@ gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 
 - The cast must be public (not a direct cast or channel-restricted)
 - The cast URL must match `https://farcaster.xyz/:username/0x:hash`
-- Do not delete the cast — Scry re-verifies on each lookup
+- Do not delete the cast — Thurin re-verifies on each lookup
 
 ### Notes
 
@@ -424,7 +424,7 @@ Go to https://gist.github.com and create a **public** gist.
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-The gist can contain additional text. Scry only looks for `openpgp4fpr:` followed by the fingerprint.
+The gist can contain additional text. Thurin only looks for `openpgp4fpr:` followed by the fingerprint.
 
 ### Step 2: Add the Notation to the PGP Key
 
@@ -459,14 +459,14 @@ gpg> save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-### What Scry Checks
+### What Thurin Checks
 
 1. Extracts the gist ID from the notation URL
 2. Fetches the gist via the GitHub API (`api.github.com/gists/:id`)
 3. Searches all file contents for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-### What It Looks Like in Scry
+### What It Looks Like on Thurin
 
 ```
 ✓  GITHUB  username  [proof]
@@ -476,7 +476,7 @@ gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 
 - The gist must be **public**
 - The gist URL must match `https://gist.github.com/:username/:gist_id`
-- Do not delete the gist — Scry re-verifies on each lookup
+- Do not delete the gist — Thurin re-verifies on each lookup
 
 ### Notes
 
@@ -494,7 +494,7 @@ Go to your Mastodon instance's profile settings and add a metadata field:
 - **Label:** `Thurin` (or anything you like)
 - **Value:** `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`
 
-This is the same format used by every other provider. If you'd prefer a clickable link, use your Scry profile URL instead (`https://thurin.id/pgp/YOUR_FINGERPRINT`) — it also contains your fingerprint. Either works, with your full 40-character fingerprint or your 16-character key ID, and you can use your bio instead of a metadata field.
+This is the same format used by every other provider. If you'd prefer a clickable link, use your Thurin profile URL instead (`https://thurin.id/pgp/YOUR_FINGERPRINT`) — it also contains your fingerprint. Either works, with your full 40-character fingerprint or your 16-character key ID, and you can use your bio instead of a metadata field.
 
 ### Step 2: Add the Notation to the PGP Key
 
@@ -533,14 +533,14 @@ gpg> save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-### What Scry Checks
+### What Thurin Checks
 
 1. Extracts the instance and username from the Mastodon profile URL
 2. Fetches the account via the Mastodon API (`/api/v1/accounts/lookup?acct=USERNAME`)
 3. Searches profile metadata fields and bio for the fingerprint (full 40-char or last-16 key ID)
 4. Shows a green checkmark if the fingerprint matches
 
-### What It Looks Like in Scry
+### What It Looks Like on Thurin
 
 ```
 ✓  MASTODON  @username@instance  [proof]
@@ -548,9 +548,9 @@ gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 
 ### Requirements
 
-- Your profile metadata or bio must contain your fingerprint (typically via a Scry URL)
+- Your profile metadata or bio must contain your fingerprint (typically via a Thurin URL)
 - The notation URL must match `https://INSTANCE/@USERNAME`
-- Do not remove the fingerprint from your profile — Scry re-verifies on each lookup
+- Do not remove the fingerprint from your profile — Thurin re-verifies on each lookup
 
 ### Notes
 
@@ -652,11 +652,11 @@ gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
 
 The web upload at https://keys.openpgp.org/upload also works.
 
-**Important:** Scry fetches keys from the keyserver. Updated notations won't appear in Scry until the key is uploaded.
+**Important:** Thurin fetches keys from the keyserver. Updated notations won't appear in Thurin until the key is uploaded.
 
-### Re-registering on Signet
+### Re-attesting on-chain
 
-If on-chain key data is outdated, re-register on Signet (https://thurin.id/signet) so the on-chain key matches the keyserver version. Scry prefers the keyserver copy when available.
+If on-chain key data is outdated, re-attest at https://thurin.id/attest so the on-chain key matches the keyserver version. Thurin prefers the keyserver copy when available.
 
 ---
 
@@ -667,16 +667,16 @@ If on-chain key data is outdated, re-register on Signet (https://thurin.id/signe
 - **npm:** https://www.npmjs.com/package/@thurinlabs/identity-kit
 - **Source:** https://github.com/thurinlabs/identity-kit
 
-### ScryCard component
+### ThurinCard component
 
-A drop-in identity card showing ENS avatar, name, address, Signet seal count, verified proof count, EFP follower count, and proof provider badges.
+A drop-in identity card showing ENS avatar, name, address, on-chain attestation count, verified proof count, EFP follower count, and proof provider badges.
 
 ```tsx
-import { IdentityKitProvider, ScryCard } from '@thurinlabs/identity-kit'
+import { IdentityKitProvider, ThurinCard } from '@thurinlabs/identity-kit'
 import '@thurinlabs/identity-kit/styles'
 
 <IdentityKitProvider>
-  <ScryCard ens="vitalik.eth" theme="thurin" />
+  <ThurinCard ens="vitalik.eth" theme="thurin" />
 </IdentityKitProvider>
 ```
 
@@ -686,29 +686,29 @@ Props: `ens` (string), `address` (string), `theme` ('thurin' | 'dark' | 'light')
 
 For custom UI, import hooks directly:
 
-- `useScryIdentity(ensOrAddress)` — combined identity data (ENS, claims, proofs, EFP)
-- `useSignetClaims(address)` — on-chain attestation count and details
+- `useThurinIdentity(ensOrAddress)` — combined identity data (ENS, claims, proofs, EFP)
+- `useAttestations(address)` — on-chain attestation count and details
 - `useEFPGraph(address)` — EFP follower/following counts and top 8
 - `usePGPProofs(fingerprint)` — PGP key info and verified social proofs
 
 ### Provider
 
-`IdentityKitProvider` accepts optional `rpcUrl`, `neynarApiKey`, and `scryBaseUrl`. Auto-detects existing `WagmiProvider`. Zero config works out of the box with public RPC.
+`IdentityKitProvider` accepts optional `rpcUrl`, `neynarApiKey`, and `baseUrl`. Auto-detects existing `WagmiProvider`. Zero config works out of the box with public RPC.
 
 ### Theming
 
-Three built-in themes: `thurin`, `dark`, `light`. Styles scoped under `[data-scry-theme]` with `scry-` prefixed classes. Import `@thurinlabs/identity-kit/styles` when using ScryCard.
+Three built-in themes: `thurin`, `dark`, `light`. Styles scoped under `[data-thurin-theme]` with `thurin-` prefixed classes. Import `@thurinlabs/identity-kit/styles` when using ThurinCard.
 
 ### Embed (No React Required)
 
 For static sites (Jekyll, WordPress, plain HTML), use the standalone embed script:
 
 ```html
-<div data-scry-card="bendoubleu.eth" data-theme="thurin"></div>
+<div data-thurin-card="bendoubleu.eth" data-theme="thurin"></div>
 <script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit/dist/embed.global.js"></script>
 ```
 
-Data attributes: `data-scry-card` (ENS or address, required), `data-theme` (thurin/dark/light, default: thurin). The script bundles everything internally — no React or build tools needed.
+Data attributes: `data-thurin-card` (ENS or address, required), `data-theme` (thurin/dark/light, default: thurin). The script bundles everything internally — no React or build tools needed.
 
 ### Card Image (No JavaScript Required)
 
@@ -724,13 +724,13 @@ A trailing `.png` on the identifier is accepted (e.g. `https://thurin.id/card/en
 [![Thurin identity](https://thurin.id/card/ens/bendoubleu.eth.png)](https://thurin.id/ens/bendoubleu.eth)
 ```
 
-Cards show the ENS avatar and name, address, Signet seal count, verified proof count, and EFP follower count, generated from live data and cached for an hour. Full-size 1200×630 share cards exist at the matching `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` routes — social platforms receive those automatically when a Scry link is shared.
+Cards show the ENS avatar and name, address, on-chain attestation count, verified proof count, and EFP follower count, generated from live data and cached for an hour. Full-size 1200×630 share cards exist at the matching `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` routes — social platforms receive those automatically when a Thurin link is shared.
 
 ---
 
-## Verification Flow (How Scry Works)
+## Verification Flow (How Thurin Works)
 
-When Scry looks up an identity:
+When Thurin looks up an identity:
 
 1. Fetches the PGP public key from keys.openpgp.org (by fingerprint from the on-chain attestation)
 2. Parses `proof@thurin.id` notations from the key
@@ -745,12 +745,12 @@ All verification happens client-side in the browser.
 ## Common Pitfalls
 
 - **GPG version too old:** Ed25519 keys require GnuPG 2.2+. If `gpg --full-generate-key` doesn't show an EdDSA option, upgrade GnuPG first.
-- **Key not uploaded:** After adding notations, the user MUST upload to keys.openpgp.org or Scry won't see the changes.
+- **Key not uploaded:** After adding notations, the user MUST upload to keys.openpgp.org or Thurin won't see the changes.
 - **Email not verified on keyserver:** After uploading to keys.openpgp.org, the user must click the verification link sent to their email. Without this, the key won't be discoverable.
 - **Gist not public:** Private gists can't be fetched by the GitHub API without auth — the gist must be public.
 - **DNS propagation:** TXT records can take minutes to hours to propagate; verification may not work immediately.
 - **Wrong fingerprint format:** Must be the full 40-character hex fingerprint, not a key ID or short fingerprint.
-- **Deleted proofs:** Scry re-verifies on each lookup; if the gist, TXT record, or cast is deleted, verification will fail.
+- **Deleted proofs:** Thurin re-verifies on each lookup; if the gist, TXT record, or cast is deleted, verification will fail.
 - **Interactive GPG prompts:** `gpg --edit-key` is interactive — it drops into a `gpg>` prompt. Commands like `uid 1`, `notation`, and `save` are entered one at a time at that prompt, not as CLI flags.
 - **Passphrase prompts:** GnuPG will prompt for the key passphrase during signing and editing. The AI agent cannot enter this — the user must type it themselves.
 
@@ -767,14 +767,14 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
 - Upload keys to keyservers
-- Look up results on Scry to verify everything worked
+- Look up results on Thurin to verify everything worked
 
 ### What requires user interaction (guide them step by step)
 
 - **GPG passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
 - **GPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
 - **Key creation:** The `--quick-gen-key` one-liner works, but the user still needs to enter a passphrase.
-- **Signet registration:** Requires a browser with a wallet extension (MetaMask, etc.). Walk the user through each of the four steps. You cannot sign transactions or interact with the wallet.
+- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.). Walk the user through each of the four steps. You cannot sign transactions or interact with the wallet.
 - **Farcaster casts:** Requires an authenticated Farcaster client (Warpcast, etc.). Tell the user what to post.
 - **Mastodon profile:** Requires logging into the Mastodon instance. Tell the user what to add to their profile metadata fields.
 - **Codeberg repo:** Requires a Codeberg account. Tell the user what to put in the repo description.
@@ -784,20 +784,20 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 1. Check GPG version → install/upgrade if needed
 2. Check for existing keys → create one if needed (recommend Ed25519)
 3. Check keyserver → upload and verify email if needed
-4. Check Scry for existing registration → guide through Signet if needed
+4. Check Thurin for existing registration → guide through thurin.id/attest if needed
 5. Set up proofs one at a time — create the proof content first, then add the notation, then upload the key
-6. Verify on Scry after each proof: `https://thurin.id/pgp/FINGERPRINT`
+6. Verify on Thurin after each proof: `https://thurin.id/pgp/FINGERPRINT`
 
 ### Order matters
 
-The proof content (gist, TXT record, cast, repo, profile field) should be created BEFORE adding the notation to the PGP key, so that when Scry checks, the proof already exists.
+The proof content (gist, TXT record, cast, repo, profile field) should be created BEFORE adding the notation to the PGP key, so that when Thurin checks, the proof already exists.
 
 ---
 
 ## Links
 
 - Thurin: https://thurin.id
-- Signet: https://thurin.id/signet
+- Attest: https://thurin.id/attest
 - Thurin Labs: https://thurinlabs.id
 - Documentation: https://docs.thurin.id
 - GitHub: https://github.com/thurinlabs

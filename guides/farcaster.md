@@ -12,11 +12,11 @@ Verifying my identity with @thurinlabs
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-You can add any other text — a clickable link to your Scry profile (`https://thurin.id/pgp/YOUR_FINGERPRINT`) is a nice touch — as long as the cast contains `openpgp4fpr:` followed by your fingerprint.
+You can add any other text — a clickable link to your Thurin profile (`https://thurin.id/pgp/YOUR_FINGERPRINT`) is a nice touch — as long as the cast contains `openpgp4fpr:` followed by your fingerprint.
 
 ## 2. Add the Notation to Your PGP Key
 
-Copy the cast URL from Farcaster and add it as a notation ([GnuPG guide](/scry/gnupg)):
+Copy the cast URL from Farcaster and add it as a notation ([GnuPG guide](/guides/gnupg)):
 
 ```bash
 gpg --edit-key YOUR_FINGERPRINT
@@ -31,14 +31,14 @@ save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-## What Scry Checks
+## What Thurin Checks
 
 1. Extracts the cast hash from the Farcaster URL
 2. Fetches the cast via a Farcaster Hub REST API
 3. Searches the cast text for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-## What It Looks Like in Scry
+## What It Looks Like on Thurin
 
 ```
 ✓  FARCASTER  @username  [proof]
@@ -50,7 +50,7 @@ The username links to your Farcaster profile. The `[proof]` link opens the speci
 
 - The cast must be public (not a direct cast or channel-restricted)
 - The cast URL must match `https://farcaster.xyz/:username/0x:hash`
-- Do not delete the cast — Scry re-verifies on each lookup
+- Do not delete the cast — Thurin re-verifies on each lookup
 
 ## Notes
 

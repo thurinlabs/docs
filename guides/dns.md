@@ -20,7 +20,7 @@ dig TXT example.com +short
 
 ## 2. Add the Notation to Your PGP Key
 
-Use the `dns:` URI scheme ([GnuPG guide](/scry/gnupg)):
+Use the `dns:` URI scheme ([GnuPG guide](/guides/gnupg)):
 
 ```bash
 gpg --edit-key YOUR_FINGERPRINT
@@ -41,7 +41,7 @@ proof@thurin.id=dns:_thurin.example.com?type=TXT
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-## What Scry Checks
+## What Thurin Checks
 
 1. Extracts the domain from the `dns:` URI
 2. Queries TXT records via Cloudflare DNS-over-HTTPS:
@@ -51,7 +51,7 @@ gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 3. Searches all TXT records for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-## What It Looks Like in Scry
+## What It Looks Like on Thurin
 
 ```
 ✓  DNS  example.com

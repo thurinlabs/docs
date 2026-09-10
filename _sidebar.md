@@ -1,20 +1,20 @@
 - [Home](/)
-- **Scry**
-- [Getting Started](/scry/getting-started)
-- [Thurin Proofs](/scry/proofs)
-- [Managing Notations](/scry/gnupg)
+- **Guides**
+- [Getting Started](/guides/getting-started)
+- [Thurin Proofs](/guides/proofs)
+- [Managing Notations](/guides/gnupg)
 - Providers
-  - [Codeberg](/scry/codeberg)
-  - [DNS](/scry/dns)
-  - [Farcaster](/scry/farcaster)
-  - [GitHub](/scry/github)
-  - [Mastodon](/scry/mastodon)
+  - [Codeberg](/guides/codeberg)
+  - [DNS](/guides/dns)
+  - [Farcaster](/guides/farcaster)
+  - [GitHub](/guides/github)
+  - [Mastodon](/guides/mastodon)
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)
 
 **Links**
 - [Thurin](https://thurin.id)
-- [Signet](https://thurin.id/signet)
+- [Attest](https://thurin.id/attest)
 - [Thurin Labs](https://thurinlabs.id)
 - [GitHub](https://github.com/thurinlabs)

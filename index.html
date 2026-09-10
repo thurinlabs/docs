@@ -39,6 +39,10 @@
       subMaxLevel: 2,
       auto2top: true,
       homepage: 'README.md',
+      // 2026-09: docs/scry/ became docs/guides/ (brand collapse). Keep old links alive.
+      alias: {
+        '/scry/(.*)': '/guides/$1',
+      },
       requestHeaders: {
         'Cache-Control': 'no-cache',
       },

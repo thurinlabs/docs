@@ -11,7 +11,7 @@ Go to your Mastodon instance's profile settings and add a metadata field:
 
 This is the same `thurin-id=openpgp4fpr:` format used by every other provider, so the proof is self-explanatory.
 
-If you'd prefer a clickable link, use your Scry profile URL as the value instead — it also contains your fingerprint:
+If you'd prefer a clickable link, use your Thurin profile URL as the value instead — it also contains your fingerprint:
 
 - **Value:** `https://thurin.id/pgp/YOUR_FINGERPRINT`
 
@@ -19,7 +19,7 @@ Either value works, with your full 40-character fingerprint or your 16-character
 
 ## 2. Add the Notation to Your PGP Key
 
-Add your Mastodon profile URL as a notation ([GnuPG guide](/scry/gnupg)):
+Add your Mastodon profile URL as a notation ([GnuPG guide](/guides/gnupg)):
 
 ```bash
 gpg --edit-key YOUR_FINGERPRINT
@@ -40,14 +40,14 @@ notation proof@thurin.id=https://mastodon.social/@alice
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-## What Scry Checks
+## What Thurin Checks
 
 1. Extracts the instance and username from the Mastodon profile URL
 2. Fetches the account via the Mastodon API (`/api/v1/accounts/lookup?acct=USERNAME`)
 3. Searches profile metadata fields and bio for the fingerprint (full 40-char or last-16 key ID)
 4. Shows a green checkmark if the fingerprint matches
 
-## What It Looks Like in Scry
+## What It Looks Like on Thurin
 
 ```
 ✓  MASTODON  @username@instance  [proof]
@@ -57,9 +57,9 @@ The handle links to your Mastodon profile. The `[proof]` link also opens your pr
 
 ## Requirements
 
-- Your profile metadata or bio must contain your fingerprint (typically via a Scry URL)
+- Your profile metadata or bio must contain your fingerprint (typically via a Thurin URL)
 - The notation URL must match `https://INSTANCE/@USERNAME`
-- Do not remove the fingerprint from your profile — Scry re-verifies on each lookup
+- Do not remove the fingerprint from your profile — Thurin re-verifies on each lookup
 
 ## Notes
 

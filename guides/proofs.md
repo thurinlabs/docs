@@ -1,6 +1,6 @@
 # Thurin Proofs
 
-Thurin Proofs are a decentralized identity verification system that links your PGP key to your online accounts. By adding cryptographic proofs to your PGP key and publishing verification tokens on supported platforms, you create a verifiable chain of identity that anyone can check using [Scry](https://thurin.id).
+Thurin Proofs are a decentralized identity verification system that links your PGP key to your online accounts. By adding cryptographic proofs to your PGP key and publishing verification tokens on supported platforms, you create a verifiable chain of identity that anyone can check using [Thurin](https://thurin.id).
 
 ## How It Works
 
@@ -23,19 +23,19 @@ Anyone can independently verify both directions, confirming that the same person
 
 ## Prerequisites
 
-1. **A PGP key** registered on [Signet](https://thurin.id/signet) (on-chain identity claim)
-2. **GnuPG** installed locally to edit your key ([managing notations guide](/scry/gnupg))
-3. **A keyserver account** on [keys.openpgp.org](https://keys.openpgp.org) — after adding proof notations, you must upload your updated key so Scry can read the new notations
+1. **A PGP key** attested on-chain at [thurin.id/attest](https://thurin.id/attest) (on-chain identity claim)
+2. **GnuPG** installed locally to edit your key ([managing notations guide](/guides/gnupg))
+3. **A keyserver account** on [keys.openpgp.org](https://keys.openpgp.org) — after adding proof notations, you must upload your updated key so Thurin can read the new notations
 
 ## Supported Providers
 
 | Provider | Proof Method | Notation Example |
 |---|---|---|
-| [Codeberg](/scry/codeberg) | Repo description | `proof@thurin.id=https://codeberg.org/user/repo` |
-| [DNS](/scry/dns) | TXT record | `proof@thurin.id=dns:example.com?type=TXT` |
-| [Farcaster](/scry/farcaster) | Public cast | `proof@thurin.id=https://farcaster.xyz/user/0xhash` |
-| [GitHub](/scry/github) | Public gist | `proof@thurin.id=https://gist.github.com/user/id` |
-| [Mastodon](/scry/mastodon) | Profile metadata | `proof@thurin.id=https://mastodon.social/@user` |
+| [Codeberg](/guides/codeberg) | Repo description | `proof@thurin.id=https://codeberg.org/user/repo` |
+| [DNS](/guides/dns) | TXT record | `proof@thurin.id=dns:example.com?type=TXT` |
+| [Farcaster](/guides/farcaster) | Public cast | `proof@thurin.id=https://farcaster.xyz/user/0xhash` |
+| [GitHub](/guides/github) | Public gist | `proof@thurin.id=https://gist.github.com/user/id` |
+| [Mastodon](/guides/mastodon) | Profile metadata | `proof@thurin.id=https://mastodon.social/@user` |
 
 ## Proof Content Format
 
@@ -53,11 +53,11 @@ The recommended format for proof content — used consistently across every prov
 thurin-id=openpgp4fpr:FINGERPRINT
 ```
 
-Lead with the `thurin-id=` label so anyone who sees the proof knows what it is and why it's there. This exact string works on every provider: the `openpgp4fpr:` token satisfies GitHub, Codeberg, DNS, and Farcaster, and the embedded fingerprint satisfies Mastodon. The `thurin-id=` label itself is not required by verification (Scry only checks for `openpgp4fpr:` followed by a matching fingerprint), so proofs created before this convention still work — but new proofs should include it.
+Lead with the `thurin-id=` label so anyone who sees the proof knows what it is and why it's there. This exact string works on every provider: the `openpgp4fpr:` token satisfies GitHub, Codeberg, DNS, and Farcaster, and the embedded fingerprint satisfies Mastodon. The `thurin-id=` label itself is not required by verification (Thurin only checks for `openpgp4fpr:` followed by a matching fingerprint), so proofs created before this convention still work — but new proofs should include it.
 
 ## Verification Flow
 
-When Scry looks up an identity:
+When Thurin looks up an identity:
 
 1. Fetches the PGP public key from `keys.openpgp.org` (by fingerprint from the on-chain attestation)
 2. Parses `proof@thurin.id` notations from the key

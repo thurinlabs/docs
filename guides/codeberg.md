@@ -13,13 +13,13 @@ Go to [codeberg.org](https://codeberg.org) and create a new repository.
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-The description can contain additional text. Scry only looks for `openpgp4fpr:` followed by your fingerprint.
+The description can contain additional text. Thurin only looks for `openpgp4fpr:` followed by your fingerprint.
 
 Make sure your account visibility is set to **Public**.
 
 ## 2. Add the Notation to Your PGP Key
 
-Copy the repository URL and add it as a notation ([GnuPG guide](/scry/gnupg)):
+Copy the repository URL and add it as a notation ([GnuPG guide](/guides/gnupg)):
 
 ```bash
 gpg --edit-key YOUR_FINGERPRINT
@@ -34,14 +34,14 @@ save
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-## What Scry Checks
+## What Thurin Checks
 
 1. Extracts the username and repo name from the Codeberg URL
 2. Fetches the repository via the Codeberg API (`/api/v1/repos/:user/:repo`)
 3. Searches the repository description for `openpgp4fpr:FINGERPRINT`
 4. Shows a green checkmark if the fingerprint matches
 
-## What It Looks Like in Scry
+## What It Looks Like on Thurin
 
 ```
 ✓  CODEBERG  username  [proof]
@@ -54,7 +54,7 @@ The username links to your Codeberg profile. The `[proof]` link opens the proof 
 - The repository must be **public**
 - Your account visibility must be set to **Public**
 - The repo URL must match `https://codeberg.org/:username/:repo`
-- Do not delete the repository — Scry re-verifies on each lookup
+- Do not delete the repository — Thurin re-verifies on each lookup
 
 ## Notes
 
