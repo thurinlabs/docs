@@ -114,7 +114,23 @@ gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
 
 Or upload via the web interface at https://keys.openpgp.org/upload.
 
-**Important:** After uploading, the user must **verify their email** via the confirmation link that keys.openpgp.org sends. Without email verification, the key won't be discoverable by email address, and Thurin won't be able to fetch it.
+**About email verification:** keys.openpgp.org only sends a verification email if it is requested — through the web upload page (https://keys.openpgp.org/upload) or its `request-verify` API. `--send-keys` and the `curl` upload never trigger one, so not receiving an email is normal. Verification only controls whether the key can be found by **searching for the email address**. Lookups by fingerprint or key ID work on unverified keys, and **Thurin only ever fetches by fingerprint or key ID**, so verification is optional for Thurin. Do it if the user wants their key discoverable by email; skip it otherwise.
+
+**Requesting email verification (optional):** this is a two-step API call — `--send-keys` and the plain `curl` upload never send an email. Upload the key as JSON to get a token, then ask for the email with that token. Tokens expire after a few minutes, so run both steps together.
+
+```bash
+# 1. upload → response has "token" and a per-address status ("unpublished" = not searchable by email yet)
+gpg --export --armor YOUR_FINGERPRINT \
+  | python3 -c 'import sys,json; print(json.dumps({"keytext": sys.stdin.read()}))' \
+  | curl -s -X POST https://keys.openpgp.org/vks/v1/upload -H 'content-type: application/json' -d @-
+
+# 2. request the email for one or more of the key's addresses
+curl -s -X POST https://keys.openpgp.org/vks/v1/request-verify \
+  -H 'content-type: application/json' \
+  -d '{"token":"TOKEN_FROM_STEP_1","addresses":["email@example.com"]}'
+```
+
+The second response shows the address as `pending`; clicking the link in the email makes it `published`. The same thing is available in a browser at https://keys.openpgp.org/upload. An AI agent can run both API calls but cannot click the link — the user must.
 
 ### 4. Is the key attested on-chain?
 
@@ -750,7 +766,7 @@ All verification happens client-side in the browser.
 
 - **GnuPG version too old:** Ed25519 keys require GnuPG 2.2+. If `gpg --full-generate-key` doesn't show an EdDSA option, upgrade GnuPG first.
 - **Key not uploaded:** After adding notations, the user MUST upload to keys.openpgp.org or Thurin won't see the changes.
-- **Email not verified on keyserver:** After uploading to keys.openpgp.org, the user must click the verification link sent to their email. Without this, the key won't be discoverable.
+- **Expecting a keyserver verification email:** keys.openpgp.org sends one only when requested via its web page or API, never for `--send-keys`/`curl` uploads. It is optional for Thurin anyway — verification affects search-by-email only; fingerprint and key-ID lookups (what Thurin uses) work without it.
 - **Gist not public:** Private gists can't be fetched by the GitHub API without auth — the gist must be public.
 - **DNS propagation:** TXT records can take minutes to hours to propagate; verification may not work immediately.
 - **Wrong fingerprint format:** Must be the full 40-character hex fingerprint, not a key ID or short fingerprint.
@@ -770,7 +786,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - Run `gpg --list-keys`, `gpg --fingerprint` to check existing keys
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
-- Upload keys to keyservers
+- Upload keys to keyservers, and request email verification via the keys.openpgp.org API (the user clicks the link)
 - Look up results on Thurin to verify everything worked
 
 ### What requires user interaction (guide them step by step)

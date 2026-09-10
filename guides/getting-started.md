@@ -55,7 +55,23 @@ Upload your public key to [keys.openpgp.org](https://keys.openpgp.org):
 gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
 ```
 
-**Important:** After uploading, check your email — keys.openpgp.org sends a verification link. You must click it or your key won't be discoverable, and Thurin won't be able to fetch it.
+**About the verification email:** you'll only get one if you upload through the [web page](https://keys.openpgp.org/upload) and ask for it — `--send-keys` doesn't trigger it, so don't wait for one. Verifying only makes your key findable by searching your email address. Thurin looks keys up by fingerprint and key ID, which work either way, so this step is optional.
+
+**Requesting email verification (optional):** this is a two-step API call — `--send-keys` and the plain `curl` upload never send an email. Upload the key as JSON to get a token, then ask for the email with that token. Tokens expire after a few minutes, so run both steps together.
+
+```bash
+# 1. upload → response has "token" and a per-address status ("unpublished" = not searchable by email yet)
+gpg --export --armor YOUR_FINGERPRINT \
+  | python3 -c 'import sys,json; print(json.dumps({"keytext": sys.stdin.read()}))' \
+  | curl -s -X POST https://keys.openpgp.org/vks/v1/upload -H 'content-type: application/json' -d @-
+
+# 2. request the email for one or more of the key's addresses
+curl -s -X POST https://keys.openpgp.org/vks/v1/request-verify \
+  -H 'content-type: application/json' \
+  -d '{"token":"TOKEN_FROM_STEP_1","addresses":["email@example.com"]}'
+```
+
+The second response shows the address as `pending`; clicking the link in the email makes it `published`. The same thing is available in a browser at https://keys.openpgp.org/upload. Then click the link in the email.
 
 You can verify your key is live at: `https://keys.openpgp.org/search?q=YOUR_FINGERPRINT`
 
