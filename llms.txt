@@ -19,7 +19,7 @@ Key tools:
 
 ## Getting Started — Onboarding Checklist
 
-Before setting up Thurin Proofs, the user needs three things: GnuPG, a PGP key on a keyserver, and an on-chain attestation via thurin.id/attest. Walk through these questions in order:
+Before setting up Thurin Proofs, the user needs three things: GnuPG, a PGP key with a published name (a user ID without an email address), and an on-chain attestation via thurin.id/attest. Thurin never reads from a keyserver. Walk through these questions in order:
 
 ### 1. Is GnuPG installed?
 
@@ -88,49 +88,23 @@ sub   cv25519 2024-11-23 [E]
 
 The fingerprint here is `03E53D807CE38C130ED42ECECD3D0D7F0C9E5FB8`.
 
-### 3. Is the key on the keyserver?
+### 3. Does the key have a published name?
 
-Check by visiting: `https://keys.openpgp.org/search?q=FINGERPRINT`
-
-Or from the command line:
+Attesting stores the public key on-chain, permanently and publicly. By default Thurin publishes only the user IDs that contain **no email address** ("published name"), and proof notations must live on such a user ID to show up. Check:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --search-keys email@example.com
+gpg --list-keys YOUR_FINGERPRINT
 ```
 
-**If the key is not on the keyserver:**
-
-Upload it:
+**If every user ID contains an email address**, add one. Any name works; `thurin` is the suggestion:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --quick-add-uid YOUR_FINGERPRINT thurin
 ```
 
-Or export and upload via curl:
+Keyservers (keys.openpgp.org etc.) are unrelated to Thurin: nothing is fetched from them, so uploading there is neither required nor checked. Do not tell the user to wait for a keyserver verification email.
 
-```bash
-gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
-```
-
-Or upload via the web interface at https://keys.openpgp.org/upload.
-
-**About email verification:** keys.openpgp.org only sends a verification email if it is requested — through the web upload page (https://keys.openpgp.org/upload) or its `request-verify` API. `--send-keys` and the `curl` upload never trigger one, so not receiving an email is normal. Verification only controls whether the key can be found by **searching for the email address**. Lookups by fingerprint or key ID work on unverified keys, and **Thurin only ever fetches by fingerprint or key ID**, so verification is optional for Thurin. Do it if the user wants their key discoverable by email; skip it otherwise.
-
-**Requesting email verification (optional):** this is a two-step API call — `--send-keys` and the plain `curl` upload never send an email. Upload the key as JSON to get a token, then ask for the email with that token. Tokens expire after a few minutes, so run both steps together.
-
-```bash
-# 1. upload → response has "token" and a per-address status ("unpublished" = not searchable by email yet)
-gpg --export --armor YOUR_FINGERPRINT \
-  | python3 -c 'import sys,json; print(json.dumps({"keytext": sys.stdin.read()}))' \
-  | curl -s -X POST https://keys.openpgp.org/vks/v1/upload -H 'content-type: application/json' -d @-
-
-# 2. request the email for one or more of the key's addresses
-curl -s -X POST https://keys.openpgp.org/vks/v1/request-verify \
-  -H 'content-type: application/json' \
-  -d '{"token":"TOKEN_FROM_STEP_1","addresses":["email@example.com"]}'
-```
-
-The second response shows the address as `pending`; clicking the link in the email makes it `published`. The same thing is available in a browser at https://keys.openpgp.org/upload. An AI agent can run both API calls but cannot click the link — the user must.
+**Email privacy:** the user's email goes on-chain only if they choose "Include my email" in the attest flow. The default keeps every email-bearing user ID off-chain. What is published is readable by anyone, forever, and can be revoked but not deleted.
 
 ### 4. Is the key attested on-chain?
 
@@ -144,23 +118,22 @@ If the address shows no identity claims, the user needs to attest at thurin.id/a
 
 1. **Connect wallet** — Click the connect button. MetaMask, WalletConnect, and other providers are supported via RainbowKit.
 
-2. **Enter the PGP fingerprint** — Run `gpg --fingerprint email@example.com` and paste the entire output into the attest page. It detects the 40-character fingerprint automatically; click "Use This Fingerprint". (There is no separate wallet signature at this step — the Ethereum side of the claim is the publish transaction itself, which comes from the connected wallet.)
+2. **Choose what to publish** — two cards: *Keep my email off-chain* (recommended; only non-email user IDs are published) or *Include my email* (the full key goes on-chain). The choice cannot be undone for that claim, though the key can later be updated.
 
-3. **Sign the ETH address with GnuPG** — the attest page displays a command to run in the terminal:
+3. **Enter the PGP fingerprint** — Run `gpg --fingerprint YOUR_NAME` and paste the entire output into the attest page. It detects the 40-character fingerprint automatically; click "Use This Fingerprint". (There is no separate wallet signature — the Ethereum side of the claim is the publish transaction itself, sent from the connected wallet.)
+
+4. **Sign the ETH address with GnuPG and paste the key** — the page shows two commands:
    ```bash
    echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
-   ```
-   Use the address exactly as the page shows it (it is lowercased). The user runs this, then pastes the full output (including the `-----BEGIN PGP SIGNED MESSAGE-----` header) back into the attest page and clicks verify. Thurin verifies the signature in the browser: it fetches the public key from keys.openpgp.org by key ID first. **If the key is not on the keyserver yet, the page asks for the armored public key instead** and shows the command:
-   ```bash
    gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
    ```
-   Paste that block and verify. Either path produces the same claim. Upload the key to keys.openpgp.org anyway (`gpg --export YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org`) — the explorer reads proofs from the keyserver, so without the upload the identity page shows the attestation but "No proofs found".
+   Use the address exactly as the page shows it (lowercased). The user pastes the full signed output (including the `-----BEGIN PGP SIGNED MESSAGE-----` header) and the full public key block, then clicks verify. Thurin verifies the signature in the browser and shows a "Going on-chain" summary: the published name(s), anything left out because it contains an email, the number of proofs on the published name, and the size in KB (limit 8 KB; use `export-minimal`). If the proofs are only on a user ID being left out, the page warns — move the notations to the published name and re-export.
 
-4. **Publish to the registry** — Review the attestation JSON, then click "Publish to Registry." This sends a transaction to the PGPRegistry contract on Ethereum mainnet from the connected wallet (that transaction is what binds the address to the key). The user must confirm in their wallet and pay gas. Afterwards the page offers "View identity", "View Transaction" (Etherscan), "Copy Tx Hash", and "Copy JSON".
+5. **Publish to the registry** — Click "Publish to Registry". This sends `attest` to the PGPRegistry contract from the connected wallet; the user confirms and pays gas. If the wallet already has an active claim, the page offers to **replace** it: the old claim is revoked and the new one published in a single transaction (`reattest`). A key can have only one active claim per address, so re-attesting the same key requires replace. Afterwards the page offers "View identity", "View Transaction", "Copy Tx Hash", and "Copy JSON".
 
 After publishing, the identity claim is live. The user can verify by looking up their address on Thurin.
 
-**Note:** If the user already has an old registration and their key has changed, they can re-attest at thurin.id/attest. The new attestation will be added alongside existing ones.
+**Updating proofs later:** the user does not re-attest to add proofs. On thurin.id/attest, under **Your claims**, the active claim has an **Update** button: paste a fresh export of the same key and confirm one transaction (`updateKey`). No new signature is needed. **Rotating to a new key:** run the attest flow with the new key and choose replace at the publish step. **Revoking:** the Revoke button on the claim.
 
 ### 5. Ready for proofs
 
@@ -260,11 +233,15 @@ Save and exit:
 gpg> save
 ```
 
-### Step 3: Upload the Updated Key
+### Step 3: Publish the Updated Key on Thurin
+
+Thurin reads proofs from the key stored in the on-chain claim, not from a keyserver. On https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, and paste a fresh export:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
+
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
 
 ### What Thurin Checks
 
@@ -325,11 +302,15 @@ Save and exit:
 gpg> save
 ```
 
-### Step 3: Upload the Updated Key
+### Step 3: Publish the Updated Key on Thurin
+
+Thurin reads proofs from the key stored in the on-chain claim, not from a keyserver. On https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, and paste a fresh export:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
+
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
 
 ### What Thurin Checks
 
@@ -399,11 +380,15 @@ Save and exit:
 gpg> save
 ```
 
-### Step 3: Upload the Updated Key
+### Step 3: Publish the Updated Key on Thurin
+
+Thurin reads proofs from the key stored in the on-chain claim, not from a keyserver. On https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, and paste a fresh export:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
+
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
 
 ### What Thurin Checks
 
@@ -473,11 +458,15 @@ Save and exit:
 gpg> save
 ```
 
-### Step 3: Upload the Updated Key
+### Step 3: Publish the Updated Key on Thurin
+
+Thurin reads proofs from the key stored in the on-chain claim, not from a keyserver. On https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, and paste a fresh export:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
+
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
 
 ### What Thurin Checks
 
@@ -547,11 +536,15 @@ Save and exit:
 gpg> save
 ```
 
-### Step 3: Upload the Updated Key
+### Step 3: Publish the Updated Key on Thurin
+
+Thurin reads proofs from the key stored in the on-chain claim, not from a keyserver. On https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, and paste a fresh export:
 
 ```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
+
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
 
 ### What Thurin Checks
 
@@ -656,27 +649,15 @@ Save:
 gpg> save
 ```
 
-### Uploading to the Keyserver
+### Publishing the Updated Key on Thurin
 
-After any notation changes, upload the updated key to keys.openpgp.org:
+Thurin reads proofs from the key stored in the on-chain claim. After any notation change, the user updates the stored key — one transaction, no new signature: on https://thurin.id/attest, connect the wallet that holds the claim, open **Your claims**, click **Update** on the active claim, paste a fresh export (`gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT`), check the summary, click **Update key**, confirm.
 
-```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
-```
+Keyservers are optional and unrelated: Thurin never reads from keys.openpgp.org, so uploading there neither helps nor hurts.
 
-Or export and upload manually:
+### Rotating to a new key
 
-```bash
-gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
-```
-
-The web upload at https://keys.openpgp.org/upload also works.
-
-**Important:** Thurin fetches keys from the keyserver. Updated notations won't appear in Thurin until the key is uploaded.
-
-### Re-attesting on-chain
-
-If on-chain key data is outdated, re-attest at https://thurin.id/attest so the on-chain key matches the keyserver version. Thurin prefers the keyserver copy when available.
+Run the attest flow with the new key; at the publish step choose to replace the existing claim (revoked and replaced in one transaction).
 
 ---
 
@@ -752,21 +733,22 @@ Cards show the ENS avatar and name, address, on-chain attestation count, verifie
 
 When Thurin looks up an identity:
 
-1. Fetches the PGP public key from keys.openpgp.org (by fingerprint from the on-chain attestation)
+1. Reads the PGP public key stored in the on-chain attestation, after checking that the stored signature binds the key to the address
 2. Parses `proof@thurin.id` notations from the key
 3. For each notation, identifies the platform and fetches the proof content
 4. Checks that the proof contains `openpgp4fpr:FINGERPRINT` matching the key
 5. Displays a green checkmark for verified proofs, or an X with a reason for failures
 
-All verification happens client-side in the browser.
+All verification happens client-side in the browser. Registry reads are plain `eth_call`s, so any Ethereum RPC works; the only other network calls are to the proof platforms.
 
 ---
 
 ## Common Pitfalls
 
 - **GnuPG version too old:** Ed25519 keys require GnuPG 2.2+. If `gpg --full-generate-key` doesn't show an EdDSA option, upgrade GnuPG first.
-- **Key not uploaded:** After adding notations, the user MUST upload to keys.openpgp.org or Thurin won't see the changes.
-- **Expecting a keyserver verification email:** keys.openpgp.org sends one only when requested via its web page or API, never for `--send-keys`/`curl` uploads. It is optional for Thurin anyway — verification affects search-by-email only; fingerprint and key-ID lookups (what Thurin uses) work without it.
+- **Key not updated on-chain:** After adding notations, the user MUST update the key on their claim (Your claims → Update on thurin.id/attest) or Thurin won't see the changes. Uploading to a keyserver does nothing for Thurin.
+- **Notation on the wrong user ID:** Notations on a user ID that contains an email address are left out when the key is published (unless the user chose "Include my email"). Put `proof@thurin.id` notations on the published name (e.g. `thurin`).
+- **Same key, second claim:** A key can have one active claim per address. To re-attest the same key, choose replace at the publish step.
 - **Gist not public:** Private gists can't be fetched by the GitHub API without auth — the gist must be public.
 - **DNS propagation:** TXT records can take minutes to hours to propagate; verification may not work immediately.
 - **Wrong fingerprint format:** Must be the full 40-character hex fingerprint, not a key ID or short fingerprint.
@@ -786,7 +768,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - Run `gpg --list-keys`, `gpg --fingerprint` to check existing keys
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
-- Upload keys to keyservers, and request email verification via the keys.openpgp.org API (the user clicks the link)
+- Add a published name to the key (`gpg --quick-add-uid FINGERPRINT thurin`) and export it
 - Look up results on Thurin to verify everything worked
 
 ### What requires user interaction (guide them step by step)
@@ -794,7 +776,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - **Passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
 - **GnuPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
 - **Key creation:** The `--quick-gen-key` one-liner works, but the user still needs to enter a passphrase.
-- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the four steps. You cannot sign transactions or interact with the wallet. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
+- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the five steps. You cannot sign transactions or interact with the wallet. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
 - **Farcaster casts:** Requires an authenticated Farcaster client (Warpcast, etc.). Tell the user what to post.
 - **Mastodon profile:** Requires logging into the Mastodon instance. Tell the user what to add to their profile metadata fields.
 - **Codeberg repo:** Requires a Codeberg account. Tell the user what to put in the repo description.
@@ -803,9 +785,9 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 
 1. Check the GnuPG version → install/upgrade if needed
 2. Check for existing keys → create one if needed (recommend Ed25519)
-3. Check keyserver → upload and verify email if needed
+3. Check for a published name (user ID without an email) → add one if needed
 4. Check Thurin for existing registration → guide through thurin.id/attest if needed
-5. Set up proofs one at a time — create the proof content first, then add the notation, then upload the key
+5. Set up proofs one at a time — create the proof content first, add the notation to the published name, then update the key on the claim
 6. Verify on Thurin after each proof: `https://thurin.id/pgp/FINGERPRINT`
 
 ### Order matters
@@ -822,4 +804,4 @@ The proof content (gist, TXT record, cast, repo, profile field) should be create
 - Documentation: https://docs.thurin.id
 - GitHub: https://github.com/thurinlabs
 - Identity Kit: https://www.npmjs.com/package/@thurinlabs/identity-kit
-- Keyserver: https://keys.openpgp.org
+- PGPRegistry v2 contract: https://docs.thurin.id/#/contracts

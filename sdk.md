@@ -69,6 +69,7 @@ Wrap your app (or just the part using identity-kit) in `IdentityKitProvider`. If
 |------|------|---------|-------------|
 | `rpcUrl` | `string` | publicnode | Ethereum RPC endpoint |
 | `neynarApiKey` | `string` | — | Neynar API key for Farcaster proof verification |
+| `network` | `'mainnet' \| 'sepolia' \| 'local'` | `'mainnet'` | Which chain to read the registry on |
 | `baseUrl` | `string` | `https://thurin.id` | Base URL for "View on Thurin" links |
 
 ## Hooks
@@ -107,10 +108,10 @@ const { efp, isLoading } = useEFPGraph('0xd8dA...')
 
 ### usePGPProofs
 
-PGP key info and verified social proofs from keyserver.
+PGP key info and verified social proofs, parsed from the key stored in the on-chain attestation. No keyserver is consulted.
 
 ```tsx
-const { keyInfo, proofs, isLoading } = usePGPProofs('03E53D807CE38C...')
+const { keyInfo, proofs, isLoading } = usePGPProofs(fingerprint, attestation.pgpPublicKey)
 // proofs[].provider, proofs[].status, proofs[].displayUrl
 ```
 
@@ -182,17 +183,17 @@ For static sites, Jekyll blogs, WordPress, or any HTML page — use the standalo
   data-rpc-url="https://eth-mainnet.g.alchemy.com/v2/YOUR_KEY"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@0/dist/embed.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1/dist/embed.global.js"></script>
 ```
 
 | Attribute | Description |
 |-----------|-------------|
 | `data-thurin-card` | ENS name or ETH address to look up (required) |
 | `data-theme` | `thurin`, `dark`, or `light` (default: `thurin`) |
-| `data-rpc-url` | An Ethereum RPC endpoint that supports `eth_getLogs` — required to verify on-chain claims. The card reads the chain directly, so use your own node or any provider. (Public fallback RPCs throttle `getLogs`, so proofs won't verify without this.) |
+| `data-rpc-url` | Optional. Any Ethereum RPC — the card reads the v2 registry with plain calls, so the keyless public default works. |
 | `data-neynar-key` | Optional. A [Neynar](https://neynar.com) API key, only to verify Farcaster proofs. Without it, Farcaster shows as unverified. |
 
-The card talks directly to Ethereum, keys.openpgp.org, and each proof platform — no intermediary. Cards render automatically on page load and for dynamically added elements.
+The card talks directly to Ethereum and each proof platform — no intermediary, no keyserver. Cards render automatically on page load and for dynamically added elements.
 
 ## Card Image (No JavaScript Required)
 
