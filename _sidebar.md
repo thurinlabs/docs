@@ -12,6 +12,8 @@
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)
+- **Project**
+- [Roadmap](/roadmap)
 
 **Links**
 - [Thurin](https://thurin.id)
