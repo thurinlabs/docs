@@ -8,11 +8,11 @@ This page describes **v2** (2026-09). It is permissionless and immutable: no own
 
 | Item | Value |
 |------|-------|
-| Address (all networks) | `0x3F42806de924d3f22538ea5bC2B0b3860D27f5bB` |
+| Address (all networks) | `0x9302E02e2869e129aC8516fE5eFFd51EA3082c09` |
 | Ethereum Mainnet | _pending deployment_ |
 | Sepolia | _pending deployment_ |
 | Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry) |
-| Compiler | solc 0.8.24, via-IR, optimizer 200 runs |
+| Compiler | solc 0.8.24, via-IR, optimizer 200 runs, no metadata hash (address depends only on code) |
 
 The contract is deployed with CREATE2 and a fixed salt, so it has the same address on every network. `VERSION()` returns `2`.
 
@@ -40,13 +40,15 @@ function attest(bytes fingerprint, bytes pgpSignature, bytes pgpPublicKey) retur
 function reattest(uint256 revokeIndex, bytes fingerprint, bytes pgpSignature, bytes pgpPublicKey) returns (uint256 index);
 function updateKey(uint256 index, bytes pgpPublicKey);
 function revoke(uint256 index);
-function setRecord(uint256 index, bytes32 kind, bytes value);   // empty value clears
+function setRecord(uint256 index, bytes32 kind, bytes value);   // empty value clears (allowed on revoked entries too)
+function cancelAuthorization();                                  // burn the caller's current nonce
 ```
 
 - `attest` publishes a new claim from `msg.sender`. The clearsigned message must be exactly `I control the Ethereum address: 0x<lowercase address>`.
 - `reattest` revokes one of your claims and publishes a new one in the same transaction (same key with new notations, or a rotated key).
 - `updateKey` replaces the stored key of an active claim — same fingerprint, new notations, no new signature. This is how proofs are added after attesting.
-- `setRecord` attaches a small typed value to a claim; readers ignore kinds they don't know.
+- `setRecord` attaches a small typed value to a claim; readers ignore kinds they don't know, and should only trust a record while the claim is active.
+- `cancelAuthorization` invalidates every authorization signed with the caller's current nonce. Direct writes do not consume nonces, so use this if a signed authorization is out in the wild and you no longer want it submittable.
 
 ### Authorized writes
 
@@ -76,8 +78,16 @@ function attestationsOf(address owner) view returns (Attestation[]);
 function current(address owner) view returns (bool found, uint256 index, Attestation);
 function record(address owner, uint256 index, bytes32 kind) view returns (bytes);
 function addressesFor(bytes32 fingerprintHash) view returns (address[]);   // keccak256(raw fingerprint bytes)
-function fingerprintsForKeyId(bytes8 keyId) view returns (bytes[]);       // last 8 bytes of the fingerprint
+function fingerprintsForKeyId(bytes8 keyId) view returns (bytes[]);       // long key ID (RFC 9580: v4 = last 8 bytes, v6 = first 8)
 function nonces(address owner) view returns (uint256);
+
+// paginated forms — the arrays above are unbounded and, since attesting is permissionless,
+// growable by anyone; readers that must stay responsive use these
+function attestationsOfRange(address owner, uint256 start, uint256 count) view returns (Attestation[]);
+function addressesForCount(bytes32 fingerprintHash) view returns (uint256);
+function addressesForRange(bytes32 fingerprintHash, uint256 start, uint256 count) view returns (address[]);
+function fingerprintsForKeyIdCount(bytes8 keyId) view returns (uint256);
+function fingerprintsForKeyIdRange(bytes8 keyId, uint256 start, uint256 count) view returns (bytes[]);
 ```
 
 `addressesFor` lists every address that has ever attested a fingerprint — check `revokedAt` on each claim for whether it is still active. `fingerprintsForKeyId` turns a long key ID into the fingerprint(s) attested with it, so no keyserver lookup is needed.
@@ -85,10 +95,11 @@ function nonces(address owner) view returns (uint256);
 ## Events
 
 ```solidity
-event Attested(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, bytes fingerprint, uint8 messageVersion, address submitter);
-event KeyUpdated(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, address submitter);
+event Attested(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, bytes fingerprint, uint8 messageVersion, address keyPtr, address sigPtr, address submitter);
+event KeyUpdated(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, address oldKeyPtr, address newKeyPtr, address submitter);
 event Revoked(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, address submitter);
 event RecordSet(address indexed owner, uint256 indexed index, bytes32 indexed kind, address submitter);
+event NonceUsed(address indexed owner, uint256 nonce);
 ```
 
 Events are for indexers and notifications; nothing needs them to read the registry.
@@ -125,7 +136,7 @@ if (found) {
 From the command line:
 
 ```bash
-cast call 0x3F42806de924d3f22538ea5bC2B0b3860D27f5bB "attestationCount(address)(uint256)" 0xYourAddress --rpc-url https://ethereum-rpc.publicnode.com
+cast call 0x9302E02e2869e129aC8516fE5eFFd51EA3082c09 "attestationCount(address)(uint256)" 0xYourAddress --rpc-url https://ethereum-rpc.publicnode.com
 ```
 
 ## Trust model
