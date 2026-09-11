@@ -64,6 +64,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Private records: encrypted to yourself
 - [ ] Shared records: encrypted to the people you choose; the first use is a private email claim
 - [ ] Pointer records to larger content
+- [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [ ] Records tab on the identity page
 
 ## Web of trust <span class="status status-designed">Designed</span>
@@ -75,6 +76,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 ## Later
 
 - [ ] Thurin Score: a transparent confidence rating over the evidence, including the web of trust
+- [ ] Pay for an attestation from shielded funds, so an identity address never has to hold ETH in the open
 
 ---
 
