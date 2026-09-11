@@ -805,3 +805,4 @@ The proof content (gist, TXT record, cast, repo, profile field) should be create
 - GitHub: https://github.com/thurinlabs
 - Identity Kit: https://www.npmjs.com/package/@thurinlabs/identity-kit
 - PGPRegistry v2 contract: https://docs.thurin.id/#/contracts
+- Roadmap (what ships next: CLI, encrypt-to-identity, records, web of trust): https://docs.thurin.id/#/roadmap

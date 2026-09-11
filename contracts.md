@@ -10,7 +10,7 @@ This page describes **v2** (2026-09). It is permissionless and immutable: no own
 |------|-------|
 | Address (all networks) | `0x9302E02e2869e129aC8516fE5eFFd51EA3082c09` |
 | Ethereum Mainnet | _pending deployment_ |
-| Sepolia | _pending deployment_ |
+| Sepolia | deployed 2026-09-11, block 11683667 ([Etherscan](https://sepolia.etherscan.io/address/0x9302E02e2869e129aC8516fE5eFFd51EA3082c09)) |
 | Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry) |
 | Compiler | solc 0.8.24, via-IR, optimizer 200 runs, no metadata hash (address depends only on code) |
 
