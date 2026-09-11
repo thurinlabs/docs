@@ -42,6 +42,14 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Attest, update a key, revoke, and check status from a terminal
 - [ ] Sign an authorization offline and submit it from any funded account
 - [ ] Uses your existing gpg keyring; no keys leave your machine
+- [ ] Create a fresh identity address and PGP key in one guided run
+- [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
+
+## Sponsored attestations <span class="status status-designed">Designed</span>
+
+- [ ] Sign an attestation without holding any ETH, in the browser or the CLI
+- [ ] A submit page where anyone with a wallet can pay for someone else's attestation
+- [ ] An open-source relayer anyone can run to sponsor their community; Thurin runs one with a budget
 
 ## Encrypt to an identity <span class="status status-designed">Designed</span>
 
