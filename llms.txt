@@ -188,7 +188,7 @@ Lead with the `thurin-id=` label so the proof is self-explanatory. This string w
 | Codeberg   | Repo description   | `proof@thurin.id=https://codeberg.org/user/repo`        |
 | DNS        | TXT record         | `proof@thurin.id=dns:example.com?type=TXT`              |
 | Farcaster  | Public cast        | `proof@thurin.id=https://farcaster.xyz/user/0xhash`     |
-| GitHub     | Public gist        | `proof@thurin.id=https://gist.github.com/user/id`       |
+| GitHub     | Public gist, or a repo description (organisations) | `proof@thurin.id=https://gist.github.com/user/id` or `proof@thurin.id=https://github.com/org/repo` |
 | Mastodon   | Profile metadata   | `proof@thurin.id=https://mastodon.social/@user`          |
 
 ---
@@ -467,6 +467,10 @@ gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_F
 ```
 
 The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+
+### Organisations: use a repository, not a gist
+
+Gists belong to user accounts, so an organisation (or anyone who prefers it) proves GitHub with a public **repository description**: create a repo such as `ORG/thurin-proof` with the description `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`, and add the notation `proof@thurin.id=https://github.com/ORG/thurin-proof`. Thurin fetches `api.github.com/repos/ORG/thurin-proof`, checks the owner matches `ORG`, and looks for the token in the description. An AI agent can create the repo and set the description with `gh repo create ORG/thurin-proof --public --description "thurin-id=openpgp4fpr:FINGERPRINT"`.
 
 ### What Thurin Checks
 

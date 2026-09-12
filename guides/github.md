@@ -1,6 +1,6 @@
 # GitHub Proof
 
-Verify your GitHub identity by creating a public gist containing your PGP fingerprint.
+Verify your GitHub identity with a public gist containing your PGP fingerprint. An **organisation** can't own a gist, so it uses a repository instead: see [For organisations](#for-organisations) below.
 
 ## 1. Create a Public Gist
 
@@ -39,6 +39,22 @@ Thurin reads proofs from the key stored in your on-chain claim, not from a keyse
 
 No new signature is needed — the fingerprint is unchanged. Names that contain an email address are left out automatically unless you chose to include them when you attested.
 
+## For organisations
+
+Gists belong to user accounts. An organisation proves its GitHub with a **repository description** instead, the same way a Codeberg proof works:
+
+1. Create a public repository under the organisation, for example `thurin-proof`, and set its **description** to:
+   ```
+   thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+   ```
+2. Add the repository URL as the notation on the organisation's key:
+   ```
+   proof@thurin.id=https://github.com/ORG/thurin-proof
+   ```
+3. Update the key on the organisation's claim as in step 3 above.
+
+Thurin fetches the repository through the GitHub API, checks that its owner is the account named in the URL, and looks for the fingerprint token in the description. The proof shows the organisation's name and links to the repository. A personal account can use this form too.
+
 ## What Thurin Checks
 
 1. Extracts the gist ID from the notation URL
@@ -57,7 +73,7 @@ The username links to your GitHub profile. The `[proof]` link opens the gist dir
 ## Requirements
 
 - The gist must be **public**
-- The gist URL must match `https://gist.github.com/:username/:gist_id`
+- The gist URL must match `https://gist.github.com/:username/:gist_id`, or the repository URL `https://github.com/:owner/:repo`
 - Do not delete the gist — Thurin re-verifies on each lookup
 
 ## Notes
