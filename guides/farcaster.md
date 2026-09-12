@@ -25,11 +25,18 @@ notation proof@thurin.id=https://farcaster.xyz/USERNAME/0xCASTHASH
 save
 ```
 
-## 3. Upload Your Updated Key
+## 3. Publish the Updated Key on Thurin
 
-```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
-```
+Thurin reads proofs from the key stored in your on-chain claim, not from a keyserver, so the new notation goes live when the stored key is updated:
+
+1. Open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds your claim, and open **Your claims**.
+2. Click **Update** on the active claim and paste a fresh export of your key:
+   ```bash
+   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
+   ```
+3. Check the summary (published name, proof count), click **Update key**, and confirm the transaction.
+
+No new signature is needed — the fingerprint is unchanged. Names that contain an email address are left out automatically unless you chose to include them when you attested.
 
 ## What Thurin Checks
 

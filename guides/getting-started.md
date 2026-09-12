@@ -33,7 +33,7 @@ You'll be prompted for a passphrase to protect your private key.
 After creation, get your fingerprint:
 
 ```bash
-gpg --fingerprint your@email.com
+gpg --fingerprint "Your Name"
 ```
 
 Output looks like:
@@ -47,50 +47,33 @@ sub   cv25519 2024-11-23 [E]
 
 Your fingerprint is the 40-character hex string: `03E53D807CE38C130ED42ECECD3D0D7F0C9E5FB8`
 
-## 3. Upload to the Keyserver
+## 3. Give Your Key a Published Name
 
-Upload your public key to [keys.openpgp.org](https://keys.openpgp.org):
-
-```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
-```
-
-**About the verification email:** you'll only get one if you upload through the [web page](https://keys.openpgp.org/upload) and ask for it — `--send-keys` doesn't trigger it, so don't wait for one. Verifying only makes your key findable by searching your email address. Thurin looks keys up by fingerprint and key ID, which work either way, so this step is optional.
-
-**Requesting email verification (optional):** this is a two-step API call — `--send-keys` and the plain `curl` upload never send an email. Upload the key as JSON to get a token, then ask for the email with that token. Tokens expire after a few minutes, so run both steps together.
+Attesting stores your public key on-chain, permanently and publicly. By default Thurin publishes only the names on your key that contain **no email address**, so add one — any name you like; `thurin` is the suggestion:
 
 ```bash
-# 1. upload → response has "token" and a per-address status ("unpublished" = not searchable by email yet)
-gpg --export --armor YOUR_FINGERPRINT \
-  | python3 -c 'import sys,json; print(json.dumps({"keytext": sys.stdin.read()}))' \
-  | curl -s -X POST https://keys.openpgp.org/vks/v1/upload -H 'content-type: application/json' -d @-
-
-# 2. request the email for one or more of the key's addresses
-curl -s -X POST https://keys.openpgp.org/vks/v1/request-verify \
-  -H 'content-type: application/json' \
-  -d '{"token":"TOKEN_FROM_STEP_1","addresses":["email@example.com"]}'
+gpg --quick-add-uid YOUR_FINGERPRINT thurin
 ```
 
-The second response shows the address as `pending`; clicking the link in the email makes it `published`. The same thing is available in a browser at https://keys.openpgp.org/upload. Then click the link in the email.
-
-You can verify your key is live at: `https://keys.openpgp.org/search?q=YOUR_FINGERPRINT`
+Proof notations go on this name (see [Managing Notations](/guides/gnupg)). Your email stays off-chain unless you choose "Include my email" when attesting. No keyserver upload is needed — Thurin never reads from one.
 
 ## 4. Attest on-chain
 
-[thurin.id/attest](https://thurin.id/attest) creates an on-chain link between your PGP key and your Ethereum address. This is a one-time setup.
+[thurin.id/attest](https://thurin.id/attest) creates an on-chain link between your PGP key and your Ethereum address. You'll need a browser wallet (MetaMask, etc.) and a little ETH for gas.
 
-You'll need a browser wallet (MetaMask, etc.) and ETH for gas.
-
-1. **Connect your wallet** on [thurin.id/attest](https://thurin.id/attest)
-2. **Enter your PGP fingerprint** — paste your `gpg --fingerprint` output into the attest page; it picks out the 40-character fingerprint, then click "Use This Fingerprint"
-3. **Sign your ETH address with GnuPG** — the attest page shows you a command to run:
+1. **Connect your wallet** on [thurin.id/attest](https://thurin.id/attest) and open **New claim**
+2. **Choose what to publish** — *Keep my email off-chain* (recommended) or *Include my email*
+3. **Enter your PGP fingerprint** — paste your `gpg --fingerprint` output; the page picks out the 40-character fingerprint
+4. **Sign your ETH address with GnuPG** — the page shows the exact command:
    ```bash
    echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
    ```
-   Use the address exactly as the page shows it (lowercase). Paste the full signed output back into the attest page and verify. If your key isn't on keys.openpgp.org yet, the page asks you to paste your armored public key instead and shows the export command to run — either way works
-4. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, is what binds the address to your key on-chain
+   Paste the signed output, then paste your exported public key (the page shows that command too). It verifies the signature and shows exactly what will go on-chain: the published name, the proofs on it, and anything left out
+5. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, binds the address to your key
 
-After publishing, verify on Thurin: `https://thurin.id/eth/YOUR_ADDRESS`
+Afterwards your identity is at `https://thurin.id/eth/YOUR_ADDRESS`.
+
+**What goes on-chain:** your address, the key's fingerprint, the signed message, and the key with its published name(s) and proof notations. It is readable by anyone from any Ethereum node and cannot be deleted, only revoked.
 
 ## 5. Add Your First Proof
 
@@ -110,9 +93,9 @@ Pick a provider and follow its guide:
 The general flow for any provider:
 
 1. **Create the proof on the platform** (gist, TXT record, cast, repo, profile field)
-2. **Add the notation to your PGP key** ([GnuPG guide](/guides/gnupg))
-3. **Upload your updated key** to the keyserver
-4. **Verify on Thurin** — look up your fingerprint and check for the green checkmark
+2. **Add the notation to your published name** ([GnuPG guide](/guides/gnupg))
+3. **Update the key on your claim** — *Your claims → Update* on [thurin.id/attest](https://thurin.id/attest), paste a fresh export, confirm one transaction
+4. **Verify on Thurin** — look up your address and check for the green checkmark
 
 > **Tip:** Create the proof content on the platform *before* adding the notation to your key. That way Thurin can verify it immediately.
 

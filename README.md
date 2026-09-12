@@ -19,6 +19,10 @@ Embed Thurin identity data in your app with a single component.
 - [Identity Kit](/sdk) — React SDK with `ThurinCard` component and hooks
 - [PGPRegistry Contract](/contracts) — On-chain attestation contract reference
 
+## Roadmap
+
+What is shipping next, in order: [Roadmap](/roadmap).
+
 #### AI Agents
 
 A consolidated reference for AI assistants helping users set up Thurin Proofs is available at [llms.txt](https://docs.thurin.id/llms.txt).

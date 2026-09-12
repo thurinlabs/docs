@@ -25,7 +25,7 @@ Anyone can independently verify both directions, confirming that the same person
 
 1. **A PGP key** attested on-chain at [thurin.id/attest](https://thurin.id/attest) (on-chain identity claim)
 2. **GnuPG** installed locally to edit your key ([managing notations guide](/guides/gnupg))
-3. **A keyserver account** on [keys.openpgp.org](https://keys.openpgp.org) — after adding proof notations, you must upload your updated key so Thurin can read the new notations
+3. **A published name** — a user ID on your key with no email address; proof notations go on it, and after adding them you update the key stored on your claim (*Your claims → Update* on thurin.id/attest)
 
 ## Supported Providers
 
@@ -59,10 +59,10 @@ Lead with the `thurin-id=` label so anyone who sees the proof knows what it is a
 
 When Thurin looks up an identity:
 
-1. Fetches the PGP public key from `keys.openpgp.org` (by fingerprint from the on-chain attestation)
+1. Reads the PGP public key stored in the on-chain attestation (after checking that the stored signature binds it to the address)
 2. Parses `proof@thurin.id` notations from the key
 3. For each notation, identifies the platform and fetches the proof content
 4. Checks that the proof contains `openpgp4fpr:FINGERPRINT` matching the key
 5. Displays a green checkmark for verified proofs, or an X with a reason for failures
 
-All verification happens client-side in the browser. No backend or API keys are needed.
+All verification happens client-side in the browser. No backend, keyserver, or API keys are needed — the only network calls are to Ethereum and to the proof platforms themselves.

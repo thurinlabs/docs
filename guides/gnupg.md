@@ -10,12 +10,15 @@ Open your key for editing:
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Select your user ID, then add the notation:
+Select your **published name** — the user ID without an email that Thurin publishes on-chain (see [Getting Started](/guides/getting-started)). List the user IDs with `list`, pick its number, then add the notation:
 
 ```
+gpg> list
 gpg> uid 1
 gpg> notation
 ```
+
+A `*` marks the selected user ID. Notations on a user ID that contains an email address are left out when the key is published, so they won't show on Thurin.
 
 Enter the notation as `proof@thurin.id=VALUE`:
 
@@ -74,24 +77,19 @@ Save:
 gpg> save
 ```
 
-## Uploading to the Keyserver
+## Publishing the Updated Key on Thurin
 
-After any notation changes, upload your updated key to `keys.openpgp.org`:
+Thurin reads proofs from the key stored in your on-chain claim. After any notation change, put the new key on-chain — one transaction, no new signature:
 
-```bash
-gpg --keyserver hkps://keys.openpgp.org --send-keys YOUR_FINGERPRINT
-```
+1. Open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds your claim, and open **Your claims**.
+2. Click **Update** on the active claim and paste a fresh export:
+   ```bash
+   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
+   ```
+3. Check the summary (published name, proof count), click **Update key**, and confirm.
 
-Or export and upload manually:
+Keyservers are optional and unrelated: Thurin never reads from keys.openpgp.org, so uploading there neither helps nor hurts your Thurin identity.
 
-```bash
-gpg --export --armor YOUR_FINGERPRINT | curl -T - https://keys.openpgp.org
-```
+## Rotating to a New Key
 
-You can also use the web upload at [keys.openpgp.org/upload](https://keys.openpgp.org/upload).
-
-> **Note:** Thurin fetches keys from the keyserver. Your updated notations won't appear in Thurin until the key is uploaded.
-
-## Re-attesting on-chain
-
-If your on-chain key data is outdated, you may also need to re-attest at [thurin.id/attest](https://thurin.id/attest) so the on-chain key matches the keyserver version. Thurin prefers the keyserver copy when available.
+If you move to a different key, run the attest flow again with the new key. At the publish step, choose to replace your existing claim — it is revoked and the new one published in the same transaction.
