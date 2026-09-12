@@ -23,7 +23,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 
-## Registry v2 <span class="status status-testnet">Testnet</span>
+## Registry v2 <span class="status status-shipped">Shipped</span>
 
 - [x] Claims readable straight from the chain with plain calls: any RPC works, no keyserver, no event logs
 - [x] Email stays off-chain by default; one published name carries the proofs
@@ -33,9 +33,9 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Same contract address on every network
 - [x] Independent security review, all findings fixed
 - [x] Deployed and verified on Sepolia
-- [ ] Deployed on Ethereum mainnet
-- [ ] identity-kit 1.0 published
-- [ ] thurin.id, share cards, and docs switched to v2
+- [x] Deployed on Ethereum mainnet
+- [x] identity-kit 1.0 published
+- [x] thurin.id, share cards, and docs switched to v2
 
 ## Thurin CLI <span class="status status-next">Next</span>
 
@@ -44,12 +44,14 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Uses your existing gpg keyring; no keys leave your machine
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
+- [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
 
 ## Sponsored attestations <span class="status status-designed">Designed</span>
 
 - [ ] Sign an attestation without holding any ETH, in the browser or the CLI
 - [ ] A submit page where anyone with a wallet can pay for someone else's attestation
 - [ ] An open-source relayer anyone can run to sponsor their community; Thurin runs one with a budget
+- [ ] A hosted keyserver shim at keys.thurin.id for gpg users without the CLI; anyone can run one
 
 ## Encrypt to an identity <span class="status status-designed">Designed</span>
 
