@@ -14,6 +14,8 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 ## Thurin.id <span class="status status-shipped">Shipped</span>
 
+*What if everyone knew who you were… because you let them?*
+
 - [x] Identity explorer at [thurin.id](https://thurin.id): look up any ENS name, Ethereum address, or PGP fingerprint
 - [x] On-chain identity claims at [thurin.id/attest](https://thurin.id/attest): an Ethereum address bound to a PGP key, published from the address itself
 - [x] Thurin Proofs: GitHub, Codeberg, DNS, Farcaster, and Mastodon, verified in the browser against the platform itself
@@ -24,6 +26,8 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Docs and `llms.txt` for AI agents
 
 ## Registry v2 <span class="status status-shipped">Shipped</span>
+
+*What if your online identity had a home?*
 
 - [x] Claims readable straight from the chain with plain calls: any RPC works, no keyserver, no event logs
 - [x] Email stays off-chain by default; one published name carries the proofs
@@ -39,6 +43,8 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 ## Thurin CLI <span class="status status-next">Next</span>
 
+*What if the keyserver was Ethereum?*
+
 - [ ] Attest, update a key, revoke, and check status from a terminal
 - [ ] Sign an authorization offline and submit it from any funded account
 - [ ] Uses your existing gpg keyring; no keys leave your machine
@@ -48,12 +54,16 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 ## Sponsored attestations <span class="status status-designed">Designed</span>
 
+*What if you could prove it’s you from a terminal, with an address that has never held a coin?*
+
 - [ ] Sign an attestation without holding any ETH, in the browser or the CLI
 - [ ] A submit page where anyone with a wallet can pay for someone else's attestation
 - [ ] An open-source relayer anyone can run to sponsor their community; Thurin runs one with a budget
 - [ ] A hosted keyserver shim at keys.thurin.id for gpg users without the CLI; anyone can run one
 
 ## Encrypt to an identity <span class="status status-designed">Designed</span>
+
+*What if you could encrypt a file to a name?*
 
 - [ ] Encrypt a message or file to any verified Thurin identity, in the browser
 - [ ] Same in the CLI, with signing
@@ -70,6 +80,8 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Records tab on the identity page
 
 ## Web of trust <span class="status status-designed">Designed</span>
+
+*What if vouching for someone counted for something?*
 
 - [ ] Vouch for a key you have checked, published on-chain
 - [ ] Vouches shown on the identity page, with a link to each voucher
