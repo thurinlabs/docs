@@ -91,6 +91,47 @@ The registry has a twin of every write (`attestFor`, `reattestFor`, `updateKeyFo
 
 Before handing the slip out, the CLI proves the signature recovers to your address and simulates the call against the registry, so a slip that would be rejected is never printed. The slip binds the network, the owner's current nonce, and a deadline. It can be used once, and an owner with no ETH cannot recall it before the deadline, so the deadline is printed every time. The link is the same JSON as the file, base64url-encoded after `#handoff=`; the typed data is rebuilt from its fields on both ends rather than carried, so what the page shows is what was signed.
 
+With a relayer, there is no link at all: `thurin attest --authorize --relayer https://relay.example` posts the slip to a service that runs the same checks and pays. See [Run a relayer](#run-a-relayer).
+
+## Run a relayer
+
+A relayer is `thurin submit` behind an HTTP port. It accepts the same JSON a hand-off link carries, runs the same checks, applies a budget and rate limits, and pays for the `…For` call from a hot keystore. Anyone can run one for their community; Thurin runs one with a small budget.
+
+```bash
+thurin wallet create hot                  # fund it with pocket money, on the network it will serve
+thurin relay --account hot --budget 0.01  # ETH per rolling day
+```
+
+| Option | Default | Meaning |
+|---|---|---|
+| `--budget <eth>` | 0.01 | most it may spend per rolling 24 h |
+| `--free-attests <n>` | 1 | `attest` calls it pays for per owner address; updates and revokes are only rate-limited |
+| `--per-hour <n>` | 10 | requests per caller per hour |
+| `--port`, `--host` | 8787, 127.0.0.1 | listens on localhost; put a TLS proxy in front |
+
+Requests: `POST /` with the hand-off JSON (what `--authorize --out` writes), answer `{hash, block, owner, identity}` or `{error}` with 400 (bad slip), 403 (limit), 429 (rate), 502 (the registry or chain refused), 503 (budget spent). `GET /` reports the network, payer, budget, and spend. Every call must fit `--max-gas` (default 3M, enough for the largest key the registry allows), which bounds a contract wallet that burns gas in its signature check.
+
+Users point at it with `--relayer <url>` or `"relayer"` in their config; `--no-relayer` gets a link instead. It is the one command that spends unattended, gas only, one transaction at a time. Treat the key as pocket money.
+
+A systemd unit, if you run it on a server:
+
+```ini
+[Unit]
+Description=Thurin relayer
+After=network-online.target
+
+[Service]
+User=thurin
+ExecStart=/usr/bin/npx --yes @thurinlabs/thurin relay --account hot --password-file /etc/thurin/hot.pw --budget 0.01 --port 8787
+Environment=THURIN_CONFIG_DIR=/etc/thurin
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+```
+
+with nginx proxying `relay.example` to `127.0.0.1:8787` and setting `X-Forwarded-For`.
+
 ## Keys
 
 ```bash
@@ -125,6 +166,7 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--password-file <path>` | keystore password for scripts |
 | `--no-key --owner <address\|ens>` | sign here, publish from a wallet elsewhere: prints a link instead of sending |
 | `--authorize [--deadline 7d] [--out f.json]` | no ETH here: sign a permission slip anyone can publish |
+| `--relayer <url>` / `--no-relayer` | post an authorization to a relayer that pays, or force a link |
 | `--site <url>` | where `--no-key` and `--authorize` links point; default `https://thurin.id` |
 | `--json` | machine-readable output on stdout |
 | `--yes` | skip the confirmation before sending |
