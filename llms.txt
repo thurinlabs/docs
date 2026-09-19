@@ -610,6 +610,12 @@ gpg> save
 
 Multiple `proof@thurin.id` notations can be added — one per proof. Repeat the `notation` command for each.
 
+**Non-interactive alternative** (useful for agents): feed the editor its commands through a pipe. One `notation` line per value; a leading `-` removes one; the passphrase prompt still appears.
+
+```bash
+printf 'uid 1\nnotation\nproof@thurin.id=dns:example.com?type=TXT\nsave\n' | gpg --batch --command-fd 0 --edit-key YOUR_FINGERPRINT
+```
+
 ### Listing Notations
 
 From inside `--edit-key`:

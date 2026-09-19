@@ -160,6 +160,10 @@ import { REGISTRY_ADDRESS, REGISTRY_ABI, CONTRACT_DEPLOY_BLOCK } from '@thurinla
 
 `REGISTRY_ABI` is read-only (events + `attestationCount` + `getAttestation`). Apps that write claims need their own ABI with `attest`/`revoke`.
 
+## Key algorithms
+
+Any curve openpgp.js can compute is verified: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js rejects secp256k1 by default because RFC 9580 does not list it; identity-kit turns that off. A secp256k1 PGP key doubles as an Ethereum key (the address is derived from the same public point), so anything that can sign with the PGP key can sign Ethereum transactions. Hold one if you like; do not fund its derived address.
+
 ## Themes
 
 Three built-in themes: `thurin`, `dark`, `light`. All styles are scoped under `[data-thurin-theme]` with `thurin-` prefixed class names to avoid conflicts with your app's styles.

@@ -34,6 +34,16 @@ gpg> save
 
 You can add multiple `proof@thurin.id` notations — one per proof. Repeat the `notation` command for each.
 
+## Adding a Notation in One Line
+
+The interactive editor also takes its commands from a pipe, so a notation can be added without the `gpg>` prompt:
+
+```bash
+printf 'uid 1\nnotation\nproof@thurin.id=dns:example.com?type=TXT\nsave\n' | gpg --batch --command-fd 0 --edit-key YOUR_FINGERPRINT
+```
+
+Repeat the `notation` line and its value for each proof. A leading `-` on the value removes that notation. GnuPG still asks for your passphrase.
+
 ## Listing Notations
 
 From inside `--edit-key`:
