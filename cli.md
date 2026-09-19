@@ -93,6 +93,42 @@ Before handing the slip out, the CLI proves the signature recovers to your addre
 
 With a relayer, there is no link at all: `thurin attest --authorize --relayer https://relay.example` posts the slip to a service that runs the same checks and pays. See [Run a relayer](#run-a-relayer).
 
+## Be a keyserver
+
+gpg has asked keyservers for keys the same way since the 1990s: one HTTP request, "give me the key with this fingerprint". Anything that answers it is a keyserver to gpg, and to git, mutt, and every package tool built on gpg. `thurin keyserver` answers it by reading the registry.
+
+```bash
+thurin keyserver                          # serves hkp://127.0.0.1:11371; --port, --host, --cache-seconds 60
+gpg --keyserver hkp://127.0.0.1:11371 --recv-keys 08B9374FDFBEC67EFFA24E669D3D86E35361EF7B
+```
+
+Make it gpg's default keyserver and everything built on gpg reads Ethereum from then on:
+
+```bash
+echo "keyserver hkp://127.0.0.1:11371" >> ~/.gnupg/dirmngr.conf
+gpgconf --kill dirmngr
+```
+
+- `gpg --refresh-keys` picks up on-chain revocations. A revoked claim is not served, so a burned key stops refreshing. Put it in cron and legacy gpg gets live revocation checking.
+- `gpg --locate-keys` and `--search-keys` work by fingerprint, key ID, Ethereum address, or ENS name.
+- With `auto-key-retrieve` in `gpg.conf`, signature verification fetches unknown keys on its own: `git log --show-signature`, signed mail, release checks. Software that will never know Thurin exists gets chain-backed keys with no change in habit.
+
+What it will not do, on purpose:
+
+- **Search by email returns nothing.** Emails are off-chain unless the owner chose otherwise. Fingerprint and key ID were the only keyserver searches that were ever safe; use the full fingerprint, never a short key ID.
+- **No upload.** There is no `/pks/add`. Keys are published by their owner attesting, so nobody can attach signatures or garbage to yours. The certificate-flooding attack that broke the SKS network is structurally impossible here.
+- **Stateless.** No database, only chain reads and a short cache. The keyserver protocol survives; the writable, poisonable database behind it is what dies.
+
+A fetch by full fingerprint is self-authenticating: gpg checks that the key it received hashes to the fingerprint it asked for, so even a hostile keyserver cannot hand you a wrong key. What a keyserver *can* do is withhold, including withholding a revocation. That is the whole trust question, and it is why there are three rungs:
+
+| Rung | Trusts | Command |
+|---|---|---|
+| `hkps://keys.thurin.id` | Thurin's instance not to withhold | `gpg --keyserver hkps://keys.thurin.id --recv-keys <fpr>` |
+| your own server | your own box | `thurin keyserver --host 0.0.0.0` behind TLS |
+| local | nobody; chain-fresh | `thurin keyserver` |
+
+Each rung down loses only convenience. Every rung can be walked away from.
+
 ## Run a relayer
 
 A relayer is `thurin submit` behind an HTTP port. It accepts the same JSON a hand-off link carries, runs the same checks, applies a budget and rate limits, and pays for the `…For` call from a hot keystore. Anyone can run one for their community; Thurin runs one with a small budget.

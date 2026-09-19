@@ -59,12 +59,12 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`)
 - [x] Thurin's own relayer at relay.thurin.id: one claim per address, within a daily budget
 
-## The keyserver <span class="status status-designed">Designed</span>
+## The keyserver <span class="status status-progress">In progress</span>
 
 *What if the keyserver was Ethereum?*
 
-- [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
-- [ ] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [x] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere (`thurin keyserver`)
+- [x] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 
