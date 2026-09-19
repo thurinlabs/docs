@@ -57,9 +57,9 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 *What if you could prove it’s you from a terminal, with an address that has never held a coin?*
 
-- [ ] Sign an attestation without holding any ETH, in the browser or the CLI (CLI done; browser next)
+- [x] Sign an attestation without holding any ETH, in the browser or the CLI
 - [ ] A submit page where anyone with a wallet can pay for someone else's attestation
-- [ ] An open-source relayer anyone can run to sponsor their community; Thurin runs one with a budget
+- [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`); Thurin's own instance next
 - [ ] A hosted keyserver shim at keys.thurin.id for gpg users without the CLI; anyone can run one
 
 ## Encrypt to an identity <span class="status status-designed">Designed</span>
