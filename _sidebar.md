@@ -11,6 +11,8 @@
   - [Mastodon](/guides/mastodon)
 - **Tools**
 - [Thurin CLI](/cli)
+- [Verify commits](/guides/verify-commits)
+- [Verify a release](/guides/verify-release)
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)
