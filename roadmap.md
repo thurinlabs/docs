@@ -41,7 +41,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] identity-kit 1.0 published
 - [x] thurin.id, share cards, and docs switched to v2
 
-## Thurin CLI <span class="status status-progress">In progress</span>
+## Thurin CLI <span class="status status-shipped">Shipped</span>
 
 *What if the keyserver was Ethereum?*
 
@@ -52,17 +52,18 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 - [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
+- [ ] A hosted copy of that keyserver at keys.thurin.id for gpg users without the CLI; anyone can run one
 
-## Sponsored attestations <span class="status status-designed">Designed</span>
+## Sponsored attestations <span class="status status-shipped">Shipped</span>
 
 *What if you could prove it’s you from a terminal, with an address that has never held a coin?*
 
 - [x] Sign an attestation without holding any ETH, in the browser or the CLI
-- [ ] A submit page where anyone with a wallet can pay for someone else's attestation
-- [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`); Thurin's own instance next
-- [ ] A hosted keyserver shim at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [x] Anyone with a wallet can open the link and pay for someone else's attestation; the claim lands under the signer
+- [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`)
+- [x] Thurin's own relayer at relay.thurin.id: one claim per address, within a daily budget
 
-## Encrypt to an identity <span class="status status-designed">Designed</span>
+## Encrypt to an identity <span class="status status-next">Next</span>
 
 *What if you could encrypt a file to a name?*
 
