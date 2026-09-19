@@ -11,7 +11,7 @@ echo "keyserver hkps://keys.thurin.id" >> ~/.gnupg/dirmngr.conf
 gpgconf --kill dirmngr
 ```
 
-[keys.thurin.id](/cli#be-a-keyserver) answers gpg's key requests by reading the Thurin registry. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
+[keys.thurin.id](/cli#be-a-keyserver) answers gpg's key requests by reading the Thurin registry. It also speaks plain HKP on port 11371, so a bare `--keyserver keys.thurin.id` works; `hkps://` is the one to put in your config. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
 
 ## 2. Fetch the signer's key
 

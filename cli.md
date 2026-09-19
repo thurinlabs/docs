@@ -141,6 +141,8 @@ A fetch by full fingerprint is self-authenticating: gpg checks that the key it r
 | Rung | Trusts | Command |
 |---|---|---|
 | `hkps://keys.thurin.id` | Thurin's instance not to withhold | `gpg --keyserver hkps://keys.thurin.id --recv-keys <fpr>` |
+
+Write the scheme. A bare `--keyserver keys.thurin.id` means plain HKP on port 11371 to gpg; that works too, but `hkps://` is the one to put in your config.
 | your own server | your own box | `thurin keyserver --host 0.0.0.0` behind TLS |
 | local | nobody; chain-fresh | `thurin keyserver` |
 
