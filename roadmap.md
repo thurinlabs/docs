@@ -46,7 +46,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 *What if the keyserver was Ethereum?*
 
 - [x] Attest, update a key, revoke, and check status from a terminal ([`npx @thurinlabs/thurin`](/cli))
-- [ ] Sign an authorization offline and submit it from any funded account
+- [x] Sign an authorization offline and submit it from any funded account (`--authorize`, `thurin submit`)
 - [x] Uses your existing gpg keyring; no keys leave your machine
 - [x] Sign in the terminal, publish from a hardware or phone wallet (`--no-key` hands a link to thurin.id)
 - [ ] Create a fresh identity address and PGP key in one guided run
@@ -57,7 +57,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 *What if you could prove it’s you from a terminal, with an address that has never held a coin?*
 
-- [ ] Sign an attestation without holding any ETH, in the browser or the CLI
+- [ ] Sign an attestation without holding any ETH, in the browser or the CLI (CLI done; browser next)
 - [ ] A submit page where anyone with a wallet can pay for someone else's attestation
 - [ ] An open-source relayer anyone can run to sponsor their community; Thurin runs one with a budget
 - [ ] A hosted keyserver shim at keys.thurin.id for gpg users without the CLI; anyone can run one

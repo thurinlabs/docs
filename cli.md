@@ -77,6 +77,20 @@ It signs, exports, and runs every check, then prints a `https://thurin.id/attest
 
 The signed statement and the key ride in the URL fragment, the part after `#`. Browsers keep fragments on the device and never send them in a request, so the payload goes from your terminal to your browser and through no server, not even Thurin's. Nothing on this machine needs a keystore, a password, or ETH. Links are made for one network; `--site <url>` points them at a local build for testing.
 
+## When your address has no ETH
+
+An identity address should never need to hold a coin. Sign a permission slip instead of a transaction:
+
+```bash
+thurin attest --authorize                  # the keystore signs typed data, which is free
+thurin attest --authorize --deadline 1d    # default 7d; 30m, 12h, 3d, 1w, or a unix timestamp
+thurin attest --authorize --out auth.json  # write a file instead of printing a link
+```
+
+The registry has a twin of every write (`attestFor`, `reattestFor`, `updateKeyFor`, `revokeFor`) that takes the owner's EIP-712 signature, so anyone can submit it and pay: a friend opening the link on thurin.id/attest with any wallet, or a funded keystore running `thurin submit <link or file>`. The claim lands under the owner's address. `reattest`, `update-key`, and `revoke` take `--authorize` too.
+
+Before handing the slip out, the CLI proves the signature recovers to your address and simulates the call against the registry, so a slip that would be rejected is never printed. The slip binds the network, the owner's current nonce, and a deadline. It can be used once, and an owner with no ETH cannot recall it before the deadline, so the deadline is printed every time. The link is the same JSON as the file, base64url-encoded after `#handoff=`; the typed data is rebuilt from its fields on both ends rather than carried, so what the page shows is what was signed.
+
 ## Keys
 
 ```bash
@@ -110,7 +124,8 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--account <name\|path>` | the keystore that pays |
 | `--password-file <path>` | keystore password for scripts |
 | `--no-key --owner <address\|ens>` | sign here, publish from a wallet elsewhere: prints a link instead of sending |
-| `--site <url>` | where `--no-key` links point; default `https://thurin.id` |
+| `--authorize [--deadline 7d] [--out f.json]` | no ETH here: sign a permission slip anyone can publish |
+| `--site <url>` | where `--no-key` and `--authorize` links point; default `https://thurin.id` |
 | `--json` | machine-readable output on stdout |
 | `--yes` | skip the confirmation before sending |
 
@@ -120,7 +135,7 @@ Exit codes: 0 ok · 1 a check failed or no verified claim · 2 usage · 3 chain 
 
 ## For agents
 
-An agent can run everything except two prompts: the gpg passphrase (pinentry) and the keystore password (or pass `--password-file`). With `--json` and the exit codes, `thurin status`, `thurin attest --yes`, and `thurin update-key --yes` are scriptable end to end. The [llms.txt](https://docs.thurin.id/llms.txt) reference describes both the browser flow and this one.
+An agent can run everything except two prompts: the gpg passphrase (pinentry) and the keystore password (or pass `--password-file`). With `--json` and the exit codes, `thurin status`, `thurin attest --yes`, and `thurin update-key --yes` are scriptable end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays (`thurin submit auth.json`). The [llms.txt](https://docs.thurin.id/llms.txt) reference describes both the browser flow and this one.
 
 ## Source
 
