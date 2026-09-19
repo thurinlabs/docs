@@ -9,6 +9,8 @@
   - [Farcaster](/guides/farcaster)
   - [GitHub](/guides/github)
   - [Mastodon](/guides/mastodon)
+- **Tools**
+- [Thurin CLI](/cli)
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)

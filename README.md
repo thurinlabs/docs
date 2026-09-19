@@ -12,6 +12,12 @@ Thurin builds open, decentralized identity infrastructure. On-chain identity cla
 - [Managing Notations](/guides/gnupg) — Add, list, and remove proof notations from your PGP key
 - Providers: [Codeberg](/guides/codeberg) · [DNS](/guides/dns) · [Farcaster](/guides/farcaster) · [GitHub](/guides/github) · [Mastodon](/guides/mastodon)
 
+## CLI
+
+The same thing from a terminal, scriptable: look up, attest, update, revoke.
+
+- [Thurin CLI](/cli) — `npm install -g @thurinlabs/thurin`
+
 ## SDK
 
 Embed Thurin identity data in your app with a single component.

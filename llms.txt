@@ -14,6 +14,7 @@ Key tools:
 - **thurin.id** (https://thurin.id) — Identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
 - **Attest** (https://thurin.id/attest) — Create on-chain identity claims by registering your PGP key.
 - **Identity Kit** (https://www.npmjs.com/package/@thurinlabs/identity-kit) — React SDK for embedding Thurin identity data.
+- **Thurin CLI** (https://www.npmjs.com/package/@thurinlabs/thurin) — `thurin`: look up, attest, update, replace, and revoke from a terminal. Every command has `--json` and exit codes, so an agent can drive it. Docs: https://docs.thurin.id/#/cli
 
 ---
 
@@ -112,7 +113,15 @@ Check by visiting: `https://thurin.id/eth/USER_ETH_ADDRESS`
 
 If the address shows no identity claims, the user needs to attest at thurin.id/attest.
 
-**On-chain attestation requires a browser with a wallet extension (MetaMask, etc.) and ETH for gas.** An AI agent cannot complete this step directly — guide the user through it.
+**Two ways to attest.** In the browser at thurin.id/attest (needs a wallet extension and ETH for gas; the walkthrough below), or from a terminal with the Thurin CLI, which an agent can run:
+
+```bash
+npm install -g @thurinlabs/thurin
+thurin wallet import identity          # or: thurin wallet create identity — a fresh address that the user funds
+thurin attest --key YOUR_FINGERPRINT --account identity
+```
+
+`thurin attest` exports the key (email names left out unless `--include-email`), signs `I control the Ethereum address: 0x…` through the user's gpg, verifies the signature the way thurin.id will, checks size limits and duplicate claims, shows what goes on-chain, and asks once before sending (`--yes` to skip; `--password-file` for the keystore password). The two prompts an agent cannot answer are the gpg passphrase and the keystore password. Then `thurin status ADDRESS --json` confirms the claim. Full reference: https://docs.thurin.id/#/cli
 
 **Attest walkthrough (https://thurin.id/attest):**
 
@@ -241,7 +250,7 @@ Thurin reads proofs from the key stored in the on-chain claim, not from a keyser
 gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
-The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. From a terminal the same step is `thurin update-key --account <keystore>` (add `--yes` and `--password-file` to script it).
 
 ### What Thurin Checks
 
@@ -310,7 +319,7 @@ Thurin reads proofs from the key stored in the on-chain claim, not from a keyser
 gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
-The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. From a terminal the same step is `thurin update-key --account <keystore>` (add `--yes` and `--password-file` to script it).
 
 ### What Thurin Checks
 
@@ -388,7 +397,7 @@ Thurin reads proofs from the key stored in the on-chain claim, not from a keyser
 gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
-The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. From a terminal the same step is `thurin update-key --account <keystore>` (add `--yes` and `--password-file` to script it).
 
 ### What Thurin Checks
 
@@ -466,7 +475,7 @@ Thurin reads proofs from the key stored in the on-chain claim, not from a keyser
 gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
-The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. From a terminal the same step is `thurin update-key --account <keystore>` (add `--yes` and `--password-file` to script it).
 
 ### Organisations: use a repository, not a gist
 
@@ -548,7 +557,7 @@ Thurin reads proofs from the key stored in the on-chain claim, not from a keyser
 gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
-The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. (An AI agent cannot do this step — it needs the user's wallet.)
+The page shows the published name and proof count; the user clicks **Update key** and confirms one transaction. No new signature is needed. From a terminal the same step is `thurin update-key --account <keystore>` (add `--yes` and `--password-file` to script it).
 
 ### What Thurin Checks
 
@@ -779,14 +788,15 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
 - Add a published name to the key (`gpg --quick-add-uid FINGERPRINT thurin`) and export it
-- Look up results on Thurin to verify everything worked
+- Look up results on Thurin to verify everything worked (`thurin status <identity> --json` from a terminal)
+- With the Thurin CLI installed: `thurin key list`, `thurin key add-name`, `thurin key export`, `thurin key fetch <identity>`, and — given a keystore — `thurin attest` / `thurin update-key` / `thurin revoke`
 
 ### What requires user interaction (guide them step by step)
 
 - **Passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
 - **GnuPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
 - **Key creation:** The `--quick-gen-key` one-liner works, but the user still needs to enter a passphrase.
-- **On-chain attestation:** Requires a browser with a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the five steps. You cannot sign transactions or interact with the wallet. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
+- **On-chain attestation, in the browser:** requires a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the five steps; you cannot sign transactions or interact with the wallet. **From a terminal:** you can run `thurin attest`, `thurin update-key`, and `thurin revoke` yourself if the user gives you a keystore (or `THURIN_PRIVATE_KEY`) and enters the gpg passphrase when pinentry asks. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
 - **Farcaster casts:** Requires an authenticated Farcaster client (Warpcast, etc.). Tell the user what to post.
 - **Mastodon profile:** Requires logging into the Mastodon instance. Tell the user what to add to their profile metadata fields.
 - **Codeberg repo:** Requires a Codeberg account. Tell the user what to put in the repo description.
