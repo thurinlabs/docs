@@ -41,13 +41,13 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] identity-kit 1.0 published
 - [x] thurin.id, share cards, and docs switched to v2
 
-## Thurin CLI <span class="status status-next">Next</span>
+## Thurin CLI <span class="status status-progress">In progress</span>
 
 *What if the keyserver was Ethereum?*
 
-- [ ] Attest, update a key, revoke, and check status from a terminal
+- [x] Attest, update a key, revoke, and check status from a terminal ([`npx @thurinlabs/thurin`](/cli))
 - [ ] Sign an authorization offline and submit it from any funded account
-- [ ] Uses your existing gpg keyring; no keys leave your machine
+- [x] Uses your existing gpg keyring; no keys leave your machine
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 - [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
