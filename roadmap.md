@@ -43,16 +43,12 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 ## Thurin CLI <span class="status status-shipped">Shipped</span>
 
-*What if the keyserver was Ethereum?*
+*What if your online identity worked from a terminal?*
 
 - [x] Attest, update a key, revoke, and check status from a terminal ([`npx @thurinlabs/thurin`](/cli))
-- [x] Sign an authorization offline and submit it from any funded account (`--authorize`, `thurin submit`)
 - [x] Uses your existing gpg keyring; no keys leave your machine
 - [x] Sign in the terminal, publish from a hardware or phone wallet (`--no-key` hands a link to thurin.id)
-- [ ] Create a fresh identity address and PGP key in one guided run
-- [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
-- [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
-- [ ] A hosted copy of that keyserver at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [x] Sign an authorization offline and submit it from any funded account (`--authorize`, `thurin submit`)
 
 ## Sponsored attestations <span class="status status-shipped">Shipped</span>
 
@@ -62,6 +58,15 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Anyone with a wallet can open the link and pay for someone else's attestation; the claim lands under the signer
 - [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`)
 - [x] Thurin's own relayer at relay.thurin.id: one claim per address, within a daily budget
+
+## The keyserver <span class="status status-designed">Designed</span>
+
+*What if the keyserver was Ethereum?*
+
+- [ ] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere
+- [ ] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [ ] Create a fresh identity address and PGP key in one guided run
+- [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 
 ## Encrypt to an identity <span class="status status-next">Next</span>
 
