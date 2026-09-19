@@ -65,6 +65,18 @@ thurin revoke          # mark the claim inactive; it stays in chain history
 
 Each takes an optional claim index (`thurin status <address>` lists them); with one active claim it is picked for you. Adding a proof to a key is one gpg line, see [Managing Notations](/guides/gnupg).
 
+## When your ETH is on a hardware wallet or a phone
+
+The CLI can't drive a Ledger or a phone wallet, but it can still do the PGP half:
+
+```bash
+thurin attest --no-key --owner yourname.eth      # or --owner 0x…
+```
+
+It signs, exports, and runs every check, then prints a `https://thurin.id/attest#handoff=…` link instead of sending. Open that link where the wallet is, connect the address you named, check the summary, and publish. `reattest` and `update-key` take `--no-key` too.
+
+The signed statement and the key ride in the URL fragment, the part after `#`. Browsers keep fragments on the device and never send them in a request, so the payload goes from your terminal to your browser and through no server, not even Thurin's. Nothing on this machine needs a keystore, a password, or ETH. Links are made for one network; `--site <url>` points them at a local build for testing.
+
 ## Keys
 
 ```bash
@@ -97,6 +109,8 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--rpc <url>` | your own node; the default is a public one |
 | `--account <name\|path>` | the keystore that pays |
 | `--password-file <path>` | keystore password for scripts |
+| `--no-key --owner <address\|ens>` | sign here, publish from a wallet elsewhere: prints a link instead of sending |
+| `--site <url>` | where `--no-key` links point; default `https://thurin.id` |
 | `--json` | machine-readable output on stdout |
 | `--yes` | skip the confirmation before sending |
 

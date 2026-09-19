@@ -121,7 +121,7 @@ thurin wallet import identity          # or: thurin wallet create identity — a
 thurin attest --key YOUR_FINGERPRINT --account identity
 ```
 
-`thurin attest` exports the key (email names left out unless `--include-email`), signs `I control the Ethereum address: 0x…` through the user's gpg, verifies the signature the way thurin.id will, checks size limits and duplicate claims, shows what goes on-chain, and asks once before sending (`--yes` to skip; `--password-file` for the keystore password). The two prompts an agent cannot answer are the gpg passphrase and the keystore password. Then `thurin status ADDRESS --json` confirms the claim. Full reference: https://docs.thurin.id/#/cli
+`thurin attest` exports the key (email names left out unless `--include-email`), signs `I control the Ethereum address: 0x…` through the user's gpg, verifies the signature the way thurin.id will, checks size limits and duplicate claims, shows what goes on-chain, and asks once before sending (`--yes` to skip; `--password-file` for the keystore password). The two prompts an agent cannot answer are the gpg passphrase and the keystore password. Then `thurin status ADDRESS --json` confirms the claim. If the user's ETH is on a hardware or phone wallet, `thurin attest --no-key --owner ADDRESS_OR_ENS` does the PGP half and prints a `https://thurin.id/attest#handoff=…` link; the user opens it where the wallet is and publishes (the payload is in the URL fragment, so it never reaches a server). Full reference: https://docs.thurin.id/#/cli
 
 **Attest walkthrough (https://thurin.id/attest):**
 
