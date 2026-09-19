@@ -15,7 +15,7 @@ gpgconf --kill dirmngr
 
 ## 2. Fetch the signer's key
 
-Every Thurin Labs commit is signed by the key `6E00 5391 1942 A889 426C 1866 E34D 9266 098F 7FE7`, claimed on-chain from thurinlabs.eth.
+Every Thurin Labs commit is signed by the key `6E00 5391 1942 A889 426C 1866 E34D 9266 098F 7FE7`, claimed on-chain from **ben.thurinlabs.eth**: a subname the company issued, pointing at an address only its holder controls. The org vouches for the name; the person holds the key.
 
 ```bash
 gpg --recv-keys 6E0053911942A889426C1866E34D9266098F7FE7
@@ -38,13 +38,13 @@ That signature was checked against a key that came from Ethereum, not from GitHu
 
 ## 4. Check who the key belongs to
 
-The key's on-chain claim carries proofs. [thurin.id/pgp/6E0053911942A889426C1866E34D9266098F7FE7](https://thurin.id/pgp/6E0053911942A889426C1866E34D9266098F7FE7) shows it is claimed from thurinlabs.eth and proves the GitHub account `benwoody`, the account the commits come from. From a terminal:
+The key's on-chain claim carries proofs. [thurin.id/ens/ben.thurinlabs.eth](https://thurin.id/ens/ben.thurinlabs.eth) shows the claim and its GitHub proof for `benwoody`, the account the commits come from. From a terminal:
 
 ```bash
-npx @thurinlabs/thurin status 6E0053911942A889426C1866E34D9266098F7FE7
+npx @thurinlabs/thurin status ben.thurinlabs.eth
 ```
 
-So the chain says: this address claims this key, and this key proves this GitHub account. The commit's signature closes the loop.
+So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it, and the address never held any ETH: the claim was published through Thurin's [relayer](/cli#run-a-relayer).
 
 ## Let gpg fetch keys on its own
 

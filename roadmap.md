@@ -59,16 +59,17 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] An open-source relayer anyone can run to sponsor their community (`thurin relay`)
 - [x] Thurin's own relayer at relay.thurin.id: one claim per address, within a daily budget
 
-## The keyserver <span class="status status-progress">In progress</span>
+## The keyserver <span class="status status-shipped">Shipped</span>
 
 *What if the keyserver was Ethereum?*
 
 - [x] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere (`thurin keyserver`)
 - [x] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [x] Verify signed commits and signed releases with only gpg, keys fetched from the chain ([guides](/guides/verify-commits))
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 
-## Encrypt to an identity <span class="status status-next">Next</span>
+## Encrypt to an identity <span class="status status-designed">Designed</span>
 
 *What if you could encrypt a file to a name?*
 
@@ -77,12 +78,14 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Identity page becomes tabs: Overview, Claims, Encrypt
 - [ ] "Accepts encrypted mail" shown on identities whose key supports it
 
-## Records <span class="status status-designed">Designed</span>
+## Records <span class="status status-next">Next</span>
 
-- [ ] Small typed values attached to a claim
+*What if the chain could name the release, not just the key?*
+
+- [ ] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed
+- [ ] Small typed values attached to a claim, set from the CLI
 - [ ] Private records: encrypted to yourself
 - [ ] Shared records: encrypted to the people you choose; the first use is a private email claim
-- [ ] Pointer records to larger content
 - [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [ ] Records tab on the identity page
 

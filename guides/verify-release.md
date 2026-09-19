@@ -39,23 +39,25 @@ sha256sum -c SHA256SUMS
 ```
 
 ```
-thurinlabs-thurin-0.5.0.tgz: OK
+thurinlabs-thurin-0.5.1.tgz: OK
 ```
 
 ## 4. Check it is what npm serves
 
 ```bash
-curl -sL https://registry.npmjs.org/@thurinlabs/thurin/-/thurin-0.5.0.tgz | sha256sum
+curl -sL https://registry.npmjs.org/@thurinlabs/thurin/-/thurin-0.5.1.tgz | sha256sum
 ```
 
 The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed.
 
 ## What this proves, and what it doesn't
 
-It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters to you, fetch from your own `thurin keyserver`.
+It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin's part is answering "whose key is this"; the rest is gpg and sha256sum.
+
+It does not yet prove this release is one Thurin Labs put out. Nothing on-chain names the release, so anyone holding the key could sign a tarball with this version number. The fix is a [pointer record](/roadmap) on the company claim naming each release's checksum file; then the chain names the key *and* the sums, and a reader trusts nothing but Ethereum and gpg. It does not prove the code is good either; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
 
 ## Releases
 
 | Version | Date | Signed by |
 |---|---|---|
-| [0.5.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.0) | 2026-09-19 | 08B9…EF7B |
+| [0.5.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.1) | 2026-09-19 | 08B9…EF7B |
