@@ -93,6 +93,23 @@ Before handing the slip out, the CLI proves the signature recovers to your addre
 
 With a relayer, there is no link at all: `thurin attest --authorize --relayer https://relay.example` posts the slip to a service that runs the same checks and pays. See [Run a relayer](#run-a-relayer).
 
+## Records: the chain names what you put out
+
+A record is a small value hung on a claim: one per claim per kind, up to 1 KB, set only by the owner (or by anyone with the owner's `setRecordFor` authorization), readable by anyone, clearable. Kinds are names like `thurin.pointer`, hashed.
+
+The first kind is the **pointer record**: the things an identity has put out, each named by the sha256 of its checksum file.
+
+```bash
+thurin record add-release "thurin-cli 0.6.0" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0
+thurin record get thurinlabs.eth pointer          # anyone; prints the list
+thurin record set <kind> <value | --file f>       # any kind, raw
+thurin record clear <kind>
+```
+
+What it changes: a signed release proves *this key signed it*. The pointer record adds *this identity named it*. A stolen key can still sign a tarball with the right version number, but it cannot make the chain name that tarball without a transaction from the owner's address, which everyone can see. See [Verify a release](/guides/verify-release), step 4.
+
+The record holds a list, newest first, and replaces itself on each release. About ten fit in the slot; older ones drop off but remain in chain history, since every set emits an event.
+
 ## Be a keyserver
 
 gpg has asked keyservers for keys the same way since the 1990s: one HTTP request, "give me the key with this fingerprint". Anything that answers it is a keyserver to gpg, and to git, mutt, and every package tool built on gpg. `thurin keyserver` answers it by reading the registry.

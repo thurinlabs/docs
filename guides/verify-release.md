@@ -42,22 +42,35 @@ sha256sum -c SHA256SUMS
 thurinlabs-thurin-0.5.1.tgz: OK
 ```
 
-## 4. Check it is what npm serves
+## 4. Check the chain names this release
 
 ```bash
-curl -sL https://registry.npmjs.org/@thurinlabs/thurin/-/thurin-0.5.1.tgz | sha256sum
+npx @thurinlabs/thurin record get thurinlabs.eth pointer
 ```
 
-The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed.
+```
+thurin-cli 0.6.0       2026-09-19  sha256 c7396e5f11fa94e8d95692342538e0403872355ef7b9364f61213adb0d1cebe6  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0
+```
+
+Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
+
+## 5. Check it is what npm serves
+
+```bash
+npm pack @thurinlabs/thurin@0.6.0 && sha256sum thurinlabs-thurin-0.6.0.tgz
+```
+
+The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
 
 ## What this proves, and what it doesn't
 
 It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
-It does not yet prove this release is one Thurin Labs put out. Nothing on-chain names the release, so anyone holding the key could sign a tarball with this version number. The fix is a [pointer record](/roadmap) on the company claim naming each release's checksum file; then the chain names the key *and* the sums, and a reader trusts nothing but Ethereum and gpg. It does not prove the code is good either; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. Both 0.5.1 and 0.6.0 are named on-chain; earlier versions predate the pointer record and stop at step 3. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
 
 ## Releases
 
 | Version | Date | Signed by |
 |---|---|---|
-| [0.5.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.1) | 2026-09-19 | 08B9…EF7B |
+| [0.6.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0) | 2026-09-19 | 08B9…EF7B, named on-chain |
+| [0.5.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.1) | 2026-09-19 | 08B9…EF7B, named on-chain |

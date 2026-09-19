@@ -78,12 +78,12 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Identity page becomes tabs: Overview, Claims, Encrypt
 - [ ] "Accepts encrypted mail" shown on identities whose key supports it
 
-## Records <span class="status status-next">Next</span>
+## Records <span class="status status-progress">In progress</span>
 
 *What if the chain could name the release, not just the key?*
 
-- [ ] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed
-- [ ] Small typed values attached to a claim, set from the CLI
+- [x] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed (`thurin record add-release`)
+- [x] Small typed values attached to a claim, set from the CLI (`thurin record set|get|clear`)
 - [ ] Private records: encrypted to yourself
 - [ ] Shared records: encrypted to the people you choose; the first use is a private email claim
 - [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
