@@ -93,6 +93,22 @@ Before handing the slip out, the CLI proves the signature recovers to your addre
 
 With a relayer, there is no link at all: `thurin attest --authorize --relayer https://relay.example` posts the slip to a service that runs the same checks and pays. See [Run a relayer](#run-a-relayer).
 
+## Sign the slip somewhere else
+
+`--authorize` has one seam: the EIP-712 signature. Thurin builds the typed data, hands it to a signer, gets 65 bytes back, and then runs its own recovery and simulation checks whoever signed. The keystore is one signer. To keep the Ethereum key on a card or an air-gapped machine, use another; Thurin learns nothing about the hardware. All three need `--owner`, since there is no keystore to derive the address from.
+
+```bash
+# a program: typed data as JSON on stdin, signature (hex, or JSON with a "signature" field) on stdout
+thurin attest --authorize --owner you.eth --signer "keycard-sign --slot 1"
+
+# a true air gap, two steps
+thurin attest --authorize --owner you.eth --sign-out slip.json   # runs every check, writes what needs signing, stops
+#   … sign the "typedData" in slip.json anywhere; only that object needs to cross the gap …
+thurin authorize finish slip.json --signature-file sig.txt       # or --signature 0x…; recovery, nonce, and simulation checks, then the link
+```
+
+The typed data is standard EIP-712 (`domain`, `types`, `primaryType`, `message`; numbers as decimal strings), so any wallet, HSM, or card tool that signs typed data can be the signer. `slip.json` also carries the unsigned hand-off, because the PGP signature inside it has a timestamp: the finishing step must reuse those exact bytes, not sign again. A signature that recovers to anyone but `--owner` is refused before it goes anywhere, and a slip made at an older nonce is refused too.
+
 ## Records: the chain names what you put out
 
 A record is a small value hung on a claim: one per claim per kind, up to 1 KB, set only by the owner (or by anyone with the owner's `setRecordFor` authorization), readable by anyone, clearable. Kinds are names like `thurin.pointer`, hashed.
@@ -222,6 +238,8 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--no-key --owner <address\|ens>` | sign here, publish from a wallet elsewhere: prints a link instead of sending |
 | `--authorize [--deadline 7d] [--out f.json]` | no ETH here: sign a permission slip anyone can publish |
 | `--relayer <url>` / `--no-relayer` | post an authorization to a relayer that pays, or force a link |
+| `--signer <cmd>` | sign the authorization with a program (typed data in, signature out); needs `--owner` |
+| `--sign-out <f>` … `thurin authorize finish <f> --signature[-file]` | the air-gapped two-step; needs `--owner` |
 | `--site <url>` | where `--no-key` and `--authorize` links point; default `https://thurin.id` |
 | `--json` | machine-readable output on stdout |
 | `--yes` | skip the confirmation before sending |
