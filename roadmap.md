@@ -49,6 +49,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Uses your existing gpg keyring; no keys leave your machine
 - [x] Sign in the terminal, publish from a hardware or phone wallet (`--no-key` hands a link to thurin.id)
 - [x] Sign an authorization offline and submit it from any funded account (`--authorize`, `thurin submit`)
+- [x] Keep the Ethereum key on a card or an air-gapped machine: hand the typed data to any signer, or write it to a file and finish later (`--signer`, `--sign-out`, `thurin authorize finish`)
 
 ## Sponsored attestations <span class="status status-shipped">Shipped</span>
 
