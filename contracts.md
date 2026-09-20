@@ -136,7 +136,7 @@ if (found) {
 From the command line:
 
 ```bash
-cast call 0x9302E02e2869e129aC8516fE5eFFd51EA3082c09 "attestationCount(address)(uint256)" 0xYourAddress --rpc-url https://ethereum-rpc.publicnode.com
+cast call 0x9302E02e2869e129aC8516fE5eFFd51EA3082c09 "attestationCount(address)(uint256)" 0xYourAddress --rpc-url https://ethereum.publicnode.com
 ```
 
 ## Trust model
