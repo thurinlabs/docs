@@ -70,14 +70,14 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 
-## Encrypt to an identity <span class="status status-designed">Designed</span>
+## ENS <span class="status status-shipped">Shipped</span>
 
-*What if you could encrypt a file to a name?*
+*What if your ENS profile could prove its key?*
 
-- [ ] Encrypt a message or file to any verified Thurin identity, in the browser
-- [ ] Same in the CLI, with signing
-- [ ] Identity page becomes tabs: Overview, Claims, Encrypt
-- [ ] "Accepts encrypted mail" shown on identities whose key supports it
+- [x] `id.thurin`: an ENS text record that points a name at the key its address claims; a hint any ENS viewer can show, checked from the chain ([guide](/guides/ens-record))
+- [x] The identity page checks the record against the claim: matches, not set, or points elsewhere, with a one-transaction "Set it"
+- [x] `thurin ens check` and `thurin ens link` in the CLI (0.8.0)
+- [ ] The Thurin icon on EFP profile cards, shown when a name carries the record (pull request open)
 
 ## Records <span class="status status-progress">In progress</span>
 
@@ -90,14 +90,14 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [ ] Records tab on the identity page
 
-## ENS <span class="status status-shipped">Shipped</span>
+## Encrypt to an identity <span class="status status-designed">Designed</span>
 
-*What if your ENS profile could prove its key?*
+*What if you could encrypt a file to a name?*
 
-- [x] `id.thurin`: an ENS text record that points a name at the key its address claims; a hint any ENS viewer can show, checked from the chain ([guide](/guides/ens-record))
-- [x] The identity page checks the record against the claim: matches, not set, or points elsewhere, with a one-transaction "Set it"
-- [x] `thurin ens check` and `thurin ens link` in the CLI (0.8.0)
-- [ ] "PGP key, verified on-chain" in ENS profile viewers, through identity-kit
+- [ ] Encrypt a message or file to any verified Thurin identity, in the browser
+- [ ] Same in the CLI, with signing
+- [ ] Identity page becomes tabs: Overview, Claims, Encrypt
+- [ ] "Accepts encrypted mail" shown on identities whose key supports it
 
 ## Web of trust <span class="status status-designed">Designed</span>
 
