@@ -10,6 +10,7 @@ Thurin builds open, decentralized identity infrastructure. On-chain identity cla
 
 - [Thurin Proofs](/guides/proofs) — Link your PGP key to your online accounts with verifiable, bidirectional proofs
 - [Managing Notations](/guides/gnupg) — Add, list, and remove proof notations from your PGP key
+- [ENS record](/guides/ens-record) — Point your ENS name at your claim with the `id.thurin` text record
 - Providers: [Codeberg](/guides/codeberg) · [DNS](/guides/dns) · [Farcaster](/guides/farcaster) · [GitHub](/guides/github) · [Mastodon](/guides/mastodon)
 
 ## CLI

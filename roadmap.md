@@ -90,6 +90,15 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [ ] Records tab on the identity page
 
+## ENS <span class="status status-progress">In progress</span>
+
+*What if your ENS profile could prove its key?*
+
+- [x] `id.thurin`: an ENS text record that points a name at the key its address claims; a hint any ENS viewer can show, checked from the chain ([guide](/guides/ens-record))
+- [ ] The identity page checks the record against the claim: matches, not set, or points elsewhere, with a one-transaction "Set it"
+- [ ] `thurin ens check` and `thurin ens link` in the CLI
+- [ ] "PGP key, verified on-chain" in ENS profile viewers, through identity-kit
+
 ## Web of trust <span class="status status-designed">Designed</span>
 
 *What if vouching for someone counted for something?*

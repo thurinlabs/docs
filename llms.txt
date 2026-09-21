@@ -748,6 +748,24 @@ Cards show the ENS avatar and name, address, on-chain attestation count, verifie
 
 ---
 
+## ENS record (`id.thurin`)
+
+An ENS text record that points a name at its Thurin claim. Key `id.thurin`, value = the fingerprint of the key claimed by the address the name resolves to (40 hex, uppercase, bare). A discovery hint for ENS viewers; the claim is the proof (the name owner set the address, the address signed the claim).
+
+Check and set:
+
+```bash
+thurin ens check <name>              # match | not set | points elsewhere; exit 1 unless it matches
+thurin ens link <name>               # setText on the name's resolver, from the keystore
+thurin ens link <name> --calldata    # print {to, data} for the wallet that manages the name
+```
+
+Or on thurin.id: open the name, connect the wallet that manages it, press "Set it". Or in the ENS app: add text record `id.thurin` with the fingerprint.
+
+Rules for agents: the account sending must be the name's owner or manager, not necessarily the wallet holding the claim. Look the resolver up at write time (ENSv2 resolvers are per account). Never claim the record adds trust; it only says where to look. Guide: https://docs.thurin.id/#/guides/ens-record
+
+---
+
 ## Verification Flow (How Thurin Works)
 
 When Thurin looks up an identity:

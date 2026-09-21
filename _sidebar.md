@@ -3,6 +3,7 @@
 - [Getting Started](/guides/getting-started)
 - [Thurin Proofs](/guides/proofs)
 - [Managing Notations](/guides/gnupg)
+- [ENS record](/guides/ens-record)
 - Providers
   - [Codeberg](/guides/codeberg)
   - [DNS](/guides/dns)

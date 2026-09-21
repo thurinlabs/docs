@@ -115,6 +115,14 @@ const { keyInfo, proofs, isLoading } = usePGPProofs(fingerprint, attestation.pgp
 // proofs[].provider, proofs[].status, proofs[].displayUrl
 ```
 
+### useEnsHint
+
+```tsx
+const { state, record, reason, isLoading } = useEnsHint('ben.thurinlabs.eth', identity.currentFingerprint)
+```
+
+The name's `id.thurin` text record against the key the registry verifies for its address: `match`, `unset`, or `mismatch` with a `reason`. See [Point your ENS name at your claim](/guides/ens-record).
+
 ## Core Utilities
 
 The verification and data logic is also exported as plain framework-agnostic functions — no React, no provider. This is the layer the `ThurinCard`, the hooks, and the thurin.id explorer all build on, so a "verified" result is consistent everywhere. Use it directly when you need the validated data behind your own UI.
@@ -150,6 +158,15 @@ import { fetchEFPGraph } from '@thurinlabs/identity-kit'
 
 const graph = await fetchEFPGraph(address)
 // → { followers, following, top8: string[], hasEfp } | null
+```
+
+### ENS record
+
+```ts
+import { fetchEnsHint, ensHintFor, ensHintWrite, ENS_HINT_KEY } from '@thurinlabs/identity-kit/core'
+
+const hint = await fetchEnsHint(publicClient, name, verifiedFingerprint)   // { state, record, fingerprint, expected, reason? }
+const call = ensHintWrite(name, verifiedFingerprint)                        // the setText call; look the resolver up at write time
 ```
 
 ### Contract constants

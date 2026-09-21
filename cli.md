@@ -126,6 +126,16 @@ What it changes: a signed release proves *this key signed it*. The pointer recor
 
 The record holds a list, newest first, and replaces itself on each release. About ten fit in the slot; older ones drop off but remain in chain history, since every set emits an event.
 
+## Point your ENS name at your claim
+
+```bash
+thurin ens check ben.thurinlabs.eth            # what the name's id.thurin record says: matches, not set, or points elsewhere
+thurin ens link ben.thurinlabs.eth             # set it from the keystore (the account must manage the name)
+thurin ens link ben.thurinlabs.eth --calldata  # print the transaction instead, for the wallet that manages the name
+```
+
+`id.thurin` is an ENS text record holding the fingerprint of the key claimed by the address the name resolves to. It is a pointer for ENS viewers; the claim is the proof. `status <name>` shows it too. `link` refuses a name with no verified claim, looks the resolver up at write time, and does nothing when the record already matches. See [the guide](/guides/ens-record).
+
 ## Be a keyserver
 
 gpg has asked keyservers for keys the same way since the 1990s: one HTTP request, "give me the key with this fingerprint". Anything that answers it is a keyserver to gpg, and to git, mutt, and every package tool built on gpg. `thurin keyserver` answers it by reading the registry.
@@ -241,6 +251,8 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--signer <cmd>` | sign the authorization with a program (typed data in, signature out); needs `--owner` |
 | `--sign-out <f>` … `thurin authorize finish <f> --signature[-file]` | the air-gapped two-step; needs `--owner` |
 | `--site <url>` | where `--no-key` and `--authorize` links point; default `https://thurin.id` |
+| `--calldata` | `ens link` only: print the transaction for another wallet instead of sending |
+| `--key <fpr>` | `attest`, `reattest`, `ens link`: which key |
 | `--json` | machine-readable output on stdout |
 | `--yes` | skip the confirmation before sending |
 
