@@ -67,6 +67,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere (`thurin keyserver`)
 - [x] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
 - [x] Verify signed commits and signed releases with only gpg, keys fetched from the chain ([guides](/guides/verify-commits))
+- [x] A front door: open the keyserver in a browser for the dirmngr line, a search box, and the classic listing with who claims each key on-chain
 - [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 

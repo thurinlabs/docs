@@ -140,6 +140,8 @@ thurin ens link ben.thurinlabs.eth --calldata  # print the transaction instead, 
 
 gpg has asked keyservers for keys the same way since the 1990s: one HTTP request, "give me the key with this fingerprint". Anything that answers it is a keyserver to gpg, and to git, mutt, and every package tool built on gpg. `thurin keyserver` answers it by reading the registry.
 
+Open the same address in a browser and it is a keyserver the way keyservers looked: a paragraph, the dirmngr line, a search box, and results as the classic `pub` / `uid` listing, plus the one line no keyserver could print, who claims the key on-chain, linking to the claim. No scripts, nothing stored. gpg never sees the page; it gets the machine-readable index it asks for.
+
 ```bash
 thurin keyserver                          # serves hkp://127.0.0.1:11371; --port, --host, --cache-seconds 60
 gpg --keyserver hkp://127.0.0.1:11371 --recv-keys 08B9374FDFBEC67EFFA24E669D3D86E35361EF7B
