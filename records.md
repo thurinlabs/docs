@@ -2,7 +2,7 @@
 
 A record is a small value hung on a claim: one per claim per kind, up to 1 KB, set only by the owner, readable by anyone, clearable. The registry looks a record up by kind and cannot list them, so readers ask for the kinds they know. This page is that list.
 
-An identity page shows its records under the **Records** tab: [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records). Set one from the CLI:
+An identity page shows its records under the **Records** tab: [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records). Connect the wallet that holds the claim and the same tab lets you set, edit, and clear the plain kinds from your own page. Or from the CLI:
 
 ```bash
 thurin record set canary "All keys under my control as of 2026-09-23."
