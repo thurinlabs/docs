@@ -17,6 +17,7 @@
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)
+- [Records](/records)
 - **Project**
 - [Roadmap](/roadmap)
 

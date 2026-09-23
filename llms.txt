@@ -748,6 +748,20 @@ Cards show the ENS avatar and name, address, on-chain attestation count, verifie
 
 ---
 
+## Records
+
+One small value per claim per kind (1 KB, owner-only, readable by anyone). Kinds Thurin defines: `thurin.railgun` (a 0zk address: pay me privately), `thurin.security` (where to send sensitive reports), `thurin.successor` (fingerprint of the next key), `thurin.affiliation` (`{"v":1,"with":"<address|name>","role":"…"}`), `thurin.canary` (a dated statement), `thurin.private` / `thurin.disclosure` (armored PGP messages, never decrypted by the page), `thurin.pointer` (the Thurin Labs release list). Anyone may use reverse-dot kinds of their own (`com.example.thing`).
+
+```bash
+thurin record set canary "All keys under my control as of 2026-09-23."   # `thurin.` is the default namespace
+thurin record get <identity> <kind>
+thurin record clear <kind>
+```
+
+Identity pages show records under /records (e.g. thurin.id/ens/thurinlabs.eth/records). A record proves only that the claim's owner set it. Reference: https://docs.thurin.id/#/records
+
+---
+
 ## ENS record (`id.thurin`)
 
 An ENS text record that points a name at its Thurin claim. Key `id.thurin`, value = the fingerprint of the key claimed by the address the name resolves to (40 hex, uppercase, bare). A discovery hint for ENS viewers; the claim is the proof (the name owner set the address, the address signed the claim).

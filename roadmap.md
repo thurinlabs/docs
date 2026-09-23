@@ -89,7 +89,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [ ] Private records: encrypted to yourself
 - [ ] Shared records: encrypted to the people you choose; the first use is a private email claim
 - [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
-- [ ] Records tab on the identity page
+- [x] Records tab on the identity page, and the [kinds](/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure
 
 ## Encrypt to an identity <span class="status status-designed">Designed</span>
 

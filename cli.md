@@ -124,6 +124,8 @@ thurin record set <kind> <value | --file f>       # any kind, raw
 thurin record clear <kind>
 ```
 
+The kinds Thurin defines, and what each one means, are on the [Records](/records) page; an identity page shows them under its Records tab.
+
 What it changes: a signed release proves *this key signed it*. The pointer record adds *this identity named it*. A stolen key can still sign a tarball with the right version number, but it cannot make the chain name that tarball without a transaction from the owner's address, which everyone can see. See [Verify a release](/guides/verify-release), step 4.
 
 The record holds a list, newest first, and replaces itself on each release. About ten fit in the slot; older ones drop off but remain in chain history, since every set emits an event.
