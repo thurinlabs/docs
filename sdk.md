@@ -142,7 +142,7 @@ const result = await verifyProof(proof, fingerprint, neynarApiKey) // neynarApiK
 ### PGP
 
 ```ts
-import { parsePgpKey, verifyAttestation, fetchKeyByFingerprint } from '@thurinlabs/identity-kit'
+import { parsePgpKey, verifyAttestation } from '@thurinlabs/identity-kit'
 
 const keyInfo = await parsePgpKey(armoredKey)
 // → { fingerprint, userIDs, algorithm, created, expires, notations, subkeys } | null

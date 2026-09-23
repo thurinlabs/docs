@@ -31,7 +31,7 @@ struct Attestation {
 }
 ```
 
-The signature and key live in SSTORE2 data contracts (the bytes are the contract's code), which is why every read below is a plain `eth_call` that any RPC can serve. Limits: key ≤ 8192 bytes, signature ≤ 4096 bytes, record ≤ 1024 bytes. One **active** claim per (address, fingerprint); history is append-only.
+The signature and key live in SSTORE2 data contracts (the bytes are the contract's code), which is why every read below is a plain `eth_call` that any RPC can serve. Limits: key ≤ 8192 bytes, signature ≤ 4096 bytes, record ≤ 1024 bytes. The key limit is deliberate: a claim carries a minimal key (the primary, its subkeys, the names you chose, and the proof notations), not a certificate bundle. Third-party certifications belong in the web of trust, not on the key, and a keyserver full of everyone's signatures on everyone is what got the old SKS pool poisoned. `gpg --export-options export-minimal` produces exactly what fits. Ed25519 keys never come close; an RSA-4096 key with several names and subkeys can, and the fix is to publish fewer of them, or an Ed25519 key. One **active** claim per (address, fingerprint); history is append-only.
 
 ## Writing
 

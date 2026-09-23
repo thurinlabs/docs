@@ -63,6 +63,8 @@ thurin reattest        # revoke the current claim and publish a new key in one t
 thurin revoke          # mark the claim inactive; it stays in chain history
 ```
 
+Rotating a subkey or extending expiry works the same way: change the key in gpg, then `thurin update-key`. The fingerprint stays, so the claim stays; only the published bytes change.
+
 Each takes an optional claim index (`thurin status <address>` lists them); with one active claim it is picked for you. Adding a proof to a key is one gpg line, see [Managing Notations](/guides/gnupg).
 
 ## When your ETH is on a hardware wallet or a phone
