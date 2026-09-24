@@ -16,7 +16,7 @@
   <meta name="twitter:description" content="Documentation for Thurin — Privacy-preserving identity verification. Proofs, smart contracts, and SDK reference.">
   <meta name="twitter:image" content="https://docs.thurin.id/images/og-image.png">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/docsify-themeable@0/dist/css/theme-simple-dark.min.css">
+  <link rel="stylesheet" href="vendor/theme-simple-dark.css">
   <style>
     :root {
       --theme-color: #7c9a3e;
@@ -103,14 +103,16 @@
       alias: {
         '/scry/(.*)': '/guides/$1',
       },
+      // No emoji images from GitHub's CDN, even if a page ever uses a :shortcode:.
+      noEmoji: true,
       requestHeaders: {
         'Cache-Control': 'no-cache',
       },
     }
   </script>
-  <script src="https://cdn.jsdelivr.net/npm/docsify@4/lib/docsify.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-typescript.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-solidity.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/prismjs@1/components/prism-bash.min.js"></script>
+  <script src="vendor/docsify.min.js"></script>
+  <script src="vendor/prism-typescript.min.js"></script>
+  <script src="vendor/prism-solidity.min.js"></script>
+  <script src="vendor/prism-bash.min.js"></script>
 </body>
 </html>
