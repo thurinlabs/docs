@@ -49,11 +49,13 @@ Your fingerprint is the 40-character hex string: `03E53D807CE38C130ED42ECECD3D0D
 
 ## 3. Give Your Key a Published Name
 
-Attesting stores your public key on-chain, permanently and publicly. By default Thurin publishes only the names on your key that contain **no email address**, so add one — any name you like; `thurin` is the suggestion:
+Attesting stores your public key on-chain, permanently and publicly. By default Thurin publishes only the names on your key that contain **no email address**, so add one: usually your name as it already appears on the key, or any name you'd rather be known by.
 
 ```bash
-gpg --quick-add-uid YOUR_FINGERPRINT thurin
+gpg --quick-add-uid YOUR_FINGERPRINT "Your Name"
 ```
+
+If you skip this, the attest page notices and shows this command with your name filled in.
 
 Proof notations go on this name (see [Managing Notations](/guides/gnupg)). Your email stays off-chain unless you choose "Include my email" when attesting. No keyserver upload is needed — Thurin never reads from one.
 
@@ -62,14 +64,10 @@ Proof notations go on this name (see [Managing Notations](/guides/gnupg)). Your 
 [thurin.id/attest](https://thurin.id/attest) creates an on-chain link between your PGP key and your Ethereum address. You'll need a browser wallet (MetaMask, etc.) and a little ETH for gas.
 
 1. **Connect your wallet** on [thurin.id/attest](https://thurin.id/attest) and open **New claim**
-2. **Choose what to publish** — *Keep my email off-chain* (recommended) or *Include my email*
-3. **Enter your PGP fingerprint** — paste your `gpg --fingerprint` output; the page picks out the 40-character fingerprint
-4. **Sign your ETH address with GnuPG** — the page shows the exact command:
-   ```bash
-   echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
-   ```
-   Paste the signed output, then paste your exported public key (the page shows that command too). It verifies the signature and shows exactly what will go on-chain: the published name, the proofs on it, and anything left out
-5. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, binds the address to your key
+2. **Sign with your PGP key** — copy the one command the page shows (your address is already in it), run it, and paste the whole output back. It signs `I control the Ethereum address: 0x…` and prints your public key. The page checks the signature and shows which key signed and exactly what will go on-chain: the published name, the proofs on it, and anything left out. Your email stays off unless you tick *Include my email*
+3. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, binds the address to your key
+
+**More than one key?** The command uses the first key gpg can sign with. If the page shows a different key than you meant, click *Use a different key* and type its fingerprint, email, or name; the command updates to use exactly that key.
 
 Afterwards your identity is at `https://thurin.id/eth/YOUR_ADDRESS`.
 

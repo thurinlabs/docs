@@ -97,10 +97,10 @@ Attesting stores the public key on-chain, permanently and publicly. By default T
 gpg --list-keys YOUR_FINGERPRINT
 ```
 
-**If every user ID contains an email address**, add one. Any name works; `thurin` is the suggestion:
+**If every user ID contains an email address**, add one. Suggest the name already on the key without the email (the attest page does); any name works:
 
 ```bash
-gpg --quick-add-uid YOUR_FINGERPRINT thurin
+gpg --quick-add-uid YOUR_FINGERPRINT "Their Name"
 ```
 
 Keyservers (keys.openpgp.org etc.) are unrelated to Thurin: nothing is fetched from them, so uploading there is neither required nor checked. Do not tell the user to wait for a keyserver verification email.
@@ -127,22 +127,17 @@ thurin attest --key YOUR_FINGERPRINT --account identity
 
 1. **Connect wallet** — Click the connect button. Browser-extension wallets (MetaMask, Rabby, and others) appear automatically; Rainbow, Base, MetaMask, Ledger, Trust, and Zerion are listed, and phone wallets connect by QR code.
 
-2. **Choose what to publish** — two cards: *Keep my email off-chain* (recommended; only non-email user IDs are published) or *Include my email* (the full key goes on-chain). The choice cannot be undone for that claim, though the key can later be updated.
-
-3. **Enter the PGP fingerprint** — Run `gpg --fingerprint YOUR_NAME` and paste the entire output into the attest page. It detects the 40-character fingerprint automatically; click "Use This Fingerprint". (There is no separate wallet signature — the Ethereum side of the claim is the publish transaction itself, sent from the connected wallet.)
-
-4. **Sign the ETH address with GnuPG and paste the key** — the page shows two commands:
+2. **Sign with the PGP key** — the page shows one command with the connected address already in it. It picks the first secret key gpg can sign with, clearsigns `I control the Ethereum address: 0x…` (address lowercased) with it, and exports the same key minimally:
    ```bash
-   echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign --armor -u YOUR_FINGERPRINT
-   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
+   F=$(gpg -K --with-colons | awk -F: '$1=="sec"&&$12~/S/{s=1}s&&$1=="fpr"{print $10;exit}'); echo "I control the Ethereum address: 0xYOUR_ADDRESS" | gpg --clearsign -u $F; gpg --export-options export-minimal,no-export-attributes --armor --export $F
    ```
-   Use the address exactly as the page shows it (lowercased). The user pastes the full signed output (including the `-----BEGIN PGP SIGNED MESSAGE-----` header) and the full public key block, then clicks verify. Thurin verifies the signature in the browser and shows a "Going on-chain" summary: the published name(s), anything left out because it contains an email, the number of proofs on the published name, and the size in KB (limit 8 KB; use `export-minimal`). If the proofs are only on a user ID being left out, the page warns — move the notations to the published name and re-export.
+   The user pastes the whole output (terminal prompts around it are ignored). Thurin verifies the signature in the browser, shows which key signed ("Signed by <fingerprint> · <name>"), and a "Going on-chain" summary: the published name(s), anything left out because it contains an email, the number of proofs on the published name, and the size in KB (limit 8 KB). *Include my email* is a checkbox under the summary, off by default. **Wrong key or several keys:** "Use a different key" takes a fingerprint, email, or name and the command becomes `gpg --clearsign -u "<that>"` plus the export of the same key (also the form to use in fish or Windows PowerShell). If every name on the key has an email, the page shows `gpg --quick-add-uid FINGERPRINT "Their Name"` with the name from the key filled in; run it, run the sign command again, and paste. If the proofs are only on a user ID being left out, the page warns: add the notations to the published name and paste again. (There is no separate wallet signature: the Ethereum side of the claim is the publish transaction itself, sent from the connected wallet.)
 
-5. **Publish to the registry** — Click "Publish to Registry". If the connected address holds no ETH, the page instead offers "Sign an authorization instead": the wallet signs EIP-712 typed data (free), and the page gives three ways to get it on-chain — "Have Thurin publish it" (Thurin's relayer pays, within its daily budget), a link any funded wallet can open and publish, or a JSON file for `thurin submit`. The claim lands under the signer's address either way. This sends `attest` to the PGPRegistry contract from the connected wallet; the user confirms and pays gas. If the wallet already has an active claim, the page offers to **replace** it: the old claim is revoked and the new one published in a single transaction (`reattest`). A key can have only one active claim per address, so re-attesting the same key requires replace. Afterwards the page offers "View identity", "View Transaction", "Copy Tx Hash", and "Copy JSON".
+3. **Publish to the registry** — Click "Publish to Registry". If the connected address holds no ETH, the page instead offers "Sign an authorization instead": the wallet signs EIP-712 typed data (free), and the page gives three ways to get it on-chain — "Have Thurin publish it" (Thurin's relayer pays, within its daily budget), a link any funded wallet can open and publish, or a JSON file for `thurin submit`. The claim lands under the signer's address either way. This sends `attest` to the PGPRegistry contract from the connected wallet; the user confirms and pays gas. If the wallet already has an active claim, the page offers to **replace** it: the old claim is revoked and the new one published in a single transaction (`reattest`). A key can have only one active claim per address, so re-attesting the same key requires replace. Afterwards the page offers "View identity", "View Transaction", and "Copy Tx Hash".
 
 After publishing, the identity claim is live. The user can verify by looking up their address on Thurin.
 
-**Updating proofs later:** the user does not re-attest to add proofs. On thurin.id/attest, under **Your claims**, the active claim has an **Update** button: paste a fresh export of the same key and confirm one transaction (`updateKey`). No new signature is needed. **Rotating to a new key:** run the attest flow with the new key and choose replace at the publish step. **Revoking:** the Revoke button on the claim.
+**Updating proofs later:** the user does not re-attest to add proofs. On thurin.id/attest, under **Your claims**, the active claim has an **Update** button: run the export command it shows, paste the output, and confirm one transaction (`updateKey`). No new signature is needed. **Rotating to a new key:** run the attest flow with the new key and choose replace at the publish step. **Revoking:** the Revoke button on the claim.
 
 ### 5. Ready for proofs
 
@@ -823,7 +818,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - Run `gpg --list-keys`, `gpg --fingerprint` to check existing keys
 - Create GitHub gists (via `gh` CLI or GitHub API)
 - Set DNS TXT records (via provider CLIs/APIs if the user has them configured)
-- Add a published name to the key (`gpg --quick-add-uid FINGERPRINT thurin`) and export it
+- Add a published name to the key (`gpg --quick-add-uid FINGERPRINT "Their Name"`, usually the name already on the key) and export it
 - Look up results on Thurin to verify everything worked (`thurin status <identity> --json` from a terminal)
 - With the Thurin CLI installed: `thurin key list`, `thurin key add-name`, `thurin key export`, `thurin key fetch <identity>`, and — given a keystore — `thurin attest` / `thurin update-key` / `thurin revoke`
 
@@ -832,7 +827,7 @@ If you are an AI agent helping a user set up Thurin identity claims and proofs:
 - **Passphrase entry:** GnuPG prompts for the passphrase in a pinentry dialog. You cannot type this for the user.
 - **GnuPG `--edit-key` flow:** This is interactive. Walk the user through each `gpg>` prompt one at a time. Do not try to script the full session as a single command.
 - **Key creation:** The `--quick-gen-key` one-liner works, but the user still needs to enter a passphrase.
-- **On-chain attestation, in the browser:** requires a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the five steps; you cannot sign transactions or interact with the wallet. **From a terminal:** you can run `thurin attest`, `thurin update-key`, and `thurin revoke` yourself if the user gives you a keystore (or `THURIN_PRIVATE_KEY`) and enters the gpg passphrase when pinentry asks. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
+- **On-chain attestation, in the browser:** requires a wallet extension (MetaMask, etc.) or a WalletConnect-paired mobile wallet. Walk the user through each of the three steps (connect, one command + one paste, publish); you cannot sign transactions or interact with the wallet. **From a terminal:** you can run `thurin attest`, `thurin update-key`, and `thurin revoke` yourself if the user gives you a keystore (or `THURIN_PRIVATE_KEY`) and enters the gpg passphrase when pinentry asks. Note: some privacy extensions (e.g. Privacy Badger) block WalletConnect's relay socket — if the QR pairing fails silently, suggest an injected wallet or disabling the extension for thurin.id.
 - **Farcaster casts:** Requires an authenticated Farcaster client (Warpcast, etc.). Tell the user what to post.
 - **Mastodon profile:** Requires logging into the Mastodon instance. Tell the user what to add to their profile metadata fields.
 - **Codeberg repo:** Requires a Codeberg account. Tell the user what to put in the repo description.
