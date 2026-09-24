@@ -88,6 +88,8 @@ const identity = useThurinIdentity('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
 
 Returns `ThurinIdentity` with `address`, `ensName`, `ensAvatar`, `claims`, `totalClaims`, `activeClaims`, `currentFingerprint`, `pgpKeyInfo`, `proofs`, `efp`, `isLoading`, `error`.
 
+`ensAvatar` is set only when loading it can't show the viewer to the name's owner: IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploaded avatars). An avatar on the owner's own server is left out, since loading it would hand that server every viewer's IP. The rule is `avatarUrl()` in `@thurinlabs/identity-kit/core` (1.3.3).
+
 ### useAttestations
 
 On-chain attestation data from the PGPRegistry contract.

@@ -706,7 +706,7 @@ Props: `ens` (string), `address` (string), `theme` ('thurin' | 'dark' | 'light')
 
 For custom UI, import hooks directly:
 
-- `useThurinIdentity(ensOrAddress)` — combined identity data (ENS, claims, proofs, EFP)
+- `useThurinIdentity(ensOrAddress)` — combined identity data (ENS, claims, proofs, EFP). `ensAvatar` is null unless the avatar is content-addressed or on euc.li, so a name's owner can't log viewers (`avatarUrl()` in core, 1.3.3)
 - `useAttestations(address)` — on-chain attestation count and details
 - `useEFPGraph(address)` — EFP follower/following counts and top 8
 - `usePGPProofs(fingerprint)` — PGP key info and verified social proofs
