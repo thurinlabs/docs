@@ -35,7 +35,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Replace a key in one transaction
 - [x] Authorized writes: sign offline, let anyone submit; the user still pays by default
 - [x] Same contract address on every network
-- [x] Independent security review, all findings fixed
+- [x] Security review before launch: a code review and an attack pass with 23 throwaway tests, every finding fixed (not a third-party audit; see [CROPS](/crops))
 - [x] Deployed and verified on Sepolia
 - [x] Deployed on Ethereum mainnet
 - [x] identity-kit 1.0 published
@@ -50,6 +50,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] Sign in the terminal, publish from a hardware or phone wallet (`--no-key` hands a link to thurin.id)
 - [x] Sign an authorization offline and submit it from any funded account (`--authorize`, `thurin submit`)
 - [x] Keep the Ethereum key on a card or an air-gapped machine: hand the typed data to any signer, or write it to a file and finish later (`--signer`, `--sign-out`, `thurin authorize finish`)
+- [x] Attest with a PGP key that isn't on this machine: print the line, sign it where the key is, bring two files back (`--statement`, `--key-file`)
 
 ## Sponsored attestations <span class="status status-shipped">Shipped</span>
 
@@ -80,24 +81,35 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] `thurin ens check` and `thurin ens link` in the CLI (0.8.0)
 - [ ] The Thurin icon on EFP profile cards, shown when a name carries the record (pull request open)
 
-## Records <span class="status status-progress">In progress</span>
+## Records <span class="status status-shipped">Shipped</span>
 
 *What if the chain could name the release, not just the key?*
 
 - [x] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed (`thurin record add-release`)
 - [x] Small typed values attached to a claim, set from the CLI (`thurin record set|get|clear`)
-- [ ] Private records: encrypted to yourself
-- [ ] Shared records: encrypted to the people you choose; the first use is a private email claim
-- [ ] A Railgun record: publish your 0zk address so people can pay you privately by name
+- [x] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [x] Records tab on the identity page, and the [kinds](/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure
 
-## Encrypt to an identity <span class="status status-designed">Designed</span>
+## Privacy and trust <span class="status status-shipped">Shipped</span>
+
+*What if the tools that check identities kept nothing about the people using them?*
+
+- [x] No accounts, cookies, analytics, or telemetry on any Thurin site
+- [x] Our servers keep no access logs; the keyserver and relay record no IP addresses
+- [x] Pick the Ethereum node your browser reads from (thurin.id footer); no API key ships in any page
+- [x] Profile pictures only from sources the name's owner can't watch
+- [x] Scripts and fonts served by our own sites, not pulled from CDNs
+- [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits
+- [x] A public [CROPS](/crops) review, checked against the live sites
+
+## Encrypt to an identity <span class="status status-next">Next</span>
 
 *What if you could encrypt a file to a name?*
 
 - [ ] Encrypt a message or file to any verified Thurin identity, in the browser
 - [ ] Same in the CLI, with signing
-- [ ] Identity page becomes tabs: Overview, Claims, Encrypt
+- [ ] An Encrypt tab on the identity page, next to Overview, Claims, and Records
+- [ ] A warning when an identity's key changed recently, before you encrypt to it
 - [ ] "Accepts encrypted mail" shown on identities whose key supports it
 
 ## Web of trust <span class="status status-designed">Designed</span>

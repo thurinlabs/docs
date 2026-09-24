@@ -30,6 +30,10 @@ Embed Thurin identity data in your app with a single component.
 
 What is shipping next, in order: [Roadmap](/roadmap).
 
+## CROPS
+
+Can someone block you, can you see all of it, what does it learn about you, and what happens if it fails: [Thurin's answers](/crops), checked against the live sites.
+
 #### AI Agents
 
 A consolidated reference for AI assistants helping users set up Thurin Proofs is available at [llms.txt](https://docs.thurin.id/llms.txt).

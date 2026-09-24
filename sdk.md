@@ -206,8 +206,12 @@ For static sites, Jekyll blogs, WordPress, or any HTML page — use the standalo
   data-rpc-url="https://your-node.example"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1/dist/embed.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1.3.6/dist/embed.global.js"
+        integrity="sha384-9VoCbEDZbSUIS3z9LkVgEpnLqk4hE8We5um0ztMDscyMylNST+66i1dSji23/zbI"
+        crossorigin="anonymous"></script>
 ```
+
+Pin an exact version with its `integrity` hash, as above: a new release then can't change your page until you choose to update, and a tampered file won't run. Better still, copy `dist/embed.global.js` to your own site (`npm pack @thurinlabs/identity-kit`, then take the file from `package/dist/`) and load it from there: no CDN sees your visitors. That's what thurinlabs.id does. `data-rpc-url` is optional; without it the card reads through the keyless `https://ethereum.publicnode.com`.
 
 | Attribute | Description |
 |-----------|-------------|

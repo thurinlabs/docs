@@ -20,6 +20,7 @@
 - [Records](/records)
 - **Project**
 - [Roadmap](/roadmap)
+- [CROPS](/crops)
 
 **Links**
 - [Thurin](https://thurin.id)

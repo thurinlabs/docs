@@ -21,11 +21,13 @@ thurin record clear canary
 | `thurin.successor` | my next key | the fingerprint of the key that replaces this one |
 | `thurin.affiliation` | I'm with this identity | `{"v":1,"with":"<address or name>","role":"…"}`; `role` optional |
 | `thurin.canary` | nothing compromised as of a date | a statement containing an ISO date, clearsigned or plain |
-| `thurin.private` | a box only I can read | an armored PGP message encrypted to your own key |
-| `thurin.disclosure` | a box for people I choose | an armored PGP message encrypted to their keys |
+| `thurin.private` | a box only I can read | an armored PGP message encrypted to your own key (read-only; see below) |
+| `thurin.disclosure` | a box for people I choose | an armored PGP message encrypted to their keys (read-only; see below) |
 | `thurin.pointer` | what Thurin Labs put out | the release list behind [Verify a release](/guides/verify-release); not shown on identity pages |
 
 Simple kinds are UTF-8 text. Structured kinds are small JSON with a `v`; readers ignore fields they do not know. Encrypted kinds are armored PGP messages, shown as "encrypted, N bytes" and never decrypted by the page.
+
+Thurin's tools read and show the encrypted kinds but don't help you write them, on purpose. A record stays in the chain's history forever, even after you clear it, so anything encrypted there can be read by whoever gets a recipient's key later, however many years later. A PGP message also names the keys it was encrypted to, which ties you to those people in public. Share secrets some other way.
 
 A value that does not fit its kind is still shown, as text, with the reason. Nothing is hidden and nothing is trusted.
 
