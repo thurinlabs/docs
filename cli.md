@@ -79,6 +79,18 @@ It signs, exports, and runs every check, then prints a `https://thurin.id/attest
 
 The signed statement and the key ride in the URL fragment, the part after `#`. Browsers keep fragments on the device and never send them in a request, so the payload goes from your terminal to your browser and through no server, not even Thurin's. Nothing on this machine needs a keystore, a password, or ETH. Links are made for one network; `--site <url>` points them at a local build for testing.
 
+## When the PGP key is not on this machine
+
+A key on a card behind a QR link, on an air-gapped box, or on a phone can still attest from here. The CLI prints the line, you sign it wherever the key is, and bring two files back:
+
+```bash
+thurin attest --statement --owner you.eth > line.txt     # exactly what to sign, nothing else on stdout
+#   … wherever the key is: gpg --clearsign line.txt > signed.asc, and export the public key to pub.asc …
+thurin attest --key-file pub.asc --statement-file signed.asc --owner you.eth --no-key
+```
+
+The statement must be clearsigned, not detached. From there the run is the ordinary one: the same email strip, size, fingerprint, and signature checks the browser and the registry make, then the same exits: send from the keystore, `--no-key` for a link, or `--authorize` with `--signer` or `--sign-out` so the Ethereum half can be signed on the card as well. `reattest` takes both files; `update-key` takes `--key-file` alone, since it signs nothing new. Nothing here is specific to any card or curve: two files in, every check runs, the CLI never learns what signed them.
+
 ## When your address has no ETH
 
 An identity address should never need to hold a coin. Sign a permission slip instead of a transaction:
@@ -256,6 +268,8 @@ Keystores are the format `cast`, geth, and every wallet import. `--password-file
 | `--relayer <url>` / `--no-relayer` | post an authorization to a relayer that pays, or force a link |
 | `--signer <cmd>` | sign the authorization with a program (typed data in, signature out); needs `--owner` |
 | `--sign-out <f>` … `thurin authorize finish <f> --signature[-file]` | the air-gapped two-step; needs `--owner` |
+| `--statement --owner <a>` | `attest`: print the line to sign for a key that is not here |
+| `--key-file <f>` / `--statement-file <f>` | `attest`, `reattest` (`update-key`: key only): the public key and the clearsigned line, signed elsewhere; skips gpg |
 | `--site <url>` | where `--no-key` and `--authorize` links point; default `https://thurin.id` |
 | `--calldata` | `ens link` only: print the transaction for another wallet instead of sending |
 | `--key <fpr>` | `attest`, `reattest`, `ens link`: which key |

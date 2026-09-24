@@ -179,7 +179,7 @@ import { REGISTRY_ADDRESS, REGISTRY_ABI, CONTRACT_DEPLOY_BLOCK } from '@thurinla
 
 ## Key algorithms
 
-Any curve openpgp.js can compute is verified: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js rejects secp256k1 by default because RFC 9580 does not list it; identity-kit turns that off. A secp256k1 PGP key doubles as an Ethereum key (the address is derived from the same public point), so anything that can sign with the PGP key can sign Ethereum transactions. Hold one if you like; do not fund its derived address.
+Any curve openpgp.js can compute is verified: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js rejects secp256k1 by default because RFC 9580 does not list it; identity-kit removes secp256k1 from that list and leaves the rest of it alone (1.3.2). A secp256k1 PGP key doubles as an Ethereum key (the address is derived from the same public point), so anything that can sign with the PGP key can sign Ethereum transactions. Hold one if you like; do not fund its derived address.
 
 ## Themes
 
