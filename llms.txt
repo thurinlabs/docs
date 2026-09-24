@@ -710,6 +710,10 @@ For custom UI, import hooks directly:
 
 `IdentityKitProvider` accepts optional `rpcUrl`, `farcasterHub`, and `baseUrl` (and `neynarApiKey`, not needed since 1.3.7). Auto-detects existing `WagmiProvider`. Zero config works out of the box: public RPC, public Farcaster node, no keys.
 
+### Why a claim doesn't count (kit 1.4.0)
+
+`verifyAttestation` returns `kind`: `verified`, `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`, with `at` (the date) and, when verified, `expiresAt`. `claimCheckText(v)` gives the badge label, a visitor sentence, and an owner-only fix; `expiresSoon(v)` flags a key expiring within 30 days; `claimFates(claims)` tells a revoked claim from one replaced by a newer claim. thurin.id and `thurin status` use the same words. An expired key can be extended (`gpg --quick-set-expire`) and the claim updated with no new signature; a revoked key needs a new claim.
+
 ### Theming
 
 Three built-in themes: `thurin`, `dark`, `light`. Styles scoped under `[data-thurin-theme]` with `thurin-` prefixed classes. Import `@thurinlabs/identity-kit/styles` when using ThurinCard.

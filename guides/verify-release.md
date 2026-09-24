@@ -72,6 +72,7 @@ With step 4, it also proves the release is one Thurin Labs put out: the chain na
 
 | Version | Date | Signed by |
 |---|---|---|
+| [0.12.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.12.0) | 2026-09-24 | 08B9…EF7B, named on-chain |
 | [0.11.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.1) | 2026-09-24 | 08B9…EF7B, named on-chain |
 | [0.11.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.0) | 2026-09-24 | 08B9…EF7B, named on-chain |
 | [0.10.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.10.0) | 2026-09-23 | 08B9…EF7B, named on-chain |

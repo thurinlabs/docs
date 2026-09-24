@@ -37,10 +37,12 @@ efp         2 followers · 0 following
 
 Takes an ENS name, an address, a PGP fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `--json` prints the same as data.
 
+If a claim doesn't count, the line says why instead of ✓: `✗ key expired 2029-03-05`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ not supported (DSA 2048)`, or `✗ doesn't verify`. A verified key that expires within 30 days gets `⚠ key expires in 12 days (2027-03-06)`, and the history marks a claim replaced by `reattest` as `replaced → #N`. When a keystore on this machine holds the address, each line adds the fix (for example `: extend it (gpg --quick-set-expire), then thurin update-key`). `--json` carries the same as `verification.kind`, `verification.at`, and each claim's `fate` (0.12.0).
+
 ## Attest in three commands
 
 ```bash
-thurin key create thurin         # Ed25519 key with a published name and no email; gpg asks for a passphrase
+thurin key create "Your Name"         # Ed25519 key with a published name and no email; gpg asks for a passphrase
 thurin wallet create identity    # a fresh address; 12 words shown once, keystore saved encrypted
 thurin attest                    # sign, check everything, publish
 ```

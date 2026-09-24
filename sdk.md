@@ -151,8 +151,27 @@ const keyInfo = await parsePgpKey(armoredKey)
 // → { fingerprint, userIDs, algorithm, created, expires, notations, subkeys } | null
 
 const verification = await verifyAttestation({ pgpPublicKey, pgpSignature, fingerprint, ethAddress })
-// → { verified: boolean, reason?: string }
+// → { verified, kind, at?, revocationReason?, signingKey?, expiresAt?, algorithm?, reason? }
 ```
+
+`kind` (1.4.0) says why a claim does or doesn't count: `verified`, `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Key validity is judged now, the way gpg does. `at` is the date that goes with it; a verified result carries `expiresAt`, the earlier of the key's and the signing subkey's expiry. Show people words, not `reason` (the library's own message):
+
+```ts
+import { claimCheckText, expiresSoon, expiresSoonText, claimFates, claimFateText } from '@thurinlabs/identity-kit'
+
+claimCheckText(verification)
+// → { label: 'key expired',
+//     sentence: 'The key on this claim expired on Mar 5, 2029, so the claim no longer counts.',
+//     fix: 'Extend the key, then Update key. No new signature needed.' }   // show `fix` to the owner only
+
+const soon = expiresSoon(verification)            // within 30 days → { days, at } | null
+if (soon) expiresSoonText(soon)                   // 'Key expires in 12 days (Mar 6, 2027).'
+
+claimFates(attestations).get(1)                   // { state: 'replaced', at, by: 2 } | { state: 'revoked', at } | { state: 'active' }
+claimFateText({ state: 'replaced', at, by: 2 })   // 'Replaced by claim #2 on Oct 3, 2026.'
+```
+
+A claim revoked the same second a newer claim of the same owner was created was replaced by it (`reattest` does both in one transaction). Dates are in UTC so every viewer sees the same day.
 
 ### EFP
 
