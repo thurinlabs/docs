@@ -50,7 +50,7 @@ Displays: ENS avatar, name, address, on-chain attestation count, verified proof 
 Wrap your app (or just the part using identity-kit) in `IdentityKitProvider`. If you already have a `WagmiProvider`, the SDK detects it and uses your existing config.
 
 ```tsx
-// Zero config — uses public RPC, no Farcaster verification
+// Zero config — public RPC, public Farcaster node, no keys
 <IdentityKitProvider>
   <ThurinCard ens="vitalik.eth" />
 </IdentityKitProvider>
@@ -58,7 +58,7 @@ Wrap your app (or just the part using identity-kit) in `IdentityKitProvider`. If
 // With options
 <IdentityKitProvider
   rpcUrl="https://your-node.example"
-  neynarApiKey="YOUR_NEYNAR_KEY"
+  farcasterHub="https://your-farcaster-node.example"
   baseUrl="https://thurin.id"
 >
   <ThurinCard ens="vitalik.eth" />
@@ -68,7 +68,8 @@ Wrap your app (or just the part using identity-kit) in `IdentityKitProvider`. If
 | Prop | Type | Default | Description |
 |------|------|---------|-------------|
 | `rpcUrl` | `string` | publicnode | Ethereum RPC endpoint |
-| `neynarApiKey` | `string` | — | Neynar API key for Farcaster proof verification |
+| `farcasterHub` | `string` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs: any node with the standard HTTP API (`/v1/castsByFid`). The default is Quilibrium's public Hypersnap node, no key. |
+| `neynarApiKey` | `string` | — | Optional. Read Farcaster through Neynar with your own key instead. Not needed since 1.3.7. |
 | `network` | `'mainnet' \| 'sepolia' \| 'local'` | `'mainnet'` | Which chain to read the registry on |
 | `baseUrl` | `string` | `https://thurin.id` | Base URL for "View on Thurin" links |
 
@@ -135,7 +136,7 @@ The verification and data logic is also exported as plain framework-agnostic fun
 import { identifyProof, verifyProof, displayUrl, proofHref } from '@thurinlabs/identity-kit'
 
 const proof = identifyProof({ name: 'proof@thurin.id', value: 'https://gist.github.com/alice/abc123' })
-const result = await verifyProof(proof, fingerprint, neynarApiKey) // neynarApiKey only for Farcaster
+const result = await verifyProof(proof, fingerprint) // optional 3rd arg: { farcasterHub }
 // → { verified: boolean, reason?: string }
 ```
 
@@ -206,8 +207,8 @@ For static sites, Jekyll blogs, WordPress, or any HTML page — use the standalo
   data-rpc-url="https://your-node.example"
 ></div>
 
-<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1.3.6/dist/embed.global.js"
-        integrity="sha384-9VoCbEDZbSUIS3z9LkVgEpnLqk4hE8We5um0ztMDscyMylNST+66i1dSji23/zbI"
+<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1.3.7/dist/embed.global.js"
+        integrity="sha384-roJOjv0QvBIPKs+NoZXI3wb9181cLvzymEDTS0yszbBo9yP78rECAtAEUj53E+bu"
         crossorigin="anonymous"></script>
 ```
 
@@ -218,7 +219,8 @@ Pin an exact version with its `integrity` hash, as above: a new release then can
 | `data-thurin-card` | ENS name or ETH address to look up (required) |
 | `data-theme` | `thurin`, `dark`, or `light` (default: `thurin`). Change it after render and the card follows, so a page with a theme switch can keep the card in step. |
 | `data-rpc-url` | Optional. Any Ethereum RPC — the card reads the v2 registry with plain calls, so the keyless public default works. |
-| `data-neynar-key` | Optional. A [Neynar](https://neynar.com) API key, only to verify Farcaster proofs. Without it, Farcaster shows as unverified. |
+| `data-farcaster-hub` | Optional. The Farcaster node used for Farcaster proofs (default: Quilibrium's public keyless node, `https://haatz.quilibrium.com`). |
+| `data-neynar-key` | Optional. Read Farcaster through Neynar with your own key instead. Not needed since 1.3.7. |
 | `data-base-url` | Optional. Where the card's "View on Thurin" link points (default `https://thurin.id`). A page served from ENS can pass its own name so the link stays on ENS. |
 
 The card talks directly to Ethereum and each proof platform — no intermediary, no keyserver. Cards render automatically on page load and for dynamically added elements.

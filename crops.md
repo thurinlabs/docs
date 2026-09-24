@@ -29,7 +29,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 - Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
-**Not done yet:** nobody outside has rebuilt a site from its tag and matched the published content exactly. That check is on our list.
+**Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](/guides/verify-deploy).
 
 ## Privacy
 
@@ -43,7 +43,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **Who else your browser talks to** when it checks an identity, and what they see (your IP, and which identity you looked at):
 - An Ethereum node. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
-- The platforms behind each proof: GitHub, Codeberg, Cloudflare's DNS resolver, Neynar for Farcaster, and the Mastodon server named in a proof.
+- The platforms behind each proof: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node for Farcaster (Quilibrium's, by default), and the Mastodon server named in a proof.
 - EFP, for follower counts.
 - For profile pictures: euc.li (where the ENS app stores avatars) or an IPFS gateway (Filebase, with Pinata's as a fallback). Never a server the name's owner picked, so they can't see who looks.
 

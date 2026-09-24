@@ -14,6 +14,7 @@
 - [Thurin CLI](/cli)
 - [Verify commits](/guides/verify-commits)
 - [Verify a release](/guides/verify-release)
+- [Verify a deploy](/guides/verify-deploy)
 - **SDK**
 - [Identity Kit](/sdk)
 - [PGPRegistry Contract](/contracts)

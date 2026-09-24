@@ -62,4 +62,4 @@ The username links to your Farcaster profile. The `[proof]` link opens the speci
 ## Notes
 
 - Your proof cast is permanent on the Farcaster protocol — even if deleted from a client, it may persist on hubs
-- Verification is client-side via the [Neynar](https://neynar.com) Farcaster Hub API
+- Verification is client-side: the cast is read from a public Farcaster node, by default Quilibrium's keyless Hypersnap node (`haatz.quilibrium.com`). No API key needed.
