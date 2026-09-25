@@ -115,7 +115,7 @@ There's no Thurin server in the middle. [thurin.id](https://thurin.id), the CLI,
 
 - [thurin.id](https://thurin.id): look anyone up, or [add your key](https://thurin.id/attest)
 - [Thurin CLI](https://docs.thurin.id/#/cli): the same from a terminal, plus a keyserver gpg can use
-- [Identity Kit](https://docs.thurin.id/#/sdk): the library, a React card, and an embed for any page
+- [Identity Kit](https://docs.thurin.id/#/sdk): the library, for your own app or script, and a card image for your README
 - [PGPRegistry](https://docs.thurin.id/#/contracts): the contract, usable on its own from Etherscan or `cast`
 
 ### More
@@ -502,7 +502,7 @@ proof@thurin.id=https://farcaster.xyz/USERNAME/0xCASTHASH
 
 ### What's checked
 
-The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](https://docs.thurin.id/#/sdk) and the embed can use another. Don't delete the cast: it's checked on every lookup.
+The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](https://docs.thurin.id/#/sdk) can use another. Don't delete the cast: it's checked on every lookup.
 
 On thurin.id it shows as `✓ FARCASTER @username`, linking to your profile and to the cast.
 
@@ -702,7 +702,7 @@ Before handing it out, the CLI checks that the permission recovers to your addre
 ```bash
 thurin attest --statement --owner you.eth    # prints the line to sign
 # where the key is:
-#   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode > s.sig
+#   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode --disable-signer-uid > s.sig
 #   gpg --export <fingerprint> > pub.gpg
 thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
 ```
@@ -1111,21 +1111,20 @@ npm install @thurinlabs/identity-kit
 
 Two entry points:
 
-- `@thurinlabs/identity-kit`: React components and hooks, plus everything in core. Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`.
+- `@thurinlabs/identity-kit`: React hooks and their provider, plus everything in core. Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`.
 - `@thurinlabs/identity-kit/core`: plain functions, no React. For Node, workers, and your own UI.
 
-### The card
+### React
+
+Wrap your app in the provider, then use the hooks below:
 
 ```tsx
-import { IdentityKitProvider, ThurinCard } from '@thurinlabs/identity-kit'
-import '@thurinlabs/identity-kit/styles'
+import { IdentityKitProvider, useThurinIdentity } from '@thurinlabs/identity-kit'
 
 <IdentityKitProvider>
-  <ThurinCard ens="thurinlabs.eth" theme="thurin" />
+  <YourApp />
 </IdentityKitProvider>
 ```
-
-`ThurinCard` takes `ens` or `address`, and `theme`: `thurin` (the dark Thurin look, default), `dark`, or `light`. Thurin's own sites have two modes and give the card `thurin` in dark mode, `light` in light mode. It shows the avatar, name, address, claim count, verified proofs, EFP followers, and a link to the identity page.
 
 `IdentityKitProvider` works with no props: it reads through a keyless public node. If your app already has a `WagmiProvider`, it uses that.
 
@@ -1136,7 +1135,6 @@ import '@thurinlabs/identity-kit/styles'
 | `registryAddress` | `REGISTRY_ADDRESS` | override, e.g. a local deploy that landed elsewhere |
 | `farcasterHub` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs (keyless) |
 | `neynarApiKey` | none | read Farcaster through Neynar instead |
-| `baseUrl` | `https://thurin.id` | where "View on Thurin.id" links point |
 
 ### Hooks
 
@@ -1257,33 +1255,9 @@ See [Point your ENS name at your claim](https://docs.thurin.id/#/guides/ens-reco
 
 Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
 
-### Embed, no React
+### README card
 
-For any HTML page. Everything runs in the visitor's browser, straight to Ethereum and each proof's platform.
-
-```html
-<div data-thurin-card="thurinlabs.eth" data-theme="thurin"></div>
-<script src="identity-kit-embed.js"></script>
-```
-
-Serve the script yourself: `npm pack @thurinlabs/identity-kit`, then copy `package/dist/embed.global.js` to your site. No CDN sees your visitors, and a new release can't change your page until you copy it. thurinlabs.id does this. If you load it from a CDN, pin the exact version and add its `integrity` hash (`openssl dgst -sha384 -binary embed.global.js | openssl base64 -A`).
-
-| Attribute | |
-|---|---|
-| `data-thurin-card` | ENS name or address (required) |
-| `data-theme` | `thurin` (default), `dark`, or `light`. Change it later and the card follows. |
-| `data-rpc-url` | any Ethereum RPC; default the keyless `https://ethereum.publicnode.com` |
-| `data-network` | `mainnet` (default), `sepolia`, or `local` |
-| `data-registry-address` | override the registry address |
-| `data-farcaster-hub` | Farcaster node (default Quilibrium's keyless node) |
-| `data-neynar-key` | read Farcaster through Neynar instead |
-| `data-base-url` | where "View on Thurin.id" points (default `https://thurin.id`); a page served from ENS can pass its own name |
-
-Cards render on load and for elements added later.
-
-### Card image, no JavaScript
-
-For READMEs, forums, and email: a 640×200 PNG, rendered on request and cached for an hour.
+A 640×200 image of an identity: its name, address, PGP key, and whether the key is verified on Ethereum (or why not). thurin.id's server draws it and caches it for an hour, so showing it makes the reader's browser ask no one else; on GitHub, its image proxy fetches it, so not even thurin.id sees your readers.
 
 ```
 https://thurin.id/card/ens/:name
@@ -1291,13 +1265,20 @@ https://thurin.id/card/eth/:address
 https://thurin.id/card/pgp/:fingerprint
 ```
 
-A trailing `.png` is accepted:
+A trailing `.png` is accepted, and `?theme=light` draws it in light colours. In a README, this picks the one that matches the reader's GitHub theme:
 
-```markdown
-[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)
+```html
+<a href="https://thurin.id/ens/thurinlabs.eth">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://thurin.id/card/ens/thurinlabs.eth.png">
+    <img alt="thurinlabs.eth on Thurin.id" src="https://thurin.id/card/ens/thurinlabs.eth.png?theme=light">
+  </picture>
+</a>
 ```
 
-The 1200×630 share cards at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` are what social sites fetch when a thurin.id link is shared.
+Or just one: `[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)`.
+
+The same content at 1200×630, at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint`, is what social sites show when a thurin.id link is shared.
 
 ---
 
@@ -1347,7 +1328,7 @@ cast call $REG "clearsigned(address,uint256)(string)" $OWNER 0 | jq -r . | gpg -
 To make a claim, sign the statement and export the key, then send both as bytes:
 
 ```bash
-cast call $REG "statementFor(address)(string)" $ME | jq -r . | tr -d '\n' | gpg --detach-sign --textmode > claim.sig
+cast call $REG "statementFor(address)(string)" $ME | jq -r . | tr -d '\n' | gpg --detach-sign --textmode --disable-signer-uid > claim.sig
 gpg --export-options export-minimal --export YOUR_FINGERPRINT > claim.key
 cast send $REG "attest(bytes,bytes,bytes)" 0xYOUR_FINGERPRINT \
   0x$(xxd -p claim.sig | tr -d '\n') 0x$(xxd -p claim.key | tr -d '\n') --account you
@@ -1544,8 +1525,8 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] On-chain identity claims at [thurin.id/attest](https://thurin.id/attest): an Ethereum address bound to a PGP key, published from the address itself
 - [x] Thurin Proofs: GitHub, Codeberg, DNS, Farcaster, and Mastodon, verified in the browser against the platform itself
 - [x] EFP social graph on every identity page
-- [x] identity-kit: the library behind the explorer, with the `ThurinCard` component, hooks, and a one-line embed
-- [x] Share cards for READMEs, forums, and link previews
+- [x] identity-kit: the library behind the explorer, with React hooks
+- [x] A card image for READMEs, and link previews, drawn by thurin.id's server
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 

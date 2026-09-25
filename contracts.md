@@ -42,7 +42,7 @@ cast call $REG "clearsigned(address,uint256)(string)" $OWNER 0 | jq -r . | gpg -
 To make a claim, sign the statement and export the key, then send both as bytes:
 
 ```bash
-cast call $REG "statementFor(address)(string)" $ME | jq -r . | tr -d '\n' | gpg --detach-sign --textmode > claim.sig
+cast call $REG "statementFor(address)(string)" $ME | jq -r . | tr -d '\n' | gpg --detach-sign --textmode --disable-signer-uid > claim.sig
 gpg --export-options export-minimal --export YOUR_FINGERPRINT > claim.key
 cast send $REG "attest(bytes,bytes,bytes)" 0xYOUR_FINGERPRINT \
   0x$(xxd -p claim.sig | tr -d '\n') 0x$(xxd -p claim.key | tr -d '\n') --account you

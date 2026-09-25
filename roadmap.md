@@ -20,8 +20,8 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] On-chain identity claims at [thurin.id/attest](https://thurin.id/attest): an Ethereum address bound to a PGP key, published from the address itself
 - [x] Thurin Proofs: GitHub, Codeberg, DNS, Farcaster, and Mastodon, verified in the browser against the platform itself
 - [x] EFP social graph on every identity page
-- [x] identity-kit: the library behind the explorer, with the `ThurinCard` component, hooks, and a one-line embed
-- [x] Share cards for READMEs, forums, and link previews
+- [x] identity-kit: the library behind the explorer, with React hooks
+- [x] A card image for READMEs, and link previews, drawn by thurin.id's server
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 

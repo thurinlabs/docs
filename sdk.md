@@ -10,21 +10,20 @@ npm install @thurinlabs/identity-kit
 
 Two entry points:
 
-- `@thurinlabs/identity-kit`: React components and hooks, plus everything in core. Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`.
+- `@thurinlabs/identity-kit`: React hooks and their provider, plus everything in core. Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`.
 - `@thurinlabs/identity-kit/core`: plain functions, no React. For Node, workers, and your own UI.
 
-## The card
+## React
+
+Wrap your app in the provider, then use the hooks below:
 
 ```tsx
-import { IdentityKitProvider, ThurinCard } from '@thurinlabs/identity-kit'
-import '@thurinlabs/identity-kit/styles'
+import { IdentityKitProvider, useThurinIdentity } from '@thurinlabs/identity-kit'
 
 <IdentityKitProvider>
-  <ThurinCard ens="thurinlabs.eth" theme="thurin" />
+  <YourApp />
 </IdentityKitProvider>
 ```
-
-`ThurinCard` takes `ens` or `address`, and `theme`: `thurin` (the dark Thurin look, default), `dark`, or `light`. Thurin's own sites have two modes and give the card `thurin` in dark mode, `light` in light mode. It shows the avatar, name, address, claim count, verified proofs, EFP followers, and a link to the identity page.
 
 `IdentityKitProvider` works with no props: it reads through a keyless public node. If your app already has a `WagmiProvider`, it uses that.
 
@@ -35,7 +34,6 @@ import '@thurinlabs/identity-kit/styles'
 | `registryAddress` | `REGISTRY_ADDRESS` | override, e.g. a local deploy that landed elsewhere |
 | `farcasterHub` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs (keyless) |
 | `neynarApiKey` | none | read Farcaster through Neynar instead |
-| `baseUrl` | `https://thurin.id` | where "View on Thurin.id" links point |
 
 ## Hooks
 
@@ -156,33 +154,9 @@ See [Point your ENS name at your claim](/guides/ens-record).
 
 Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
 
-## Embed, no React
+## README card
 
-For any HTML page. Everything runs in the visitor's browser, straight to Ethereum and each proof's platform.
-
-```html
-<div data-thurin-card="thurinlabs.eth" data-theme="thurin"></div>
-<script src="identity-kit-embed.js"></script>
-```
-
-Serve the script yourself: `npm pack @thurinlabs/identity-kit`, then copy `package/dist/embed.global.js` to your site. No CDN sees your visitors, and a new release can't change your page until you copy it. thurinlabs.id does this. If you load it from a CDN, pin the exact version and add its `integrity` hash (`openssl dgst -sha384 -binary embed.global.js | openssl base64 -A`).
-
-| Attribute | |
-|---|---|
-| `data-thurin-card` | ENS name or address (required) |
-| `data-theme` | `thurin` (default), `dark`, or `light`. Change it later and the card follows. |
-| `data-rpc-url` | any Ethereum RPC; default the keyless `https://ethereum.publicnode.com` |
-| `data-network` | `mainnet` (default), `sepolia`, or `local` |
-| `data-registry-address` | override the registry address |
-| `data-farcaster-hub` | Farcaster node (default Quilibrium's keyless node) |
-| `data-neynar-key` | read Farcaster through Neynar instead |
-| `data-base-url` | where "View on Thurin.id" points (default `https://thurin.id`); a page served from ENS can pass its own name |
-
-Cards render on load and for elements added later.
-
-## Card image, no JavaScript
-
-For READMEs, forums, and email: a 640×200 PNG, rendered on request and cached for an hour.
+A 640×200 image of an identity: its name, address, PGP key, and whether the key is verified on Ethereum (or why not). thurin.id's server draws it and caches it for an hour, so showing it makes the reader's browser ask no one else; on GitHub, its image proxy fetches it, so not even thurin.id sees your readers.
 
 ```
 https://thurin.id/card/ens/:name
@@ -190,10 +164,17 @@ https://thurin.id/card/eth/:address
 https://thurin.id/card/pgp/:fingerprint
 ```
 
-A trailing `.png` is accepted:
+A trailing `.png` is accepted, and `?theme=light` draws it in light colours. In a README, this picks the one that matches the reader's GitHub theme:
 
-```markdown
-[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)
+```html
+<a href="https://thurin.id/ens/thurinlabs.eth">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://thurin.id/card/ens/thurinlabs.eth.png">
+    <img alt="thurinlabs.eth on Thurin.id" src="https://thurin.id/card/ens/thurinlabs.eth.png?theme=light">
+  </picture>
+</a>
 ```
 
-The 1200×630 share cards at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` are what social sites fetch when a thurin.id link is shared.
+Or just one: `[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)`.
+
+The same content at 1200×630, at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint`, is what social sites show when a thurin.id link is shared.

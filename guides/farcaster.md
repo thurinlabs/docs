@@ -28,6 +28,6 @@ proof@thurin.id=https://farcaster.xyz/USERNAME/0xCASTHASH
 
 ## What's checked
 
-The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](/sdk) and the embed can use another. Don't delete the cast: it's checked on every lookup.
+The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](/sdk) can use another. Don't delete the cast: it's checked on every lookup.
 
 On thurin.id it shows as `✓ FARCASTER @username`, linking to your profile and to the cast.

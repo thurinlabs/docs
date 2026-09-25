@@ -111,7 +111,7 @@ Before handing it out, the CLI checks that the permission recovers to your addre
 ```bash
 thurin attest --statement --owner you.eth    # prints the line to sign
 # where the key is:
-#   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode > s.sig
+#   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode --disable-signer-uid > s.sig
 #   gpg --export <fingerprint> > pub.gpg
 thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
 ```

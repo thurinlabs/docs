@@ -16,7 +16,7 @@ There's no Thurin server in the middle. [thurin.id](https://thurin.id), the CLI,
 
 - [thurin.id](https://thurin.id): look anyone up, or [add your key](https://thurin.id/attest)
 - [Thurin CLI](/cli): the same from a terminal, plus a keyserver gpg can use
-- [Identity Kit](/sdk): the library, a React card, and an embed for any page
+- [Identity Kit](/sdk): the library, for your own app or script, and a card image for your README
 - [PGPRegistry](/contracts): the contract, usable on its own from Etherscan or `cast`
 
 ## More
