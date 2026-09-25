@@ -32,7 +32,7 @@ The same line everywhere:
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-The fingerprint is the full 40 hex characters, any case. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
+The fingerprint is the full one, any case: 40 hex characters for most keys, 64 for newer (v6) keys. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
 
 ## How a proof is checked
 

@@ -24,7 +24,7 @@ Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases a
 ```
 $ thurin status alice.eth
 alice.eth  0x8f3C…2b41  (mainnet)
-claims      2 total · 1 active · 1 replaced
+claims      2 total · 1 active · 1 ended
 fingerprint 9C4E27B1D0835F6A2E71C4B8093DA5F16B2E8C47  ✓ verified
 name        Alice
 key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-03-01
@@ -33,7 +33,7 @@ proofs
   ✓ DNS        alice.example
 history
   #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
-  #1 9C4E27B1…6B2E8C47 2026-10-01 verified
+  #1 9C4E27B1…6B2E8C47 2026-10-01 active verified
 ```
 
 It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
@@ -91,7 +91,7 @@ Three ways, depending on where things are.
 thurin attest --no-key --owner you.eth
 ```
 
-It signs and checks everything, then prints a `https://thurin.id/attest#handoff=…` link. Open it where the wallet is, connect the address you named, and publish. The key and signature ride in the part after `#`, which browsers never send to a server. `reattest` and `update-key` take `--no-key` too.
+It signs and checks everything, then prints a `https://thurin.id/attest#handoff=…` link. Open it where the wallet is, connect the address you named, and publish. The key and signature ride in the part after `#`, which browsers never send to a server. `reattest`, `update-key`, and `record set` take `--no-key` too.
 
 **No ETH anywhere:** sign a permission instead of a transaction. It's free.
 
@@ -210,7 +210,7 @@ What it won't do:
 
 - **Search by email.** Emails are off-chain unless the owner chose otherwise.
 - **Take uploads.** There's no `/pks/add`; a key is published by its owner attesting, so nobody can flood yours with signatures.
-- **Keep anything.** No database; chain reads and a 60-second cache.
+- **Keep anything.** No database; chain reads and a short cache (60 seconds by default; keys.thurin.id uses 120).
 
 A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what it asked for, so a keyserver can withhold a key but never swap one. Pick how much you trust that:
 
@@ -239,7 +239,7 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
-`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), or 503 (budget spent). `GET /` shows the network, payer, budget, and today's spend.
+`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), 503 (budget spent), or 500 (anything else). `GET /` shows the network, payer, budget, and today's spend.
 
 People use it with `--relayer <url>` or `"relayer"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
 

@@ -52,12 +52,13 @@ Check each step before doing it; skip what's already done.
 
 ### Checking your work
 
-`thurin status <identity> --json` returns `identities[0]` with `current` (the newest active claim, or null),
-`claims` (all of them), and `proofs`. Exit code 0 means a verified claim, 1 means no verified claim,
-2 means bad usage, and 3 means a chain or network error.
+`thurin status <identity> --json` returns `identities[0]` with `current` (the newest active claim that
+verifies, or null), `claims` (all of them), and `proofs`. Exit code 0 means a verified claim, 1 means no
+verified claim, 2 means bad usage, and 3 means a chain or network error.
 
-- `current.verification.kind`: `verified`, or why the claim doesn't count: `expired`, `signing-key-expired`,
-  `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`.
+- `claims[].verification.kind`: `verified`, or why that claim doesn't count: `expired`, `signing-key-expired`,
+  `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. When
+  `current` is null, the newest active claim's `kind` says what to fix.
 - `proofs[]`: `{provider, display, url, verified, reason}`. A proof with `verified: false` has a `reason`;
   fix what it says and look again (proofs are checked live, nothing is cached).
 - `claims[].state`: `active`, `revoked`, or `replaced`; `revokeReason` says why it ended.
@@ -226,7 +227,7 @@ The same line everywhere:
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-The fingerprint is the full 40 hex characters, any case. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
+The fingerprint is the full one, any case: 40 hex characters for most keys, 64 for newer (v6) keys. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
 
 ### How a proof is checked
 
@@ -617,7 +618,7 @@ Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases a
 ```
 $ thurin status alice.eth
 alice.eth  0x8f3C…2b41  (mainnet)
-claims      2 total · 1 active · 1 replaced
+claims      2 total · 1 active · 1 ended
 fingerprint 9C4E27B1D0835F6A2E71C4B8093DA5F16B2E8C47  ✓ verified
 name        Alice
 key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-03-01
@@ -626,7 +627,7 @@ proofs
   ✓ DNS        alice.example
 history
   #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
-  #1 9C4E27B1…6B2E8C47 2026-10-01 verified
+  #1 9C4E27B1…6B2E8C47 2026-10-01 active verified
 ```
 
 It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
@@ -684,7 +685,7 @@ Three ways, depending on where things are.
 thurin attest --no-key --owner you.eth
 ```
 
-It signs and checks everything, then prints a `https://thurin.id/attest#handoff=…` link. Open it where the wallet is, connect the address you named, and publish. The key and signature ride in the part after `#`, which browsers never send to a server. `reattest` and `update-key` take `--no-key` too.
+It signs and checks everything, then prints a `https://thurin.id/attest#handoff=…` link. Open it where the wallet is, connect the address you named, and publish. The key and signature ride in the part after `#`, which browsers never send to a server. `reattest`, `update-key`, and `record set` take `--no-key` too.
 
 **No ETH anywhere:** sign a permission instead of a transaction. It's free.
 
@@ -803,7 +804,7 @@ What it won't do:
 
 - **Search by email.** Emails are off-chain unless the owner chose otherwise.
 - **Take uploads.** There's no `/pks/add`; a key is published by its owner attesting, so nobody can flood yours with signatures.
-- **Keep anything.** No database; chain reads and a 60-second cache.
+- **Keep anything.** No database; chain reads and a short cache (60 seconds by default; keys.thurin.id uses 120).
 
 A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what it asked for, so a keyserver can withhold a key but never swap one. Pick how much you trust that:
 
@@ -832,7 +833,7 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
-`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), or 503 (budget spent). `GET /` shows the network, payer, budget, and today's spend.
+`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), 503 (budget spent), or 500 (anything else). `GET /` shows the network, payer, budget, and today's spend.
 
 People use it with `--relayer <url>` or `"relayer"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
 
@@ -1591,7 +1592,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] A release list on any claim naming each release's checksum file, so a signed release is one its publisher put out, not only one its key signed (`thurin record add-release`); Thurin Labs names every CLI release this way
 - [x] Small values attached to a claim, set from the page or the CLI (`thurin record set|get|clear`)
 - [x] A Railgun record: publish your 0zk address so people can pay you privately by name
-- [x] Records tab on the identity page, and the [kinds](https://docs.thurin.id/#/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure
+- [x] Records tab on the identity page, and the [kinds](https://docs.thurin.id/#/records) it shows: private payments, security contact, successor key, affiliation, canary, releases, private, disclosure
 
 ### Privacy and trust <span class="status status-shipped">Shipped</span>
 
@@ -1649,7 +1650,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ### Censorship resistance
 
-**Who could block you:** our web server, our relay, our keyserver, and the public Ethereum node the site reads from by default. All of them run on one server we operate.
+**Who could block you:** our web server, our relay, and our keyserver, all on one server we operate, and the public Ethereum node the site reads from by default (PublicNode, a third party).
 
 **Why it doesn't matter much:** none of them is needed. The [registry](https://docs.thurin.id/#/contracts) at `0xFa6956c11163517249f8A67F5560a4406B519451` takes claims from anyone, directly, and you can use it with only Etherscan or `cast` and gpg.
 
@@ -1665,7 +1666,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **You can check that what runs is what's published:**
 - Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
-- Every CLI release since 0.5.1 is signed with the company key, and from 0.13.0 on it is also named on-chain from thurinlabs.eth ([how to check](https://docs.thurin.id/#/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.0 on, on the current registry ([how to check](https://docs.thurin.id/#/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
 **Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](https://docs.thurin.id/#/guides/verify-deploy).

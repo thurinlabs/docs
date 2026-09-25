@@ -10,7 +10,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ## Censorship resistance
 
-**Who could block you:** our web server, our relay, our keyserver, and the public Ethereum node the site reads from by default. All of them run on one server we operate.
+**Who could block you:** our web server, our relay, and our keyserver, all on one server we operate, and the public Ethereum node the site reads from by default (PublicNode, a third party).
 
 **Why it doesn't matter much:** none of them is needed. The [registry](/contracts) at `0xFa6956c11163517249f8A67F5560a4406B519451` takes claims from anyone, directly, and you can use it with only Etherscan or `cast` and gpg.
 
@@ -26,7 +26,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **You can check that what runs is what's published:**
 - Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
-- Every CLI release since 0.5.1 is signed with the company key, and from 0.13.0 on it is also named on-chain from thurinlabs.eth ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.0 on, on the current registry ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
 **Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](/guides/verify-deploy).

@@ -60,12 +60,13 @@ Check each step before doing it; skip what's already done.
 
 ### Checking your work
 
-`thurin status <identity> --json` returns `identities[0]` with `current` (the newest active claim, or null),
-`claims` (all of them), and `proofs`. Exit code 0 means a verified claim, 1 means no verified claim,
-2 means bad usage, and 3 means a chain or network error.
+`thurin status <identity> --json` returns `identities[0]` with `current` (the newest active claim that
+verifies, or null), `claims` (all of them), and `proofs`. Exit code 0 means a verified claim, 1 means no
+verified claim, 2 means bad usage, and 3 means a chain or network error.
 
-- `current.verification.kind`: `verified`, or why the claim doesn't count: `expired`, `signing-key-expired`,
-  `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`.
+- `claims[].verification.kind`: `verified`, or why that claim doesn't count: `expired`, `signing-key-expired`,
+  `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. When
+  `current` is null, the newest active claim's `kind` says what to fix.
 - `proofs[]`: `{{provider, display, url, verified, reason}}`. A proof with `verified: false` has a `reason`;
   fix what it says and look again (proofs are checked live, nothing is cached).
 - `claims[].state`: `active`, `revoked`, or `replaced`; `revokeReason` says why it ended.
