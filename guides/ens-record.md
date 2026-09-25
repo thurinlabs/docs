@@ -64,7 +64,7 @@ There is no ENS-level verification. What a profile shows as verified is a choice
 ## From code
 
 ```ts
-import { fetchEnsHint, ensHintWrite } from '@thurinlabs/identity-kit/core'
+import { fetchEnsHint, ensHintWrite } from '@thurinlabs/identity-kit'
 
 const hint = await fetchEnsHint(publicClient, 'ben.thurinlabs.eth', verifiedFingerprint)
 // hint.state: 'match' | 'unset' | 'mismatch'; hint.reason on a mismatch
@@ -73,4 +73,3 @@ const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)   // setTex
 const resolver = await publicClient.getEnsResolver({ name: call.name })
 ```
 
-React: `useEnsHint(name, fingerprint)` returns the same, live.
