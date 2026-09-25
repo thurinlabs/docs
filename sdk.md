@@ -124,7 +124,7 @@ for (const r of pickRecords(names, values)) {
 }
 ```
 
-`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parsePointer`, `addPointer`, and `renderPointer` handle `thurin.pointer`, the release list. The kinds: [Records](/records).
+`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parseReleases`, `addRelease`, and `renderReleases` handle `thurin.releases`, a release list. The kinds: [Records](/records).
 
 ## Writing by permission
 

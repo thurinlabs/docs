@@ -146,11 +146,11 @@ thurin record clear security
 
 A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when the address has more than one active.
 
-`record add-release` names a release on-chain by its checksum file:
+`record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
 
 ```bash
 thurin record add-release "thurin-cli 0.13.0" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.0
-thurin record get thurinlabs.eth pointer
+thurin record get thurinlabs.eth releases
 ```
 
 A signature proves *this key signed it*. The record adds *this identity named it*, which a stolen PGP key can't do without a transaction everyone can see. The list keeps the newest releases that fit in 1 KB; older ones drop off but stay in the chain's history. See [Verify a release](/guides/verify-release).
@@ -237,7 +237,7 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--budget` | 0.01 | ETH it may spend per rolling 24 hours |
 | `--free-attests` | 1 | `attest` calls it pays for per address; other writes are only rate-limited |
 | `--per-hour` | 10 | requests per caller |
-| `--max-gas` | 3000000 | per transaction |
+| `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
 `POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), or 503 (budget spent). `GET /` shows the network, payer, budget, and today's spend.

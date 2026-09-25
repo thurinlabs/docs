@@ -39,25 +39,27 @@ sha256sum -c SHA256SUMS
 ```
 
 ```
-thurinlabs-thurin-0.5.1.tgz: OK
+thurinlabs-thurin-0.13.0.tgz: OK
 ```
 
 ## 4. Check the chain names this release
 
 ```bash
-npx @thurinlabs/thurin record get thurinlabs.eth pointer
+npx @thurinlabs/thurin record get thurinlabs.eth releases
 ```
 
 ```
-thurin-cli 0.6.0       2026-09-19  sha256 c7396e5f11fa94e8d95692342538e0403872355ef7b9364f61213adb0d1cebe6  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0
+thurin-cli 0.13.0      2026-10-01  sha256 <64 hex characters>  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.0
 ```
+
+The same list is on the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records).
 
 Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
 
 ## 5. Check it is what npm serves
 
 ```bash
-npm pack @thurinlabs/thurin@0.6.0 && sha256sum thurinlabs-thurin-0.6.0.tgz
+npm pack @thurinlabs/thurin@0.13.0 && sha256sum thurinlabs-thurin-0.13.0.tgz
 ```
 
 The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
@@ -67,6 +69,10 @@ The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thuri
 It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
 With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. Releases from 0.13.0 on are named on the current registry. Older ones were named on the registry before it, which Thurin's tools no longer read, so for those, stop at step 3. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+
+## Anyone's releases
+
+Steps 2 to 4 work for any project that names its releases on its claim: fetch its key, then `thurin record get <its name> releases`. To name your own, sign your `SHA256SUMS` and run `thurin record add-release "<name> <version>" SHA256SUMS --url <release page>` from the address that holds your claim ([CLI](/cli?id=records)).
 
 ## Releases
 

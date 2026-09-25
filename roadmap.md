@@ -82,7 +82,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 
 *What if the chain could name the release, not just the key?*
 
-- [x] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed (`thurin record add-release`)
+- [x] A release list on any claim naming each release's checksum file, so a signed release is one its publisher put out, not just one its key signed (`thurin record add-release`); Thurin Labs names every CLI release this way
 - [x] Small values attached to a claim, set from the page or the CLI (`thurin record set|get|clear`)
 - [x] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [x] Records tab on the identity page, and the [kinds](/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure

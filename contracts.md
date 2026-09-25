@@ -6,8 +6,8 @@ Everything on this page works from Etherscan or `cast` with gpg. thurin.id, the 
 
 | | |
 |---|---|
-| Address | `0xFa6956c11163517249f8A67F5560a4406B519451`, the same on Ethereum mainnet and Sepolia |
-| Etherscan | [mainnet](https://etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) · [Sepolia](https://sepolia.etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) |
+| Address | `0xFa6956c11163517249f8A67F5560a4406B519451` |
+| Networks | Ethereum mainnet and Sepolia, same address ([Etherscan](https://etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) · [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451)) |
 | Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry), verified on Etherscan and Sourcify |
 | Build | solc 0.8.37, via-IR, optimizer 200, EVM cancun; deployed through the CREATE2 deployer with salt `keccak256("thurin.pgp-registry.v3")` |
 

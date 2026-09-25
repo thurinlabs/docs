@@ -651,11 +651,11 @@ thurin record clear security
 
 A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when the address has more than one active.
 
-`record add-release` names a release on-chain by its checksum file:
+`record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
 
 ```bash
 thurin record add-release "thurin-cli 0.13.0" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.0
-thurin record get thurinlabs.eth pointer
+thurin record get thurinlabs.eth releases
 ```
 
 A signature proves *this key signed it*. The record adds *this identity named it*, which a stolen PGP key can't do without a transaction everyone can see. The list keeps the newest releases that fit in 1 KB; older ones drop off but stay in the chain's history. See [Verify a release](https://docs.thurin.id/#/guides/verify-release).
@@ -742,7 +742,7 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--budget` | 0.01 | ETH it may spend per rolling 24 hours |
 | `--free-attests` | 1 | `attest` calls it pays for per address; other writes are only rate-limited |
 | `--per-hour` | 10 | requests per caller |
-| `--max-gas` | 3000000 | per transaction |
+| `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
 `POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), or 503 (budget spent). `GET /` shows the network, payer, budget, and today's spend.
@@ -891,25 +891,27 @@ sha256sum -c SHA256SUMS
 ```
 
 ```
-thurinlabs-thurin-0.5.1.tgz: OK
+thurinlabs-thurin-0.13.0.tgz: OK
 ```
 
 ### 4. Check the chain names this release
 
 ```bash
-npx @thurinlabs/thurin record get thurinlabs.eth pointer
+npx @thurinlabs/thurin record get thurinlabs.eth releases
 ```
 
 ```
-thurin-cli 0.6.0       2026-09-19  sha256 c7396e5f11fa94e8d95692342538e0403872355ef7b9364f61213adb0d1cebe6  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0
+thurin-cli 0.13.0      2026-10-01  sha256 <64 hex characters>  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.0
 ```
+
+The same list is on the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records).
 
 Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
 
 ### 5. Check it is what npm serves
 
 ```bash
-npm pack @thurinlabs/thurin@0.6.0 && sha256sum thurinlabs-thurin-0.6.0.tgz
+npm pack @thurinlabs/thurin@0.13.0 && sha256sum thurinlabs-thurin-0.13.0.tgz
 ```
 
 The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
@@ -919,6 +921,10 @@ The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thuri
 It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
 With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. Releases from 0.13.0 on are named on the current registry. Older ones were named on the registry before it, which Thurin's tools no longer read, so for those, stop at step 3. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+
+### Anyone's releases
+
+Steps 2 to 4 work for any project that names its releases on its claim: fetch its key, then `thurin record get <its name> releases`. To name your own, sign your `SHA256SUMS` and run `thurin record add-release "<name> <version>" SHA256SUMS --url <release page>` from the address that holds your claim ([CLI](https://docs.thurin.id/#/cli?id=records)).
 
 ### Releases
 
@@ -1133,7 +1139,7 @@ for (const r of pickRecords(names, values)) {
 }
 ```
 
-`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parsePointer`, `addPointer`, and `renderPointer` handle `thurin.pointer`, the release list. The kinds: [Records](https://docs.thurin.id/#/records).
+`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parseReleases`, `addRelease`, and `renderReleases` handle `thurin.releases`, a release list. The kinds: [Records](https://docs.thurin.id/#/records).
 
 ### Writing by permission
 
@@ -1219,8 +1225,8 @@ Everything on this page works from Etherscan or `cast` with gpg. thurin.id, the 
 
 | | |
 |---|---|
-| Address | `0xFa6956c11163517249f8A67F5560a4406B519451`, the same on Ethereum mainnet and Sepolia |
-| Etherscan | [mainnet](https://etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) · [Sepolia](https://sepolia.etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) |
+| Address | `0xFa6956c11163517249f8A67F5560a4406B519451` |
+| Networks | Ethereum mainnet and Sepolia, same address ([Etherscan](https://etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) · [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451)) |
 | Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry), verified on Etherscan and Sourcify |
 | Build | solc 0.8.37, via-IR, optimizer 200, EVM cancun; deployed through the CREATE2 deployer with salt `keccak256("thurin.pgp-registry.v3")` |
 
@@ -1403,10 +1409,10 @@ When you replace a claim, its records move to the new one. If the key changed, s
 | `thurin.security` | send sensitive reports here | a URL or a contact line; encrypt to the key on the claim |
 | `thurin.successor` | my next key | the fingerprint of the key that replaces this one |
 | `thurin.affiliation` | I'm with this identity | `{"v":1,"with":"<address or name>","role":"…"}`; `role` optional |
-| `thurin.canary` | nothing compromised as of a date | a statement containing an ISO date, clearsigned or plain |
+| `thurin.canary` | nothing compromised as of a date | a dated line (`2026-09-25`), clearsigned with the claim's key; an unsigned one shows as unsigned |
+| `thurin.releases` | the releases I put out | a list of releases, each with the sha256 of its checksum file; kept by `thurin record add-release` ([how people check one](https://docs.thurin.id/#/guides/verify-release)) |
 | `thurin.private` | a box only I can read | an armored PGP message encrypted to your own key (read-only; see below) |
 | `thurin.disclosure` | a box for people I choose | an armored PGP message encrypted to their keys (read-only; see below) |
-| `thurin.pointer` | what Thurin Labs put out | the release list behind [Verify a release](https://docs.thurin.id/#/guides/verify-release); not shown on identity pages |
 
 Simple kinds are UTF-8 text. Structured kinds are small JSON with a `v`; readers ignore fields they do not know. Encrypted kinds are armored PGP messages, shown as "encrypted, N bytes" and never decrypted by the page.
 
@@ -1514,7 +1520,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 
 *What if the chain could name the release, not just the key?*
 
-- [x] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed (`thurin record add-release`)
+- [x] A release list on any claim naming each release's checksum file, so a signed release is one its publisher put out, not just one its key signed (`thurin record add-release`); Thurin Labs names every CLI release this way
 - [x] Small values attached to a claim, set from the page or the CLI (`thurin record set|get|clear`)
 - [x] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [x] Records tab on the identity page, and the [kinds](https://docs.thurin.id/#/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure

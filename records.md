@@ -22,10 +22,10 @@ When you replace a claim, its records move to the new one. If the key changed, s
 | `thurin.security` | send sensitive reports here | a URL or a contact line; encrypt to the key on the claim |
 | `thurin.successor` | my next key | the fingerprint of the key that replaces this one |
 | `thurin.affiliation` | I'm with this identity | `{"v":1,"with":"<address or name>","role":"…"}`; `role` optional |
-| `thurin.canary` | nothing compromised as of a date | a statement containing an ISO date, clearsigned or plain |
+| `thurin.canary` | nothing compromised as of a date | a dated line (`2026-09-25`), clearsigned with the claim's key; an unsigned one shows as unsigned |
+| `thurin.releases` | the releases I put out | a list of releases, each with the sha256 of its checksum file; kept by `thurin record add-release` ([how people check one](/guides/verify-release)) |
 | `thurin.private` | a box only I can read | an armored PGP message encrypted to your own key (read-only; see below) |
 | `thurin.disclosure` | a box for people I choose | an armored PGP message encrypted to their keys (read-only; see below) |
-| `thurin.pointer` | what Thurin Labs put out | the release list behind [Verify a release](/guides/verify-release); not shown on identity pages |
 
 Simple kinds are UTF-8 text. Structured kinds are small JSON with a `v`; readers ignore fields they do not know. Encrypted kinds are armored PGP messages, shown as "encrypted, N bytes" and never decrypted by the page.
 
