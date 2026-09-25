@@ -35,7 +35,7 @@ import '@thurinlabs/identity-kit/styles'
 | `registryAddress` | `REGISTRY_ADDRESS` | override, e.g. a local deploy that landed elsewhere |
 | `farcasterHub` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs (keyless) |
 | `neynarApiKey` | none | read Farcaster through Neynar instead |
-| `baseUrl` | `https://thurin.id` | where "View on Thurin" links point |
+| `baseUrl` | `https://thurin.id` | where "View on Thurin.id" links point |
 
 ## Hooks
 
@@ -176,7 +176,7 @@ Serve the script yourself: `npm pack @thurinlabs/identity-kit`, then copy `packa
 | `data-registry-address` | override the registry address |
 | `data-farcaster-hub` | Farcaster node (default Quilibrium's keyless node) |
 | `data-neynar-key` | read Farcaster through Neynar instead |
-| `data-base-url` | where "View on Thurin" points (default `https://thurin.id`); a page served from ENS can pass its own name |
+| `data-base-url` | where "View on Thurin.id" points (default `https://thurin.id`); a page served from ENS can pass its own name |
 
 Cards render on load and for elements added later.
 
