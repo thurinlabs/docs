@@ -33,21 +33,24 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ## Privacy
 
-**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses are left off keys by default.
+**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
 
 **What Thurin learns about you:** nothing we keep.
 - No accounts, no cookies, no analytics, no telemetry.
-- Our servers keep no access logs. The keyserver and relay record no IP addresses. A failed request can leave one line in an error log, which is deleted after two weeks.
+- Our servers keep no access logs. The keyserver and relay record no IP addresses; the keyserver's log never says what was looked up. A failed web request can leave one line in an error log, which is deleted after two weeks.
 - The pages are fetched from IPFS through our server, which tells the IPFS gateway nothing about you.
+- Our pages tell outside services nothing about which page asked (no referrer).
 - Nothing is sent to WalletConnect unless you choose to connect a phone wallet.
 
-**Who else your browser talks to** when it checks an identity, and what they see (your IP, and which identity you looked at):
-- An Ethereum node. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
-- The platforms behind each proof: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node for Farcaster (Quilibrium's, by default), and the Mastodon server named in a proof.
-- EFP, for follower counts.
+**Who else your browser talks to**, and what they see (your IP, and which identity you looked at):
+- An Ethereum node, on every lookup. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
+- The platforms behind each proof, **only when you press Check proofs**: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node (Quilibrium's, by default), and the Mastodon server named in the proof, which the identity's owner picks. "Always check" in the footer turns that on for every page, in your browser only.
 - For profile pictures: euc.li (where the ENS app stores avatars) or an IPFS gateway (Filebase, with Pinata's as a fallback). Never a server the name's owner picked, so they can't see who looks.
+- For an ENS name that keeps its data on its owner's server (an "offchain" name): that server, but only when you typed the name yourself.
 
-**If that is too much:** use the CLI against your own node. A mode that sends everything over Tor is [planned](/roadmap).
+Links to Etherscan, the ENS app, and EFP contact nothing until you click them. Card images are drawn by our server, so a README or page showing one asks no one else.
+
+**If that is too much:** use the CLI against your own node, with `thurin status --no-proofs` to ask nothing else. A mode that sends everything over Tor is [planned](/roadmap).
 
 Details: [privacy policy](https://thurinlabs.id/privacy/).
 

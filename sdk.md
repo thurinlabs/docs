@@ -40,7 +40,7 @@ import { IdentityKitProvider, useThurinIdentity } from '@thurinlabs/identity-kit
 ```tsx
 const id = useThurinIdentity('thurinlabs.eth')   // or an address
 // id.address, ensName, ensAvatar, claims, totalClaims, activeClaims,
-// currentFingerprint, pgpKeyInfo, proofs, efp, isLoading, error, errorKind, retry()
+// currentFingerprint, pgpKeyInfo, proofs, isLoading, error, errorKind, retry()
 ```
 
 `currentFingerprint` is the newest active claim whose signature verifies. Nothing from an unverified claim (proofs, names) is shown.
@@ -51,7 +51,6 @@ const id = useThurinIdentity('thurinlabs.eth')   // or an address
 | `usePGPProofs(fingerprint, armoredKey)` | `keyInfo`, `proofs` (each with `status`: verified, unverified, pending, skipped) |
 | `useRecords(address, index, kinds?, armoredKey?)` | `records` (parsed), `isLoading`, `refetch` |
 | `useEnsHint(name, fingerprint)` | the name's `id.thurin` record against the key: `match`, `unset`, or `mismatch` |
-| `useEFPGraph(address)` | `efp`: followers, following, top8 |
 | `useSafeAvatar(name, chainId)` | an avatar URL that can't reveal the viewer to the name's owner, or null |
 
 `ensAvatar` and `useSafeAvatar` only return avatars on IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploads). An avatar on the owner's own server would hand it every viewer's IP, so it's left out.

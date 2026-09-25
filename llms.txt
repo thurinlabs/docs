@@ -233,11 +233,13 @@ The fingerprint is the full 40 hex characters, any case. The check only looks fo
 When someone looks you up, their browser (or the CLI):
 
 1. reads the key stored in your claim, and checks your claim's signature against it;
-2. reads the `proof@thurin.id` notations on the published name;
-3. fetches each proof from its platform, and checks it contains your fingerprint and belongs to the account named;
+2. reads the `proof@thurin.id` notations on the published name and lists them, marked **not checked**;
+3. when they press **Check proofs**, fetches each proof from its platform, and checks it contains your fingerprint and belongs to the account named;
 4. shows a check mark, or the reason it failed.
 
-It all runs on the reader's side. The only requests go to an Ethereum node and to the platforms themselves. Lookups don't cache proofs: one you delete stops verifying the next time someone looks.
+Proofs are checked only when asked because checking tells each platform the reader's IP and which identity they're looking at. Someone who wants every page checked can choose "Always check" in the thurin.id footer; it's saved in their browser. Until then, a handle is just text anyone could have typed into their own key, so it never shows a check mark.
+
+It all runs on the reader's side. The only requests go to an Ethereum node and, once asked, to the platforms themselves. Nothing caches proofs: one you delete stops verifying the next time someone checks.
 
 ### Before you start
 
@@ -622,13 +624,12 @@ key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-
 proofs
   ✓ GitHub     alice
   ✓ DNS        alice.example
-efp         12 followers · 4 following
 history
   #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
   #1 9C4E27B1…6B2E8C47 2026-10-01 verified
 ```
 
-It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim.
+It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
 
 When a claim doesn't count, the line says why: `✗ key expired`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ not supported`, or `✗ doesn't verify`. A key that expires within 30 days gets `⚠ key expires in 12 days`. If a keystore on this machine holds the address, the line adds the fix, for example `extend it (gpg --quick-set-expire), then thurin update-key`.
 
@@ -1141,7 +1142,7 @@ import { IdentityKitProvider, useThurinIdentity } from '@thurinlabs/identity-kit
 ```tsx
 const id = useThurinIdentity('thurinlabs.eth')   // or an address
 // id.address, ensName, ensAvatar, claims, totalClaims, activeClaims,
-// currentFingerprint, pgpKeyInfo, proofs, efp, isLoading, error, errorKind, retry()
+// currentFingerprint, pgpKeyInfo, proofs, isLoading, error, errorKind, retry()
 ```
 
 `currentFingerprint` is the newest active claim whose signature verifies. Nothing from an unverified claim (proofs, names) is shown.
@@ -1152,7 +1153,6 @@ const id = useThurinIdentity('thurinlabs.eth')   // or an address
 | `usePGPProofs(fingerprint, armoredKey)` | `keyInfo`, `proofs` (each with `status`: verified, unverified, pending, skipped) |
 | `useRecords(address, index, kinds?, armoredKey?)` | `records` (parsed), `isLoading`, `refetch` |
 | `useEnsHint(name, fingerprint)` | the name's `id.thurin` record against the key: `match`, `unset`, or `mismatch` |
-| `useEFPGraph(address)` | `efp`: followers, following, top8 |
 | `useSafeAvatar(name, chainId)` | an avatar URL that can't reveal the viewer to the name's owner, or null |
 
 `ensAvatar` and `useSafeAvatar` only return avatars on IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploads). An avatar on the owner's own server would hand it every viewer's IP, so it's left out.
@@ -1524,7 +1524,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] Identity explorer at [thurin.id](https://thurin.id): look up any ENS name, Ethereum address, or PGP fingerprint
 - [x] On-chain identity claims at [thurin.id/attest](https://thurin.id/attest): an Ethereum address bound to a PGP key, published from the address itself
 - [x] Thurin Proofs: GitHub, Codeberg, DNS, Farcaster, and Mastodon, verified in the browser against the platform itself
-- [x] EFP social graph on every identity page
+- [x] A link to each identity's EFP profile
 - [x] identity-kit: the library behind the explorer, with React hooks
 - [x] A card image for READMEs, and link previews, drawn by thurin.id's server
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
@@ -1671,21 +1671,24 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ### Privacy
 
-**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses are left off keys by default.
+**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
 
 **What Thurin learns about you:** nothing we keep.
 - No accounts, no cookies, no analytics, no telemetry.
-- Our servers keep no access logs. The keyserver and relay record no IP addresses. A failed request can leave one line in an error log, which is deleted after two weeks.
+- Our servers keep no access logs. The keyserver and relay record no IP addresses; the keyserver's log never says what was looked up. A failed web request can leave one line in an error log, which is deleted after two weeks.
 - The pages are fetched from IPFS through our server, which tells the IPFS gateway nothing about you.
+- Our pages tell outside services nothing about which page asked (no referrer).
 - Nothing is sent to WalletConnect unless you choose to connect a phone wallet.
 
-**Who else your browser talks to** when it checks an identity, and what they see (your IP, and which identity you looked at):
-- An Ethereum node. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
-- The platforms behind each proof: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node for Farcaster (Quilibrium's, by default), and the Mastodon server named in a proof.
-- EFP, for follower counts.
+**Who else your browser talks to**, and what they see (your IP, and which identity you looked at):
+- An Ethereum node, on every lookup. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
+- The platforms behind each proof, **only when you press Check proofs**: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node (Quilibrium's, by default), and the Mastodon server named in the proof, which the identity's owner picks. "Always check" in the footer turns that on for every page, in your browser only.
 - For profile pictures: euc.li (where the ENS app stores avatars) or an IPFS gateway (Filebase, with Pinata's as a fallback). Never a server the name's owner picked, so they can't see who looks.
+- For an ENS name that keeps its data on its owner's server (an "offchain" name): that server, but only when you typed the name yourself.
 
-**If that is too much:** use the CLI against your own node. A mode that sends everything over Tor is [planned](https://docs.thurin.id/#/roadmap).
+Links to Etherscan, the ENS app, and EFP contact nothing until you click them. Card images are drawn by our server, so a README or page showing one asks no one else.
+
+**If that is too much:** use the CLI against your own node, with `thurin status --no-proofs` to ask nothing else. A mode that sends everything over Tor is [planned](https://docs.thurin.id/#/roadmap).
 
 Details: [privacy policy](https://thurinlabs.id/privacy/).
 

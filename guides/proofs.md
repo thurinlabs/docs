@@ -39,11 +39,13 @@ The fingerprint is the full 40 hex characters, any case. The check only looks fo
 When someone looks you up, their browser (or the CLI):
 
 1. reads the key stored in your claim, and checks your claim's signature against it;
-2. reads the `proof@thurin.id` notations on the published name;
-3. fetches each proof from its platform, and checks it contains your fingerprint and belongs to the account named;
+2. reads the `proof@thurin.id` notations on the published name and lists them, marked **not checked**;
+3. when they press **Check proofs**, fetches each proof from its platform, and checks it contains your fingerprint and belongs to the account named;
 4. shows a check mark, or the reason it failed.
 
-It all runs on the reader's side. The only requests go to an Ethereum node and to the platforms themselves. Lookups don't cache proofs: one you delete stops verifying the next time someone looks.
+Proofs are checked only when asked because checking tells each platform the reader's IP and which identity they're looking at. Someone who wants every page checked can choose "Always check" in the thurin.id footer; it's saved in their browser. Until then, a handle is just text anyone could have typed into their own key, so it never shows a check mark.
+
+It all runs on the reader's side. The only requests go to an Ethereum node and, once asked, to the platforms themselves. Nothing caches proofs: one you delete stops verifying the next time someone checks.
 
 ## Before you start
 

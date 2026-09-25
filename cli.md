@@ -31,13 +31,12 @@ key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-
 proofs
   ✓ GitHub     alice
   ✓ DNS        alice.example
-efp         12 followers · 4 following
 history
   #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
   #1 9C4E27B1…6B2E8C47 2026-10-01 verified
 ```
 
-It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim.
+It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
 
 When a claim doesn't count, the line says why: `✗ key expired`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ not supported`, or `✗ doesn't verify`. A key that expires within 30 days gets `⚠ key expires in 12 days`. If a keystore on this machine holds the address, the line adds the fix, for example `extend it (gpg --quick-set-expire), then thurin update-key`.
 
