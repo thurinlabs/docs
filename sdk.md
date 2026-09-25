@@ -77,7 +77,7 @@ const armored = await payloadText(await client.readContract({ address: REGISTRY_
 
 `REGISTRY_ADDRESS` is the same on Ethereum mainnet and Sepolia (`NETWORKS` has each network's chain id, explorer, and default RPC; `getRegistry(network)` picks one). `REGISTRY_ABI` is the whole contract, writes included. The functions themselves are on the [contract page](/contracts).
 
-`verifyAttestation` takes the key and signature as the registry stores them (raw bytes) or as armored text. It checks that the key has the claimed fingerprint, that the signature is over exactly `I control the Ethereum address: <lowercase address>`, and that the key is valid today, as gpg judges it. `kind` says why a claim doesn't count: `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Show people words, not `reason`:
+`verifyAttestation` takes the key and signature as the registry stores them (raw bytes) or as armored text. It checks that the key has the claimed fingerprint, that the signature is over exactly `I control the Ethereum address: <lowercase address>`, and that the key is valid today, as gpg judges it. `kind` says why a claim doesn't count: `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Show people words, not the raw `reason`:
 
 ```ts
 import { claimCheckText, expiresSoon, expiresSoonText, claimFates, claimFateText } from '@thurinlabs/identity-kit/core'
@@ -86,7 +86,7 @@ claimCheckText(v)        // { label, sentence, fix }; show `fix` to the owner on
 const soon = expiresSoon(v)
 if (soon) expiresSoonText(soon)   // 'Key expires in 12 days (Mar 6, 2027).'
 
-const fates = claimFates(attestations)            // from useAttestations, keyed by index
+const fates = claimFates(claims)                  // `claims` from useAttestations, keyed by index
 claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Oct 3, 2026.'
 ```
 
@@ -106,7 +106,7 @@ if (proof) {
 }
 ```
 
-Each provider has its own check. GitHub gists and repositories, and Codeberg repositories, must belong to the account in the URL, so pointing at someone else's doesn't work. The providers and what each checks: [Thurin proofs](/guides/proofs).
+Each provider has its own check. GitHub gists and repositories, and Codeberg repositories, must belong to the account in the URL, so pointing at someone else's doesn't work. The providers and what each checks: [Proofs](/guides/proofs).
 
 ## Records
 
@@ -121,11 +121,11 @@ for (const r of pickRecords(names, values)) {
 }
 ```
 
-`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parseReleases`, `addRelease`, and `renderReleases` handle `thurin.releases`, a release list. The kinds: [Records](/records).
+`pickRecords` keeps the `thurin.` kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parseReleases`, `addRelease`, and `renderReleases` handle `thurin.releases`, a release list. The kinds: [Records](/records).
 
 ## Writing by permission
 
-Every registry write has a `…For` form that anyone can submit with the owner's EIP-712 signature. These build the typed data for viem's `signTypedData`:
+Every owner write has a `…For` form that anyone can submit with the owner's EIP-712 signature. These build the typed data for viem's `signTypedData`:
 
 ```ts
 import { attestTypedData, revokeTypedData, markCompromisedTypedData } from '@thurinlabs/identity-kit/core'

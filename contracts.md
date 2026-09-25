@@ -31,6 +31,7 @@ Reads need no wallet. Any RPC works; `ethereum.publicnode.com` needs no key.
 export ETH_RPC_URL=https://ethereum.publicnode.com
 REG=0xFa6956c11163517249f8A67F5560a4406B519451
 OWNER=0x…   # the address to look up
+ME=0x…      # your own address, when making a claim
 
 cast call $REG "summary(address)(uint256,uint256,bool,uint256)" $OWNER        # total, active, has current, its index
 cast call $REG "armoredKey(address,uint256)(string)" $OWNER 0 | jq -r . | gpg --import

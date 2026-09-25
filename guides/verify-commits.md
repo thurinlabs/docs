@@ -11,7 +11,7 @@ echo "keyserver hkps://keys.thurin.id" >> ~/.gnupg/dirmngr.conf
 gpgconf --kill dirmngr
 ```
 
-[keys.thurin.id](/cli?id=be-a-keyserver) answers gpg's key requests by reading the Thurin registry. It also speaks plain HKP on port 11371, so a bare `--keyserver keys.thurin.id` works; `hkps://` is the one to put in your config. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
+[keys.thurin.id](/cli?id=be-a-keyserver) answers gpg's key requests by reading the registry on Ethereum. Write it as `hkps://keys.thurin.id`: a bare `keys.thurin.id` means plain HKP on port 11371 to gpg, which also works but isn't encrypted. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
 
 ## 2. Fetch the signer's key
 
@@ -56,7 +56,7 @@ auto-key-retrieve
 
 ## Revocation
 
-If a signing key is compromised, its owner revokes the claim as compromised. `gpg --refresh-keys` then stops receiving it, and a commit signed after that shows as signed by an unknown key. The chain keeps the claim and its reason, so `thurin status` still shows when it ended and why.
+If a signing key is compromised, its owner revokes the claim as compromised. The keyserver stops serving it, so `gpg --refresh-keys` finds nothing new, but a copy already in your keyring stays until you delete it (`gpg --delete-keys <fpr>`). The chain keeps the claim and its reason, so `thurin status` still shows when it ended and why.
 
 ## Your own commits
 

@@ -1,12 +1,12 @@
 # CROPS
 
-> **Checked 24 September 2026**, on the live sites, against the [CROPS review checklist](https://ethskills.com/crops/SKILL.md) from ETHSKILLS, which turns the Ethereum Foundation's CROPS principles ([EF Mandate](https://blog.ethereum.org/2026/03/13/ef-mandate)) into concrete checks. This is our own review; the Ethereum Foundation did not review Thurin.
+> **Checked 24 September 2026**, on the live sites, against the [CROPS review checklist](https://ethskills.com/crops/SKILL.md) from ETHSKILLS, which turns the Ethereum Foundation's CROPS principles ([EF Mandate](https://blog.ethereum.org/2026/03/13/ef-mandate)) into concrete checks. This is our own review; the Ethereum Foundation did not review Thurin.id.
 
-The Ethereum Foundation asks every project to answer four questions: can someone block you (**C**ensorship resistance), can you see and fork all of it (**O**pen source and free), what does it learn about you (**P**rivacy), and what happens if it fails or the team disappears (**S**ecurity). This page is Thurin's answer, including what we have not solved.
+The Ethereum Foundation asks every project to answer four questions: can someone block you (**C**ensorship resistance), can you see and fork all of it (**O**pen source and free), what does it learn about you (**P**rivacy), and what happens if it fails or the team disappears (**S**ecurity). This page is Thurin.id's answer, including what we have not solved.
 
 ## The short version
 
-Your claim lives in a contract on Ethereum that nobody controls: no owner, no admin, no pause, no fees, no upgrades. Everything Thurin runs is a convenience on top of it, and each one can be replaced by something you run yourself. If Thurin Labs disappeared tomorrow, every claim would still be readable from any Ethereum node and checkable with gpg.
+Your claim lives in a contract on Ethereum that nobody controls: no owner, no admin, no pause, no fees, no upgrades. Everything Thurin Labs runs is a convenience on top of it, and each one can be replaced by something you run yourself. If Thurin Labs disappeared tomorrow, every claim would still be readable from any Ethereum node and checkable with gpg.
 
 ## Censorship resistance
 
@@ -22,11 +22,11 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ## Open source and free
 
-**Everything that runs Thurin is public:** the contract (verified on Etherscan), the library, the CLI, the sites, the share-card service. MIT license, docs Apache-2.0. Fork it, run it, change it; no permission needed.
+**Everything that runs Thurin.id is public:** the contract (verified on Etherscan), the library, the CLI, the sites, the share-card service. MIT license, docs Apache-2.0. Fork it, run it, change it; no permission needed.
 
 **You can check that what runs is what's published:**
 - Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
-- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Every CLI release since 0.5.1 is signed with the company key, and from 0.13.0 on it is also named on-chain from thurinlabs.eth ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
 **Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](/guides/verify-deploy).
@@ -35,7 +35,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
 
-**What Thurin learns about you:** nothing we keep.
+**What Thurin Labs learns about you:** nothing we keep.
 - No accounts, no cookies, no analytics, no telemetry.
 - Our servers keep no access logs. The keyserver and relay record no IP addresses; the keyserver's log never says what was looked up. A failed web request can leave one line in an error log, which is deleted after two weeks.
 - The pages are fetched from IPFS through our server, which tells the IPFS gateway nothing about you.
@@ -45,7 +45,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 **Who else your browser talks to**, and what they see (your IP, and which identity you looked at):
 - An Ethereum node, on every lookup. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
 - The platforms behind each proof, **only when you press Check proofs**: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node (Quilibrium's, by default), and the Mastodon server named in the proof, which the identity's owner picks. "Always check" in the footer turns that on for every page, in your browser only.
-- For profile pictures: euc.li (where the ENS app stores avatars) or an IPFS gateway (Filebase, with Pinata's as a fallback). Never a server the name's owner picked, so they can't see who looks.
+- For profile pictures: euc.li (where the ENS app stores avatars), an IPFS gateway (Filebase, with Pinata's as a fallback), or arweave.net. Never a server the name's owner picked, so they can't see who looks.
 - For an ENS name that keeps its data on its owner's server (an "offchain" name): that server, but only when you typed the name yourself.
 
 Links to Etherscan, the ENS app, and EFP contact nothing until you click them. Card images are drawn by our server, so a README or page showing one asks no one else.

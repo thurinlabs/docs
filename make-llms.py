@@ -38,7 +38,7 @@ Check each step before doing it; skip what's already done.
    `sudo dnf install gnupg2`, `sudo pacman -S gnupg`, or Gpg4win.
 2. **A PGP key.** Check: `gpg -K --with-colons` (a `sec` line means they have one). If they have several, ask which.
    Make one: `gpg --quick-gen-key "Their Name" ed25519 sign 2y`, then
-   `gpg --quick-add-key <fingerprint> cv25519 encr 2y`. Thurin never makes keys; gpg does.
+   `gpg --quick-add-key <fingerprint> cv25519 encr 2y`. Thurin.id never makes keys; gpg does.
 3. **A name without an email on the key.** Only those names are published (unless they opt in with
    `--include-email`), and proofs must sit on one. Check: `gpg --list-keys <fingerprint>`. Add one:
    `gpg --quick-add-uid <fingerprint> "Their Name"`.
@@ -48,7 +48,7 @@ Check each step before doing it; skip what's already done.
    - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
      open where the wallet is;
    - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
-     (`--relayer https://relay.thurin.id` posts it to Thurin's relayer, which pays for one claim per address
+     (`--relayer https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
      within a daily budget).
 5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
    `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go
@@ -74,7 +74,7 @@ The person can also look at https://thurin.id/eth/<address>.
 
 ### Mistakes to avoid
 
-- Keyservers play no part. Thurin reads the key from the chain. Don't tell anyone to upload to or wait on
+- Public keyservers play no part: the key comes from the chain. Don't tell anyone to upload to or wait on
   keys.openpgp.org.
 - Signing by hand: the statement has no line break after it. Use `printf '%s'`, never `echo`.
 - The wrong key: with several keys, gpg signs with its default one. Pass `--key <fingerprint>`.

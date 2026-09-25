@@ -26,6 +26,6 @@ proof@thurin.id=https://codeberg.org/USERNAME/thurin-proof
 
 ## What's checked
 
-The repository is fetched from the Codeberg API. It must belong to the account in the URL, and its description must contain `openpgp4fpr:` followed by your fingerprint. It's checked on every lookup, so keep it public.
+The repository is fetched from the Codeberg API. It must belong to the account in the URL, and its description must contain `openpgp4fpr:` followed by your fingerprint. It's checked whenever someone checks your proofs, so keep it public.
 
 On thurin.id it shows as `✓ CODEBERG username`, linking to your profile and to the repository.

@@ -32,11 +32,11 @@ The same line everywhere:
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-The fingerprint is the full 40 hex characters, any case. The check only looks for `openpgp4fpr:` followed by your fingerprint; the `thurin-id=` label just tells a reader what the line is for.
+The fingerprint is the full 40 hex characters, any case. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
 
 ## How a proof is checked
 
-When someone looks you up, their browser (or the CLI):
+When someone looks you up, their browser (or the CLI, which checks unless run with `--no-proofs`):
 
 1. reads the key stored in your claim, and checks your claim's signature against it;
 2. reads the `proof@thurin.id` notations on the published name and lists them, marked **not checked**;

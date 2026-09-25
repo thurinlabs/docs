@@ -34,6 +34,6 @@ A personal account can use a repository too.
 
 ## What's checked
 
-The gist (or repository) is fetched from the GitHub API. It must belong to the account in the URL, so pointing at someone else's gist doesn't work, and its content (or description) must contain `openpgp4fpr:` followed by your fingerprint. It's checked on every lookup, so keep it public and don't delete it.
+The gist (or repository) is fetched from the GitHub API. It must belong to the account in the URL, so pointing at someone else's gist doesn't work, and its content (or description) must contain `openpgp4fpr:` followed by your fingerprint. It's checked whenever someone checks your proofs, so keep it public and don't delete it.
 
 On thurin.id it shows as `✓ GITHUB username`, linking to your profile and to the gist.

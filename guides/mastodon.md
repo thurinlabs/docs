@@ -9,7 +9,7 @@ In your server's profile settings, add a field:
 - **Label:** `Thurin.id` (or anything)
 - **Value:** `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`
 
-For a clickable link instead, use `https://thurin.id/pgp/YOUR_FINGERPRINT` as the value; it contains the fingerprint too. Either works in your bio as well, and the 16-character key ID is accepted in place of the full fingerprint.
+For a clickable link instead, use `https://thurin.id/pgp/YOUR_FINGERPRINT` as the value; it contains the fingerprint too. Either works in your bio as well. Mastodon is the one provider that also accepts the 16-character key ID in place of the full fingerprint.
 
 ## 2. Add the notation
 

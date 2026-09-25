@@ -24,7 +24,7 @@ Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases a
 ```
 $ thurin status alice.eth
 alice.eth  0x8f3C…2b41  (mainnet)
-claims      2 total · 1 active · 1 revoked
+claims      2 total · 1 active · 1 replaced
 fingerprint 9C4E27B1D0835F6A2E71C4B8093DA5F16B2E8C47  ✓ verified
 name        Alice
 key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-03-01
@@ -38,7 +38,7 @@ history
 
 It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
 
-When a claim doesn't count, the line says why: `✗ key expired`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ not supported`, or `✗ doesn't verify`. A key that expires within 30 days gets `⚠ key expires in 12 days`. If a keystore on this machine holds the address, the line adds the fix, for example `extend it (gpg --quick-set-expire), then thurin update-key`.
+When a claim doesn't count, the line says why: `✗ key expired`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ signing key revoked`, `✗ not supported`, or `✗ doesn't verify`. A key that expires within 30 days gets `⚠ key expires in 12 days`. If a keystore on this machine holds the address, the line adds the fix, for example `extend it (gpg --quick-set-expire), then thurin update-key`.
 
 ## Add your key
 
@@ -79,7 +79,7 @@ Each takes an optional claim index (`thurin status` lists them). With one active
 
 - **update-key:** after adding a proof notation ([how](/guides/gnupg)), extending the expiry, or adding a subkey. The fingerprint stays, so the claim stays; only the stored key changes.
 - **reattest:** the old claim is revoked and the new one published together. Its records move to the new claim; `--drop-records` leaves them behind. If the old key was stolen, add `--compromised` to mark it in the same transaction.
-- **revoke:** `--reason compromised`, `retired`, or `other`, or none. **Compromised is final:** this address can never claim that key again. Found out later? `thurin revoke <index> --reason compromised` marks a claim that's already revoked or replaced, once.
+- **revoke:** `--reason compromised`, `retired`, or `other`, or leave it off. **Compromised is final:** this address can never claim that key again. Found out later? `thurin revoke <index> --reason compromised` marks a claim that's already revoked or replaced, once.
 
 ## No ETH on this machine
 
@@ -103,7 +103,7 @@ thurin attest --authorize --deadline 1d     # default 7d
 
 Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
 
-Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, and it can't be recalled without ETH, so the deadline is printed every time. `--relayer <url>` posts it to a [relayer](/cli?id=run-a-relayer) that pays, with no link at all.
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, and it can't be recalled without ETH, so the deadline is printed every time. `--relayer <url>` posts it to a [relay](/cli?id=run-a-relay) that pays, with no link at all.
 
 **The PGP key isn't here** (a card, an air-gapped machine):
 
@@ -216,15 +216,15 @@ A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what
 
 | where | you trust | how |
 |---|---|---|
-| `hkps://keys.thurin.id` | Thurin's server not to withhold | `gpg --keyserver hkps://keys.thurin.id --recv-keys <fpr>` |
+| `hkps://keys.thurin.id` | Thurin Labs' server not to withhold | `gpg --keyserver hkps://keys.thurin.id --recv-keys <fpr>` |
 | your own server | your server | `thurin keyserver --host 0.0.0.0` behind TLS |
 | this machine | nobody | `thurin keyserver` |
 
 Write the `hkps://`: a bare `keys.thurin.id` means plain HKP to gpg.
 
-## Run a relayer
+## Run a relay
 
-A relayer is `thurin submit` behind an HTTP port: it takes permissions, runs the same checks, and pays for them from a hot keystore, within limits. Anyone can run one. Thurin runs one at relay.thurin.id.
+A relay is `thurin submit` behind an HTTP port: it takes permissions, runs the same checks, and pays for them from a hot keystore, within limits. Anyone can run one. Thurin Labs runs one at relay.thurin.id.
 
 ```bash
 thurin wallet create hot                   # fund it with pocket money

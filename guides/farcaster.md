@@ -12,7 +12,7 @@ Verifying my identity with @thurinlabs
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-Any other text is fine, as long as the cast contains `openpgp4fpr:` followed by your fingerprint. A link to `https://thurin.id/pgp/YOUR_FINGERPRINT` is a nice touch.
+Any other text is fine, as long as the cast contains `openpgp4fpr:` followed by your fingerprint.
 
 ## 2. Add the notation
 
@@ -28,6 +28,6 @@ proof@thurin.id=https://farcaster.xyz/USERNAME/0xCASTHASH
 
 ## What's checked
 
-The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](/sdk) can use another. Don't delete the cast: it's checked on every lookup.
+The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](/sdk) can use another. Don't delete the cast: it's checked whenever someone checks your proofs.
 
 On thurin.id it shows as `✓ FARCASTER @username`, linking to your profile and to the cast.

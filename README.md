@@ -4,7 +4,7 @@
 
 Thurin.id puts your PGP key on your Ethereum address. The claim lives in a contract on Ethereum that nobody controls, and anyone can check it with gpg and any Ethereum node. Proofs on the key link it to your accounts elsewhere: GitHub, a domain, Farcaster, Codeberg, Mastodon.
 
-There's no Thurin server in the middle. [thurin.id](https://thurin.id), the CLI, and the library all read the chain directly.
+No Thurin Labs server sits in the middle. [thurin.id](https://thurin.id), the CLI, and the library all read the chain directly.
 
 ## Start here
 

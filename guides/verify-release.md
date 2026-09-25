@@ -1,4 +1,4 @@
-# Verify a Thurin release
+# Verify a Thurin CLI release
 
 Every Thurin CLI release is signed by the Thurin Labs key, claimed on-chain from thurinlabs.eth. This page checks a release with only gpg and the chain. No Thurin software is involved until the key has arrived from Ethereum.
 
@@ -66,7 +66,7 @@ The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thuri
 
 ## What this proves, and what it doesn't
 
-It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin's part is answering "whose key is this"; the rest is gpg and sha256sum.
+It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin.id's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
 With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. Releases from 0.13.0 on are named on the current registry. Older ones were named on the registry before it, which Thurin's tools no longer read, so for those, stop at step 3. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
 

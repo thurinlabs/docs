@@ -38,13 +38,13 @@ The attest page spots this too and shows the command with your name filled in. P
 1. Open [thurin.id/attest](https://thurin.id/attest) and connect your wallet.
 2. Copy the one command the page shows and run it. It signs the line `I control the Ethereum address: 0x…` with your key and prints your public key. Paste the whole output back.
 3. The page checks the signature and shows exactly what goes on-chain: the name, any proofs, and what it left out.
-4. **Publish to registry** and confirm in your wallet.
+4. **Publish** and confirm in your wallet.
 
 The command uses the first key gpg can sign with. If the page names the wrong key, click **Use a different key**.
 
 Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
 
-Rather use a terminal? `npx @thurinlabs/thurin attest` does the same, see the [CLI](/cli).
+Rather use a terminal? `npx @thurinlabs/thurin attest` does the same; see the [CLI](/cli).
 
 ## 5. Add a proof
 
@@ -54,4 +54,4 @@ A proof links your key to an account elsewhere, both ways: the key names the acc
 2. Add a `proof@thurin.id` notation to your key that points at it ([how](/guides/gnupg)).
 3. Put the updated key on your claim ([how](/guides/gnupg?id=update-the-key-on-your-claim)). One transaction, no new signature.
 
-Look yourself up on thurin.id: the proof shows a check mark.
+Look yourself up on thurin.id and press **Check proofs**: the proof gets a check mark.

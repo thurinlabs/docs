@@ -1,6 +1,6 @@
 # Point your ENS name at your claim
 
-An ENS profile lists the accounts a name owns: `com.github`, `com.twitter`, `url`. None of them is checked by anyone. A Thurin claim is the one thing on a profile that can be: the name owner set the address, and the address signed the claim, on-chain.
+An ENS profile lists the accounts a name owns: `com.github`, `com.twitter`, `url`. None of them is checked by anyone. A Thurin.id claim is the one thing on a profile that can be: the name owner set the address, and the address signed the claim, on-chain.
 
 `id.thurin` is an ENS text record that points a name at that claim. It is a hint for ENS viewers, not a proof. The proof is the claim.
 
@@ -48,18 +48,18 @@ thurin ens link ben.thurinlabs.eth --calldata  # print the transaction for a wal
 
 From the [ENS app](https://app.ens.domains): add a text record with key `id.thurin` and the fingerprint as its value. Check the result with `thurin ens check <name>`.
 
-The transaction must come from an account that may write the name's records: the owner, or a manager. The wallet holding the Thurin claim need not be that account, and often isn't.
+The transaction must come from an account that may write the name's records: the owner, or a manager. The wallet holding the Thurin.id claim need not be that account, and often isn't.
 
 ## ENSv2
 
 Nothing changes for the record: ENSv2 keeps ENSIP-5 text records as they are. Two notes for anyone writing one:
 
-- ENSv2 gives every account its own resolver. Look the resolver up at write time; never hardcode one. Thurin's tools do.
+- ENSv2 gives every account its own resolver. Look the resolver up at write time; never hardcode one. Thurin.id's tools do.
 - Migrating a name from v1 may clear its records. Set `id.thurin` again after migrating.
 
 ## Verification badges in ENS apps
 
-There is no ENS-level verification. What a profile shows as verified is a choice each app makes. An app that wants to show a Thurin claim as verified reads the registry, through [identity-kit](/sdk) or on its own, and `id.thurin` tells it where to look.
+There is no ENS-level verification. What a profile shows as verified is a choice each app makes. An app that wants to show a Thurin.id claim as verified reads the registry, through [identity-kit](/sdk) or on its own, and `id.thurin` tells it where to look.
 
 ## From code
 

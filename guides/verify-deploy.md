@@ -1,6 +1,6 @@
 # Verify a deploy
 
-Every Thurin site is a folder on IPFS, named by its content ID (CID). This guide rebuilds a site from its public source and checks you get the same CID, which proves the site you load is exactly that code, with nothing added.
+Every Thurin Labs site is a folder on IPFS, named by its content ID (CID). This guide rebuilds a site from its public source and checks you get the same CID, which proves the site you load is exactly that code, with nothing added.
 
 You need `git`, Node 20 or newer (for thurin.id), and [kubo](https://docs.ipfs.tech/install/command-line/) (`ipfs`). Nothing is uploaded and no IPFS daemon is needed: kubo only computes the hash. Run `ipfs init` once if you have never used it.
 

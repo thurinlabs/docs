@@ -1,11 +1,11 @@
 # Records
 
-A record is a short text on a claim: one per name, up to 1 KB, set only by the owner, readable by anyone. The registry lists every record on a claim (`recordsOf`), so nothing needs to know a name in advance. This page says what Thurin's names mean.
+A record is a short text on a claim: one per name, up to 1 KB, set only by the owner, readable by anyone. The registry lists every record on a claim (`recordsOf`), so nothing needs to know a name in advance. This page says what the `thurin.` names mean.
 
-An identity page shows its records under the **Records** tab: [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records), Thurin's first, then anyone else's as plain text. Connect the wallet that holds the claim and the same tab lets you set and clear Thurin's plain kinds, and clear the others. Or from the CLI:
+An identity page shows its records under the **Records** tab: [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records), the `thurin.` kinds first, then anyone else's as plain text. Connect the wallet that holds the claim and the same tab lets you set and clear Thurin.id's plain kinds, and clear the others. Or from the CLI:
 
 ```bash
-thurin record set canary "All keys under my control as of 2026-09-23."
+thurin record set canary "All keys under my control as of 2026-09-25."
 thurin record get thurinlabs.eth canary
 thurin record clear canary
 ```
@@ -14,7 +14,7 @@ Names are `a-z 0-9 - .`, up to 31 bytes. `thurin.` is the default, so `canary` m
 
 When you replace a claim, its records move to the new one. If the key changed, sign a new canary: the old one was signed by the old key.
 
-## Kinds Thurin defines
+## Kinds Thurin.id defines
 
 | kind | what it says | value |
 |---|---|---|
@@ -29,7 +29,7 @@ When you replace a claim, its records move to the new one. If the key changed, s
 
 Simple kinds are UTF-8 text. Structured kinds are small JSON with a `v`; readers ignore fields they do not know. Encrypted kinds are armored PGP messages, shown as "encrypted, N bytes" and never decrypted by the page.
 
-Thurin's tools read and show the encrypted kinds but don't help you write them, on purpose. A record stays in the chain's history forever, so anything encrypted there can be read by whoever gets a recipient's key later, however many years later. A PGP message also names the keys it was encrypted to, which ties you to those people in public. Share secrets some other way.
+Thurin.id's tools read and show the encrypted kinds but don't help you write them, on purpose. A record stays in the chain's history forever, so anything encrypted there can be read by whoever gets a recipient's key later, however many years later. A PGP message also names the keys it was encrypted to, which ties you to those people in public. Share secrets some other way.
 
 A value that does not fit its kind is still shown, as text, with the reason. Nothing is hidden and nothing is trusted.
 
@@ -39,7 +39,7 @@ That the owner of the claim said it, at the block it was set, and has not cleare
 
 ## Your own kinds
 
-Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Set it with `thurin record set com.example.thing "<value>"`, or `setRecord` on the [contract](/contracts). Thurin's tools read it (`thurin record get <identity> com.example.thing`), and the identity page shows it as text; there, the owner can clear it but not edit it. No registration, no permission.
+Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Set it with `thurin record set com.example.thing "<value>"`, or `setRecord` on the [contract](/contracts). Thurin.id's tools read it (`thurin record get <identity> com.example.thing`), and the identity page shows it as text; there, the owner can clear it but not edit it. No registration, no permission.
 
 ## Records are forever
 
