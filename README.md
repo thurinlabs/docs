@@ -22,6 +22,7 @@ There's no Thurin server in the middle. [thurin.id](https://thurin.id), the CLI,
 ## More
 
 - [Records](/records): small values on a claim, like a security contact or a canary
+- [CROPS](/crops): what we can and can't do to you
 - [Verify commits](/guides/verify-commits), [a release](/guides/verify-release), or [a deploy](/guides/verify-deploy) with nothing but gpg and the chain
-- [Roadmap](/roadmap) · [CROPS](/crops): what we can and can't do to you
-- For AI agents: [llms.txt](https://docs.thurin.id/llms.txt), everything on one page
+- [Roadmap](/roadmap): what's next
+- For AI agents: [llms.txt](/llms.txt ':ignore'), every page in one file, with a guide to helping someone set up

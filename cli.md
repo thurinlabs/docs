@@ -265,7 +265,7 @@ The registry is `0xFa6956c11163517249f8A67F5560a4406B519451`, the same address o
 
 ## For agents
 
-Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](https://docs.thurin.id/llms.txt) has the whole reference in one file.
+Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](/llms.txt ':ignore') has the whole reference in one file.
 
 ## Source
 
