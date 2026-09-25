@@ -1050,7 +1050,7 @@ import '@thurinlabs/identity-kit/styles'
 | `registryAddress` | `REGISTRY_ADDRESS` | override, e.g. a local deploy that landed elsewhere |
 | `farcasterHub` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs (keyless) |
 | `neynarApiKey` | none | read Farcaster through Neynar instead |
-| `baseUrl` | `https://thurin.id` | where "View on Thurin" links point |
+| `baseUrl` | `https://thurin.id` | where "View on Thurin.id" links point |
 
 ### Hooks
 
@@ -1191,7 +1191,7 @@ Serve the script yourself: `npm pack @thurinlabs/identity-kit`, then copy `packa
 | `data-registry-address` | override the registry address |
 | `data-farcaster-hub` | Farcaster node (default Quilibrium's keyless node) |
 | `data-neynar-key` | read Farcaster through Neynar instead |
-| `data-base-url` | where "View on Thurin" points (default `https://thurin.id`); a page served from ENS can pass its own name |
+| `data-base-url` | where "View on Thurin.id" points (default `https://thurin.id`); a page served from ENS can pass its own name |
 
 Cards render on load and for elements added later.
 
@@ -1426,7 +1426,7 @@ That the owner of the claim said it, at the block it was set, and has not cleare
 
 ### Your own kinds
 
-Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Thurin's tools will read it (`thurin record get <identity> com.example.thing`) and the identity page will show it as text. No registration, no permission.
+Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Set it with `thurin record set com.example.thing "<value>"`, or `setRecord` on the [contract](https://docs.thurin.id/#/contracts). Thurin's tools read it (`thurin record get <identity> com.example.thing`), and the identity page shows it as text; there, the owner can clear it but not edit it. No registration, no permission.
 
 ### Records are forever
 

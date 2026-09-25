@@ -39,7 +39,7 @@ That the owner of the claim said it, at the block it was set, and has not cleare
 
 ## Your own kinds
 
-Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Thurin's tools will read it (`thurin record get <identity> com.example.thing`) and the identity page will show it as text. No registration, no permission.
+Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Set it with `thurin record set com.example.thing "<value>"`, or `setRecord` on the [contract](/contracts). Thurin's tools read it (`thurin record get <identity> com.example.thing`), and the identity page shows it as text; there, the owner can clear it but not edit it. No registration, no permission.
 
 ## Records are forever
 
