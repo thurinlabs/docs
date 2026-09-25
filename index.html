@@ -3,22 +3,29 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Thurin Docs</title>
-  <meta name="description" content="Documentation for Thurin — Privacy-preserving identity verification">
+  <title>Thurin.id Docs</title>
+  <meta name="description" content="Documentation for Thurin.id: your PGP key on your Ethereum address, checked by anyone.">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://docs.thurin.id">
-  <meta property="og:title" content="Thurin Docs">
-  <meta property="og:description" content="Documentation for Thurin — Privacy-preserving identity verification. Proofs, smart contracts, and SDK reference.">
+  <meta property="og:title" content="Thurin.id Docs">
+  <meta property="og:description" content="Documentation for Thurin.id: guides, the CLI, the SDK, and the PGPRegistry contract.">
   <meta property="og:image" content="https://docs.thurin.id/images/og-image.png">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:site" content="@thurinlabs">
-  <meta name="twitter:title" content="Thurin Docs">
-  <meta name="twitter:description" content="Documentation for Thurin — Privacy-preserving identity verification. Proofs, smart contracts, and SDK reference.">
+  <meta name="twitter:title" content="Thurin.id Docs">
+  <meta name="twitter:description" content="Documentation for Thurin.id: guides, the CLI, the SDK, and the PGPRegistry contract.">
   <meta name="twitter:image" content="https://docs.thurin.id/images/og-image.png">
   <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script>
+    // Two modes: dark (the Thurin look, the default) or light. Set before the page draws.
+    (function () { var t; try { t = localStorage.getItem('thurin-docs-theme') } catch (e) {} document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark' })()
+  </script>
   <link rel="stylesheet" href="vendor/theme-simple-dark.css">
   <style>
     :root {
+      color-scheme: dark;
+      --mono-hue: 60;              /* warm greys, like thurin.id's dark */
+      --mono-saturation: 12%;
       --theme-color: #7c9a3e;
       --base-background-color: #1a1a12;
       --sidebar-background: #1a1a12;
@@ -27,6 +34,80 @@
       --link-color: #7c9a3e;
       --code-inline-background: #2a2a1f;
     }
+    /* Light mode: docsify-themeable's own light values, in thurin.id's light palette. */
+    :root[data-theme="light"] {
+      color-scheme: light;
+      --theme-color: #5a7228;
+      --link-color: #5a7228;
+      --mono-hue: 50;
+      --mono-saturation: 8%;
+      --mono-base: hsl(var(--mono-hue), var(--mono-saturation), 50%);
+      --mono-shade1: hsl(var(--mono-hue), var(--mono-saturation), 40%);
+      --mono-shade2: hsl(var(--mono-hue), var(--mono-saturation), 30%);
+      --mono-shade3: hsl(var(--mono-hue), var(--mono-saturation), 20%);
+      --mono-tint1: hsl(var(--mono-hue), var(--mono-saturation), 70%);
+      --mono-tint2: hsl(var(--mono-hue), var(--mono-saturation), 89%);
+      --mono-tint3: hsl(var(--mono-hue), var(--mono-saturation), 97%);
+      --base-background-color: #faf9f5;
+      --base-color: #2a2a22;
+      --heading-color: #2a2a22;
+      --pagination-title-color: #2a2a22;
+      --sidebar-background: #f0efe8;
+      --sidebar-border-color: #d0cfc4;
+      --sidebar-nav-link-color--active: #5a7228;
+      --sidebar-nav-link-border-color--active: #5a7228;
+      --sidebar-nav-pagelink-background: no-repeat 2px calc(50% - 2.5px) / 6px 5px linear-gradient(45deg, transparent 2.75px, var(--mono-tint1) 2.75px 4.25px, transparent 4px), no-repeat 2px calc(50% + 2.5px) / 6px 5px linear-gradient(135deg, transparent 2.75px, var(--mono-tint1) 2.75px 4.25px, transparent 4px);
+      --sidebar-nav-pagelink-background--loaded: no-repeat 0px center / 5px 6px linear-gradient(225deg, transparent 2.75px, var(--mono-tint1) 2.75px 4.25px, transparent 4.25px), no-repeat 5px center / 5px 6px linear-gradient(135deg, transparent 2.75px, var(--mono-tint1) 2.75px 4.25px, transparent 4.25px);
+      --code-inline-background: #e8e7e0;
+      --code-theme-background: #f0efe8;
+      --code-theme-text: #2a2a22;
+      --code-theme-comment: #6e8090;
+      --code-theme-function: #b13a55;
+      --code-theme-keyword: #0b6b8f;
+      --code-theme-operator: #8a6a40;
+      --code-theme-punctuation: #777;
+      --code-theme-selector: #5a7228;
+      --code-theme-tag: #905;
+      --code-theme-variable: #a8861e;
+      --copycode-background: #808080;
+      --blockquote-background: #f0efe8;
+      --table-cell-border-color: #d0cfc4;
+      --table-row-odd-background: #f0efe8;
+      --kbd-background: #f0efe8;
+      --kbd-border: 1px solid #d0cfc4;
+      --kbd-color: #2a2a22;
+      --mark-background: #ffecb3;
+      --mark-color: #2a2a22;
+      --notice-important-background: hsl(340, 60%, 96%);
+      --notice-tip-background: hsl(204, 60%, 96%);
+      --navbar-menu-background: #faf9f5;
+      --search-input-background-color: #fff;
+      --search-input-border-color: #d0cfc4;
+      --search-input-placeholder-color: rgba(0, 0, 0, 0.4);
+      --search-clear-icon-color1: rgba(0, 0, 0, 0.3);
+      --selection-color: #d8e4c0;
+      --spinner-track-color: rgba(0, 0, 0, 0.15);
+    }
+
+    /* The mode switch: one icon, top right, next to the GitHub corner. */
+    .theme-toggle {
+      position: fixed;
+      top: 18px;
+      right: 84px;
+      z-index: 50;
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--base-background-color);
+      border: 1px solid var(--sidebar-border-color, #3a3a2a);
+      border-radius: 4px;
+      color: var(--base-color);
+      cursor: pointer;
+    }
+    .theme-toggle:hover, .theme-toggle:focus-visible { color: var(--theme-color); border-color: var(--theme-color); outline: none; }
+
     /* Roadmap status badges */
     .status {
       display: inline-block;
@@ -87,13 +168,26 @@
     }
     .markdown-section li:has(input:checked) { color: #d8d8c8; }
     .markdown-section li:has(input:not(:checked)) { color: #9a9a8a; }
+
+    /* The same, in light mode */
+    :root[data-theme="light"] .status-shipped  { color: #5a7228; }
+    :root[data-theme="light"] .status-testnet  { color: #a8861e; }
+    :root[data-theme="light"] .status-progress { color: #2f6fa8; }
+    :root[data-theme="light"] .status-next     { color: #2a8a80; }
+    :root[data-theme="light"] .status-designed { color: #6b6960; }
+    :root[data-theme="light"] .markdown-section li input[type="checkbox"] { border-color: #b0af9f; }
+    :root[data-theme="light"] .markdown-section li input[type="checkbox"]:checked { border-color: #5a7228; background: #5a7228; }
+    :root[data-theme="light"] .markdown-section li input[type="checkbox"]:checked::after { border-color: #faf9f5; }
+    :root[data-theme="light"] .markdown-section li:has(input:checked) { color: #2a2a22; }
+    :root[data-theme="light"] .markdown-section li:has(input:not(:checked)) { color: #6b6960; }
   </style>
 </head>
 <body>
+  <button class="theme-toggle" id="themeToggle" type="button"></button>
   <div id="app"></div>
   <script>
     window.$docsify = {
-      name: 'Thurin',
+      name: 'Thurin.id',
       repo: 'https://github.com/thurinlabs',
       loadSidebar: true,
       subMaxLevel: 2,
@@ -109,6 +203,27 @@
         'Cache-Control': 'no-cache',
       },
     }
+  </script>
+  <script>
+    // The mode switch: a moon in light mode (switch to dark), a sun in dark (switch to light).
+    (function () {
+      var button = document.getElementById('themeToggle')
+      var moon = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8 8 0 1 1 9.5 4a6.5 6.5 0 0 0 10.5 10.5z"/></svg>'
+      var sun = '<svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"/></svg>'
+      function show() {
+        var light = document.documentElement.dataset.theme === 'light'
+        button.innerHTML = light ? moon : sun
+        button.setAttribute('aria-label', light ? 'Switch to dark mode' : 'Switch to light mode')
+        button.title = button.getAttribute('aria-label')
+      }
+      button.addEventListener('click', function () {
+        var next = document.documentElement.dataset.theme === 'light' ? 'dark' : 'light'
+        document.documentElement.dataset.theme = next
+        try { localStorage.setItem('thurin-docs-theme', next) } catch (e) {}
+        show()
+      })
+      show()
+    })()
   </script>
   <script src="vendor/docsify.min.js"></script>
   <script src="vendor/prism-typescript.min.js"></script>

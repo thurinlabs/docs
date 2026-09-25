@@ -1,8 +1,8 @@
 - [Home](/)
 - **Guides**
-- [Getting Started](/guides/getting-started)
-- [Thurin Proofs](/guides/proofs)
-- [Managing Notations](/guides/gnupg)
+- [Getting started](/guides/getting-started)
+- [Proofs](/guides/proofs)
+- [Managing notations](/guides/gnupg)
 - [ENS record](/guides/ens-record)
 - Providers
   - [Codeberg](/guides/codeberg)
@@ -15,16 +15,16 @@
 - [Verify commits](/guides/verify-commits)
 - [Verify a release](/guides/verify-release)
 - [Verify a deploy](/guides/verify-deploy)
-- **SDK**
+- **Build on it**
 - [Identity Kit](/sdk)
-- [PGPRegistry Contract](/contracts)
+- [PGPRegistry](/contracts)
 - [Records](/records)
 - **Project**
 - [Roadmap](/roadmap)
 - [CROPS](/crops)
 
 **Links**
-- [Thurin](https://thurin.id)
-- [Attest](https://thurin.id/attest)
+- [Thurin.id](https://thurin.id)
+- [Add your key](https://thurin.id/attest)
 - [Thurin Labs](https://thurinlabs.id)
 - [GitHub](https://github.com/thurinlabs)

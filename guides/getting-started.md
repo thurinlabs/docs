@@ -1,104 +1,57 @@
-# Getting Started
+# Getting started
 
-This guide walks you through everything you need to set up a Thurin identity — from creating a PGP key to verifying your first proof on Thurin.
+From nothing to a claim with a proof on it. You'll need gpg in a terminal, a wallet, and a little ETH for the fee.
 
-## 1. Install GnuPG
+## 1. Install gpg
 
-GnuPG 2.2+ is required. 2.4+ is recommended.
-
-Check if you already have it:
-
-```bash
-gpg --version
-```
-
-If not installed or too old:
+GnuPG 2.2 or newer. Check with `gpg --version`.
 
 - **macOS:** `brew install gnupg`
 - **Debian/Ubuntu:** `sudo apt install gnupg`
-- **Fedora/RHEL:** `sudo dnf install gnupg2`
+- **Fedora:** `sudo dnf install gnupg2`
 - **Arch:** `sudo pacman -S gnupg`
 - **Windows:** [Gpg4win](https://www.gpg4win.org/)
 
-## 2. Generate a PGP Key
+## 2. Make a key
 
-**Ed25519 is recommended** — fast, small keys/signatures, widely supported.
-
-```bash
-gpg --quick-gen-key "Your Name <your@email.com>" ed25519
-```
-
-You'll be prompted for a passphrase to protect your private key.
-
-After creation, get your fingerprint:
+If you already have one, skip ahead. A new Ed25519 key with your name and no email, plus an encryption subkey:
 
 ```bash
-gpg --fingerprint "Your Name"
+gpg --quick-gen-key "Your Name" ed25519 sign 2y
+gpg --quick-add-key YOUR_FINGERPRINT cv25519 encr 2y
 ```
 
-Output looks like:
+gpg prints the fingerprint when it makes the key; `gpg --fingerprint "Your Name"` shows it again. It's the 40-character hex string, like `03E5 3D80 7CE3 8C13 0ED4 2ECE CD3D 0D7F 0C9E 5FB8`.
 
-```
-pub   ed25519 2024-11-23 [SC]
-      03E5 3D80 7CE3 8C13 0ED4  2ECE CD3D 0D7F 0C9E 5FB8
-uid           [ultimate] Your Name <your@email.com>
-sub   cv25519 2024-11-23 [E]
-```
+## 3. Check it has a name without an email
 
-Your fingerprint is the 40-character hex string: `03E53D807CE38C130ED42ECECD3D0D7F0C9E5FB8`
-
-## 3. Give Your Key a Published Name
-
-Attesting stores your public key on-chain, permanently and publicly. By default Thurin publishes only the names on your key that contain **no email address**, so add one: usually your name as it already appears on the key, or any name you'd rather be known by.
+Your claim publishes the key on-chain for good, and by default only the names on it that contain no email. If every name on your key has an email, add one without:
 
 ```bash
 gpg --quick-add-uid YOUR_FINGERPRINT "Your Name"
 ```
 
-If you skip this, the attest page notices and shows this command with your name filled in.
+The attest page spots this too and shows the command with your name filled in. Proofs go on this name. Your email stays off-chain unless you choose to include it.
 
-Proof notations go on this name (see [Managing Notations](/guides/gnupg)). Your email stays off-chain unless you choose "Include my email" when attesting. No keyserver upload is needed — Thurin never reads from one.
+## 4. Add your key to your address
 
-## 4. Attest on-chain
+1. Open [thurin.id/attest](https://thurin.id/attest) and connect your wallet.
+2. Copy the one command the page shows and run it. It signs the line `I control the Ethereum address: 0x…` with your key and prints your public key. Paste the whole output back.
+3. The page checks the signature and shows exactly what goes on-chain: the name, any proofs, and what it left out.
+4. **Publish to registry** and confirm in your wallet.
 
-[thurin.id/attest](https://thurin.id/attest) creates an on-chain link between your PGP key and your Ethereum address. You'll need a browser wallet (MetaMask, etc.) and a little ETH for gas.
+The command uses the first key gpg can sign with. If the page names the wrong key, click **Use a different key**.
 
-1. **Connect your wallet** on [thurin.id/attest](https://thurin.id/attest) and open **New claim**
-2. **Sign with your PGP key** — copy the one command the page shows (your address is already in it), run it, and paste the whole output back. It signs `I control the Ethereum address: 0x…` and prints your public key. The page checks the signature and shows which key signed and exactly what will go on-chain: the published name, the proofs on it, and anything left out. Your email stays off unless you tick *Include my email*
-3. **Publish to the registry** — confirm the transaction in your wallet. That transaction, sent from your connected address, binds the address to your key
+Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
 
-**More than one key?** The command uses the first key gpg can sign with. If the page shows a different key than you meant, click *Use a different key* and type its fingerprint, email, or name; the command updates to use exactly that key.
+Rather use a terminal? `npx @thurinlabs/thurin attest` does the same, see the [CLI](/cli).
 
-Afterwards your identity is at `https://thurin.id/eth/YOUR_ADDRESS`.
+## 5. Add a proof
 
-**What goes on-chain:** your address, the key's fingerprint, the signed message, and the key with its published name(s) and proof notations. It is readable by anyone from any Ethereum node and cannot be deleted, only revoked.
+A proof links your key to an account elsewhere, both ways: the key names the account, and the account shows your fingerprint.
 
-## 5. Add Your First Proof
+1. Put `thurin-id=openpgp4fpr:YOUR_FINGERPRINT` on the platform: [GitHub](/guides/github), [DNS](/guides/dns), [Farcaster](/guides/farcaster), [Codeberg](/guides/codeberg), or [Mastodon](/guides/mastodon).
+2. Add a `proof@thurin.id` notation to your key that points at it ([how](/guides/gnupg)).
+3. Put the updated key on your claim ([how](/guides/gnupg?id=update-the-key-on-your-claim)). One transaction, no new signature.
 
-Proofs link your PGP key to your accounts on other platforms. Each proof is a two-way link:
-
-- Your PGP key points to the account (via a `proof@thurin.id` notation)
-- Your account points back to your key (via a fingerprint token)
-
-Pick a provider and follow its guide:
-
-- [Codeberg](/guides/codeberg) — repo description
-- [DNS](/guides/dns) — TXT record
-- [Farcaster](/guides/farcaster) — public cast
-- [GitHub](/guides/github) — public gist
-- [Mastodon](/guides/mastodon) — profile metadata
-
-The general flow for any provider:
-
-1. **Create the proof on the platform** (gist, TXT record, cast, repo, profile field)
-2. **Add the notation to your published name** ([GnuPG guide](/guides/gnupg))
-3. **Update the key on your claim** — *Your claims → Update* on [thurin.id/attest](https://thurin.id/attest), paste a fresh export, confirm one transaction
-4. **Verify on Thurin** — look up your address and check for the green checkmark
-
-> **Tip:** Create the proof content on the platform *before* adding the notation to your key. That way Thurin can verify it immediately.
-
-## Next Steps
-
-- [Managing Notations](/guides/gnupg) — add, list, and remove proof notations
-- [Thurin Proofs](/guides/proofs) — how the proof system works
-- [Identity Kit](/sdk) — embed your identity card on any website
+Look yourself up on thurin.id: the proof shows a check mark.

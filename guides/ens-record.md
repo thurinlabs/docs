@@ -36,7 +36,7 @@ The record never adds trust. Step 2 is complete without it. What it adds is a po
 
 ## Set it
 
-From [thurin.id](https://thurin.id): open your name. Under the current fingerprint, the line reads `id.thurin not set`. Connect the wallet that manages the name and press **Set it**. One transaction, on the name's own resolver.
+From [thurin.id](https://thurin.id): open your name. Under the current fingerprint is an **ens record** badge: green when the record points at this key, red when it points elsewhere, plain when it isn't set (hover for which). Connect the wallet that manages the name and press **Set it**. One transaction, on the name's own resolver.
 
 From the CLI:
 
@@ -59,7 +59,7 @@ Nothing changes for the record: ENSv2 keeps ENSIP-5 text records as they are. Tw
 
 ## Verification badges in ENS apps
 
-There is no ENS-level verification. What a profile shows as verified is a choice each app makes. The ENS manager's "Verifications" button currently reports no providers. An app that wants to show a Thurin claim as verified reads the registry, through [identity-kit](/sdk) or on its own, and `id.thurin` tells it where to look.
+There is no ENS-level verification. What a profile shows as verified is a choice each app makes. An app that wants to show a Thurin claim as verified reads the registry, through [identity-kit](/sdk) or on its own, and `id.thurin` tells it where to look.
 
 ## From code
 

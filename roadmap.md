@@ -1,6 +1,6 @@
 # Roadmap
 
-What Thurin is building, in the order it will ship. Everything here is open source and runs with no Thurin server in the path.
+What Thurin.id is building, in the order it will ship. Everything here is open source and runs with no Thurin server in the path.
 
 ## Status key
 
@@ -25,21 +25,19 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 
-## Registry v2 <span class="status status-shipped">Shipped</span>
+## Registry v3 <span class="status status-progress">In progress</span>
 
-*What if your online identity had a home?*
+*What if the contract was the whole tool?*
 
-- [x] Claims readable straight from the chain with plain calls: any RPC works, no keyserver, no event logs
-- [x] Email stays off-chain by default; one published name carries the proofs
-- [x] Update proofs on a claim without re-signing
-- [x] Replace a key in one transaction
-- [x] Authorized writes: sign offline, let anyone submit; the user still pays by default
-- [x] Same contract address on every network
-- [x] Security review before launch: a code review and an attack pass with 23 throwaway tests, every finding fixed (not a third-party audit; see [CROPS](/crops))
-- [x] Deployed and verified on Sepolia
-- [x] Deployed on Ethereum mainnet
-- [x] identity-kit 1.0 published
-- [x] thurin.id, share cards, and docs switched to v2
+- [x] Usable with only Etherscan or `cast` and gpg: the key comes out ready for `gpg --import`, the claim ready for `gpg --verify` ([how](/contracts?id=use-it-with-gpg-and-cast))
+- [x] Keys and signatures stored as raw bytes: a claim costs about half what it did
+- [x] Revoke with a reason; "compromised" is final, and can be marked later if you find out afterwards
+- [x] Replace a stolen key and mark it compromised in one transaction
+- [x] Records as named text, listed by the contract, and they follow a claim when it's replaced
+- [x] Three adversarial reviews, the last with a model-based test of every claim state; every finding fixed (not a third-party audit; see [CROPS](/crops))
+- [ ] Deployed and verified on Sepolia
+- [ ] Deployed on Ethereum mainnet, the same address as Sepolia
+- [ ] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
 
 ## Thurin CLI <span class="status status-shipped">Shipped</span>
 
@@ -69,7 +67,6 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
 - [x] Verify signed commits and signed releases with only gpg, keys fetched from the chain ([guides](/guides/verify-commits))
 - [x] A front door: open the keyserver in a browser for the dirmngr line, a search box, and the classic listing with who claims each key on-chain
-- [ ] Create a fresh identity address and PGP key in one guided run
 - [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
 
 ## ENS <span class="status status-shipped">Shipped</span>
@@ -78,7 +75,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 
 - [x] `id.thurin`: an ENS text record that points a name at the key its address claims; a hint any ENS viewer can show, checked from the chain ([guide](/guides/ens-record))
 - [x] The identity page checks the record against the claim: matches, not set, or points elsewhere, with a one-transaction "Set it"
-- [x] `thurin ens check` and `thurin ens link` in the CLI (0.8.0)
+- [x] `thurin ens check` and `thurin ens link` in the CLI
 - [ ] The Thurin icon on EFP profile cards, shown when a name carries the record (pull request open)
 
 ## Records <span class="status status-shipped">Shipped</span>
@@ -86,7 +83,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 *What if the chain could name the release, not just the key?*
 
 - [x] A pointer record on the company claim naming each release's checksum file, so a signed release is one Thurin Labs put out, not just one its key signed (`thurin record add-release`)
-- [x] Small typed values attached to a claim, set from the CLI (`thurin record set|get|clear`)
+- [x] Small values attached to a claim, set from the page or the CLI (`thurin record set|get|clear`)
 - [x] A Railgun record: publish your 0zk address so people can pay you privately by name
 - [x] Records tab on the identity page, and the [kinds](/records) it shows: pay privately, security contact, successor key, affiliation, canary, private, disclosure
 
@@ -97,6 +94,7 @@ What Thurin is building, in the order it will ship. Everything here is open sour
 - [x] No accounts, cookies, analytics, or telemetry on any Thurin site
 - [x] Our servers keep no access logs; the keyserver and relay record no IP addresses
 - [x] Pick the Ethereum node your browser reads from (thurin.id footer); no API key ships in any page
+- [x] Light and dark on thurin.id, thurinlabs.id, and these docs
 - [x] Profile pictures only from sources the name's owner can't watch
 - [x] Scripts and fonts served by our own sites, not pulled from CDNs
 - [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits

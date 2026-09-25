@@ -1,46 +1,27 @@
-# Thurin
+# Thurin.id
 
 > Prove more. Reveal less.
 
-Thurin builds open, decentralized identity infrastructure. On-chain identity claims, public-key cryptography, and social proofs — no backends, no intermediaries, no data collection.
+Thurin.id puts your PGP key on your Ethereum address. The claim lives in a contract on Ethereum that nobody controls, and anyone can check it with gpg and any Ethereum node. Proofs on the key link it to your accounts elsewhere: GitHub, a domain, Farcaster, Codeberg, Mastodon.
 
-## thurin.id
+There's no Thurin server in the middle. [thurin.id](https://thurin.id), the CLI, and the library all read the chain directly.
 
-[thurin.id](https://thurin.id) is the Thurin identity explorer. Look up any Ethereum address, ENS name, or PGP fingerprint to view on-chain identity claims and verified proofs.
+## Start here
 
-- [Thurin Proofs](/guides/proofs) — Link your PGP key to your online accounts with verifiable, bidirectional proofs
-- [Managing Notations](/guides/gnupg) — Add, list, and remove proof notations from your PGP key
-- [ENS record](/guides/ens-record) — Point your ENS name at your claim with the `id.thurin` text record
-- Providers: [Codeberg](/guides/codeberg) · [DNS](/guides/dns) · [Farcaster](/guides/farcaster) · [GitHub](/guides/github) · [Mastodon](/guides/mastodon)
+- [Getting started](/guides/getting-started): a key, a claim, and your first proof
+- [Proofs](/guides/proofs): how a key points at an account and back
+- [Managing notations](/guides/gnupg): adding and removing proofs with gpg
 
-## CLI
+## Tools
 
-The same thing from a terminal, scriptable: look up, attest, update, revoke.
+- [thurin.id](https://thurin.id): look anyone up, or [add your key](https://thurin.id/attest)
+- [Thurin CLI](/cli): the same from a terminal, plus a keyserver gpg can use
+- [Identity Kit](/sdk): the library, a React card, and an embed for any page
+- [PGPRegistry](/contracts): the contract, usable on its own from Etherscan or `cast`
 
-- [Thurin CLI](/cli) — `npm install -g @thurinlabs/thurin`
+## More
 
-## SDK
-
-Embed Thurin identity data in your app with a single component.
-
-- [Identity Kit](/sdk) — React SDK with `ThurinCard` component and hooks
-- [PGPRegistry Contract](/contracts) — On-chain attestation contract reference
-
-## Roadmap
-
-What is shipping next, in order: [Roadmap](/roadmap).
-
-## CROPS
-
-Can someone block you, can you see all of it, what does it learn about you, and what happens if it fails: [Thurin's answers](/crops), checked against the live sites.
-
-#### AI Agents
-
-A consolidated reference for AI assistants helping users set up Thurin Proofs is available at [llms.txt](https://docs.thurin.id/llms.txt).
-
-## Links
-
-- [Thurin](https://thurin.id) — Look up identities
-- [Attest](https://thurin.id/attest) — Create identity claims
-- [Website](https://thurin.id) — Learn more
-- [GitHub](https://github.com/thurinlabs) — Source code
+- [Records](/records): small values on a claim, like a security contact or a canary
+- [Verify commits](/guides/verify-commits), [a release](/guides/verify-release), or [a deploy](/guides/verify-deploy) with nothing but gpg and the chain
+- [Roadmap](/roadmap) · [CROPS](/crops): what we can and can't do to you
+- For AI agents: [llms.txt](https://docs.thurin.id/llms.txt), everything on one page

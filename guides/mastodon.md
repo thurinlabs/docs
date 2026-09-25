@@ -1,76 +1,30 @@
-# Mastodon Proof
+# Mastodon
 
-Verify your Mastodon identity by adding your PGP fingerprint to your profile.
+Your fingerprint on your profile: in a profile field, or in your bio.
 
-## 1. Add Your Fingerprint to Your Mastodon Profile
+## 1. Add it to your profile
 
-Go to your Mastodon instance's profile settings and add a metadata field:
+In your server's profile settings, add a field:
 
-- **Label:** `Thurin` (or anything you like)
+- **Label:** `Thurin.id` (or anything)
 - **Value:** `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`
 
-This is the same `thurin-id=openpgp4fpr:` format used by every other provider, so the proof is self-explanatory.
+For a clickable link instead, use `https://thurin.id/pgp/YOUR_FINGERPRINT` as the value; it contains the fingerprint too. Either works in your bio as well, and the 16-character key ID is accepted in place of the full fingerprint.
 
-If you'd prefer a clickable link, use your Thurin profile URL as the value instead — it also contains your fingerprint:
+## 2. Add the notation
 
-- **Value:** `https://thurin.id/pgp/YOUR_FINGERPRINT`
-
-Either value works, with your full 40-character fingerprint or your 16-character key ID, and you can put it in your bio instead of a metadata field.
-
-## 2. Add the Notation to Your PGP Key
-
-Add your Mastodon profile URL as a notation ([GnuPG guide](/guides/gnupg)):
-
-```bash
-gpg --edit-key YOUR_FINGERPRINT
-uid 1
-notation proof@thurin.id=https://INSTANCE/@USERNAME
-save
-```
-
-For example:
-
-```bash
-notation proof@thurin.id=https://mastodon.social/@alice
-```
-
-## 3. Publish the Updated Key on Thurin
-
-Thurin reads proofs from the key stored in your on-chain claim, not from a keyserver, so the new notation goes live when the stored key is updated:
-
-1. Open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds your claim, and open **Your claims**.
-2. Click **Update** on the active claim and paste a fresh export of your key:
-   ```bash
-   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
-   ```
-3. Check the summary (published name, proof count), click **Update key**, and confirm the transaction.
-
-No new signature is needed — the fingerprint is unchanged. Names that contain an email address are left out automatically unless you chose to include them when you attested.
-
-## What Thurin Checks
-
-1. Extracts the instance and username from the Mastodon profile URL
-2. Fetches the account via the Mastodon API (`/api/v1/accounts/lookup?acct=USERNAME`)
-3. Searches profile metadata fields and bio for the fingerprint (full 40-char or last-16 key ID)
-4. Shows a green checkmark if the fingerprint matches
-
-## What It Looks Like on Thurin
+With your profile's URL ([how](/guides/gnupg)):
 
 ```
-✓  MASTODON  @username@instance  [proof]
+proof@thurin.id=https://mastodon.social/@alice
 ```
 
-The handle links to your Mastodon profile. The `[proof]` link also opens your profile (since the proof lives there, not in a separate post).
+## 3. Update the key on your claim
 
-## Requirements
+[One transaction, no new signature](/guides/gnupg?id=update-the-key-on-your-claim).
 
-- Your profile metadata or bio must contain your fingerprint (typically via a Thurin URL)
-- The notation URL must match `https://INSTANCE/@USERNAME`
-- Do not remove the fingerprint from your profile — Thurin re-verifies on each lookup
+## What's checked
 
-## Notes
+The account is fetched from its own server's public API, and a profile field or the bio must contain your fingerprint (or key ID). It checks the profile itself, not a post, so there's nothing to delete by accident; just keep the fingerprint there. Works with any Mastodon-compatible server.
 
-- Unlike other providers, Mastodon proofs check your **profile**, not a specific post — so there's nothing to accidentally delete
-- Verification uses the public Mastodon API (no authentication required)
-- Works with any Mastodon-compatible instance (Mastodon, Hometown, etc.)
-- The Mastodon API strips HTML from field values before checking, so links and formatting are handled automatically
+On thurin.id it shows as `✓ MASTODON @alice@mastodon.social`, linking to the profile.

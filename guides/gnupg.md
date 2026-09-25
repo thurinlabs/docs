@@ -1,105 +1,66 @@
-# Managing Notations with GnuPG
+# Managing notations
 
-This guide covers how to add, list, and remove `proof@thurin.id` notations from your PGP key using GnuPG (GPG).
+A proof is a `proof@thurin.id` notation on your key. This page adds, lists, and removes them with gpg, then puts the updated key on your claim.
 
-## Adding a Notation
-
-Open your key for editing:
+## Add a notation
 
 ```bash
 gpg --edit-key YOUR_FINGERPRINT
 ```
 
-Select your **published name** — the user ID without an email that Thurin publishes on-chain (see [Getting Started](/guides/getting-started)). List the user IDs with `list`, pick its number, then add the notation:
+Pick the name without an email (the one that gets published), then add the notation:
 
 ```
 gpg> list
 gpg> uid 1
 gpg> notation
-```
-
-A `*` marks the selected user ID. Notations on a user ID that contains an email address are left out when the key is published, so they won't show on Thurin.
-
-Enter the notation as `proof@thurin.id=VALUE`:
-
-```
-proof@thurin.id=dns:example.com?type=TXT
-```
-
-Save and exit:
-
-```
+Enter the notation: proof@thurin.id=dns:example.com?type=TXT
 gpg> save
 ```
 
-You can add multiple `proof@thurin.id` notations — one per proof. Repeat the `notation` command for each.
+`uid 1` selects the first name; `list` shows which number is which, and a `*` marks the selected one. Repeat `notation` for each proof.
 
-## Adding a Notation in One Line
-
-The interactive editor also takes its commands from a pipe, so a notation can be added without the `gpg>` prompt:
+In one line, without the prompt:
 
 ```bash
 printf 'uid 1\nnotation\nproof@thurin.id=dns:example.com?type=TXT\nsave\n' | gpg --batch --command-fd 0 --edit-key YOUR_FINGERPRINT
 ```
 
-Repeat the `notation` line and its value for each proof. A leading `-` on the value removes that notation. GnuPG still asks for your passphrase.
-
-## Listing Notations
-
-From inside `--edit-key`:
-
-```
-gpg> showpref
-```
-
-This shows all preferences including notations at the bottom.
-
-Or from the command line:
+## List them
 
 ```bash
 gpg --list-options show-notations --list-sigs YOUR_FINGERPRINT
 ```
 
-## Removing a Notation
+## Remove one
 
-Open your key for editing:
-
-```bash
-gpg --edit-key YOUR_FINGERPRINT
-```
-
-Select your user ID, then remove a specific notation by prefixing it with `-`:
+Same as adding, with a `-` in front of the value:
 
 ```
 gpg> uid 1
 gpg> notation
-```
-
-Enter the notation to remove with a minus sign:
-
-```
--proof@thurin.id=dns:example.com?type=TXT
-```
-
-Save:
-
-```
+Enter the notation: -proof@thurin.id=dns:example.com?type=TXT
 gpg> save
 ```
 
-## Publishing the Updated Key on Thurin
+## Update the key on your claim
 
-Thurin reads proofs from the key stored in your on-chain claim. After any notation change, put the new key on-chain — one transaction, no new signature:
+thurin.id reads proofs from the key stored in your claim, never from a keyserver. After any change, put the new key on-chain: one transaction, no new signature.
 
-1. Open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds your claim, and open **Your claims**.
-2. Click **Update** on the active claim and paste a fresh export:
-   ```bash
-   gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
-   ```
-3. Check the summary (published name, proof count), click **Update key**, and confirm.
+**On the site:** open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds the claim, open **Your claims**, and click **Update**. Paste the output of the command the page shows:
 
-Keyservers are optional and unrelated: Thurin never reads from keys.openpgp.org, so uploading there neither helps nor hurts your Thurin identity.
+```bash
+gpg --export-options export-minimal,no-export-attributes --export-filter drop-subkey='usage = a' --armor --export YOUR_FINGERPRINT
+```
 
-## Rotating to a New Key
+Check the summary (names, proof count), then **Update key**.
 
-If you move to a different key, run the attest flow again with the new key. At the publish step, choose to replace your existing claim — it is revoked and the new one published in the same transaction.
+**From a terminal:** `thurin update-key`. See the [CLI](/cli).
+
+Names containing an email stay off unless you chose to include your email.
+
+## Moving to a new key
+
+Make the new key, then add it with **New claim** on the attest page and pick your current claim under **Replace an existing claim**. The old claim is revoked and the new one published in the same transaction, and your records move to the new claim. If the old key may be in someone else's hands, tick **The old key was compromised**: that marks it so, and this address can never claim it again.
+
+Found out later? Under **Your claims**, a revoked or replaced claim has **Mark compromised**. It works once per claim.

@@ -1,252 +1,188 @@
 # Identity Kit
 
-React SDK for embedding Thurin identity data. Drop-in components and hooks for displaying on-chain identity claims, PGP verification, social proofs, and EFP social graph data.
+The library behind thurin.id, the CLI, and the share cards: it reads claims from the registry, checks them with openpgp.js, and checks the proofs on the key. One core, so "verified" means the same thing everywhere.
 
-**npm:** [`@thurinlabs/identity-kit`](https://www.npmjs.com/package/@thurinlabs/identity-kit)
-**Source:** [GitHub](https://github.com/thurinlabs/identity-kit)
-
-## Install
+**npm:** [`@thurinlabs/identity-kit`](https://www.npmjs.com/package/@thurinlabs/identity-kit) · **Source:** [GitHub](https://github.com/thurinlabs/identity-kit)
 
 ```bash
 npm install @thurinlabs/identity-kit
 ```
 
-Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`
+Two entry points:
 
-## Quick Start
+- `@thurinlabs/identity-kit`: React components and hooks, plus everything in core. Peer dependencies: `react`, `react-dom`, `wagmi`, `viem`, `@tanstack/react-query`.
+- `@thurinlabs/identity-kit/core`: plain functions, no React. For Node, workers, and your own UI.
+
+## The card
 
 ```tsx
 import { IdentityKitProvider, ThurinCard } from '@thurinlabs/identity-kit'
 import '@thurinlabs/identity-kit/styles'
 
-function App() {
-  return (
-    <IdentityKitProvider>
-      <ThurinCard ens="vitalik.eth" theme="thurin" />
-    </IdentityKitProvider>
-  )
-}
-```
-
-## ThurinCard
-
-A self-contained identity card that fetches and displays all available identity data.
-
-```tsx
-<ThurinCard ens="vitalik.eth" theme="thurin" />
-<ThurinCard address="0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045" theme="dark" />
-```
-
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `ens` | `string` | — | ENS name to look up |
-| `address` | `string` | — | ETH address to look up |
-| `theme` | `'thurin' \| 'dark' \| 'light'` | `'thurin'` | Visual theme |
-
-Displays: ENS avatar, name, address, on-chain attestation count, verified proof count, EFP follower count, proof provider badges, and a link to the full Thurin profile.
-
-## Provider
-
-Wrap your app (or just the part using identity-kit) in `IdentityKitProvider`. If you already have a `WagmiProvider`, the SDK detects it and uses your existing config.
-
-```tsx
-// Zero config — public RPC, public Farcaster node, no keys
 <IdentityKitProvider>
-  <ThurinCard ens="vitalik.eth" />
-</IdentityKitProvider>
-
-// With options
-<IdentityKitProvider
-  rpcUrl="https://your-node.example"
-  farcasterHub="https://your-farcaster-node.example"
-  baseUrl="https://thurin.id"
->
-  <ThurinCard ens="vitalik.eth" />
+  <ThurinCard ens="thurinlabs.eth" theme="thurin" />
 </IdentityKitProvider>
 ```
 
-| Prop | Type | Default | Description |
-|------|------|---------|-------------|
-| `rpcUrl` | `string` | publicnode | Ethereum RPC endpoint |
-| `farcasterHub` | `string` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs: any node with the standard HTTP API (`/v1/castsByFid`). The default is Quilibrium's public Hypersnap node, no key. |
-| `neynarApiKey` | `string` | — | Optional. Read Farcaster through Neynar with your own key instead. Not needed since 1.3.7. |
-| `network` | `'mainnet' \| 'sepolia' \| 'local'` | `'mainnet'` | Which chain to read the registry on |
-| `baseUrl` | `string` | `https://thurin.id` | Base URL for "View on Thurin" links |
+`ThurinCard` takes `ens` or `address`, and `theme`: `thurin` (the dark Thurin look, default), `dark`, or `light`. Thurin's own sites have two modes and give the card `thurin` in dark mode, `light` in light mode. It shows the avatar, name, address, claim count, verified proofs, EFP followers, and a link to the identity page.
+
+`IdentityKitProvider` works with no props: it reads through a keyless public node. If your app already has a `WagmiProvider`, it uses that.
+
+| Prop | Default | |
+|---|---|---|
+| `rpcUrl` | `https://ethereum.publicnode.com` | any Ethereum RPC; reads are plain `eth_call` |
+| `network` | `mainnet` | `mainnet`, `sepolia`, or `local` (anvil, chain 31337) |
+| `registryAddress` | `REGISTRY_ADDRESS` | override, e.g. a local deploy that landed elsewhere |
+| `farcasterHub` | `https://haatz.quilibrium.com` | Farcaster node for Farcaster proofs (keyless) |
+| `neynarApiKey` | none | read Farcaster through Neynar instead |
+| `baseUrl` | `https://thurin.id` | where "View on Thurin" links point |
 
 ## Hooks
 
-For custom UI, use the hooks directly instead of `ThurinCard`.
-
-### useThurinIdentity
-
-Combined identity data — ENS, on-chain attestations, PGP proofs, and EFP social graph.
-
 ```tsx
-const identity = useThurinIdentity('vitalik.eth')
-// or
-const identity = useThurinIdentity('0xd8dA6BF26964aF9D7eEd9e03E53415D37aA96045')
+const id = useThurinIdentity('thurinlabs.eth')   // or an address
+// id.address, ensName, ensAvatar, claims, totalClaims, activeClaims,
+// currentFingerprint, pgpKeyInfo, proofs, efp, isLoading, error, errorKind, retry()
 ```
 
-Returns `ThurinIdentity` with `address`, `ensName`, `ensAvatar`, `claims`, `totalClaims`, `activeClaims`, `currentFingerprint`, `pgpKeyInfo`, `proofs`, `efp`, `isLoading`, `error`.
+`currentFingerprint` is the newest active claim whose signature verifies. Nothing from an unverified claim (proofs, names) is shown.
 
-`ensAvatar` is set only when loading it can't show the viewer to the name's owner: IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploaded avatars). An avatar on the owner's own server is left out, since loading it would hand that server every viewer's IP. The rule is `avatarUrl()` in `@thurinlabs/identity-kit/core` (1.3.3).
+| Hook | Returns |
+|---|---|
+| `useAttestations(address)` | `claims`, `totalClaims`, `activeClaims`, `currentFingerprint`, `isLoading`, `error`, `refetch` |
+| `usePGPProofs(fingerprint, armoredKey)` | `keyInfo`, `proofs` (each with `status`: verified, unverified, pending, skipped) |
+| `useRecords(address, index, kinds?, armoredKey?)` | `records` (parsed), `isLoading`, `refetch` |
+| `useEnsHint(name, fingerprint)` | the name's `id.thurin` record against the key: `match`, `unset`, or `mismatch` |
+| `useEFPGraph(address)` | `efp`: followers, following, top8 |
+| `useSafeAvatar(name, chainId)` | an avatar URL that can't reveal the viewer to the name's owner, or null |
 
-### useAttestations
+`ensAvatar` and `useSafeAvatar` only return avatars on IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploads). An avatar on the owner's own server would hand it every viewer's IP, so it's left out.
 
-On-chain attestation data from the PGPRegistry contract.
-
-```tsx
-const { claims, totalClaims, activeClaims, currentFingerprint, isLoading } =
-  useAttestations('0xd8dA...')
-```
-
-### useEFPGraph
-
-EFP (Ethereum Follow Protocol) social graph data.
-
-```tsx
-const { efp, isLoading } = useEFPGraph('0xd8dA...')
-// efp.followers, efp.following, efp.top8, efp.hasEfp
-```
-
-### usePGPProofs
-
-PGP key info and verified social proofs, parsed from the key stored in the on-chain attestation. No keyserver is consulted.
-
-```tsx
-const { keyInfo, proofs, isLoading } = usePGPProofs(fingerprint, attestation.pgpPublicKey)
-// proofs[].provider, proofs[].status, proofs[].displayUrl
-```
-
-### useEnsHint
-
-```tsx
-const { state, record, reason, isLoading } = useEnsHint('ben.thurinlabs.eth', identity.currentFingerprint)
-```
-
-The name's `id.thurin` text record against the key the registry verifies for its address: `match`, `unset`, or `mismatch` with a `reason`. See [Point your ENS name at your claim](/guides/ens-record).
-
-## Core Utilities
-
-The verification and data logic is also exported as plain framework-agnostic functions — no React, no provider. This is the layer the `ThurinCard`, the hooks, and the thurin.id explorer all build on, so a "verified" result is consistent everywhere. Use it directly when you need the validated data behind your own UI.
-
-### Proofs
+## Reading claims yourself
 
 ```ts
-import { identifyProof, verifyProof, displayUrl, proofHref } from '@thurinlabs/identity-kit'
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { REGISTRY_ADDRESS, REGISTRY_ABI, bytesToFingerprint, payloadText, verifyAttestation } from '@thurinlabs/identity-kit/core'
+
+const client = createPublicClient({ chain: mainnet, transport: http('https://ethereum.publicnode.com') })
+const owner = '0xYourAddress' as `0x${string}`
+
+const claims = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'claimsOf', args: [owner] })
+for (const c of claims) {
+  const key = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'keyBytes', args: [owner, c.index] })
+  const sig = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'signatureBytes', args: [owner, c.index] })
+  const v = await verifyAttestation({ pgpPublicKey: key, pgpSignature: sig, fingerprint: bytesToFingerprint(c.fingerprint), ethAddress: owner })
+  console.log(c.index, c.state, c.revokeReason, v.verified ? 'verified' : v.kind)
+}
+const armored = await payloadText(await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'keyBytes', args: [owner, 0n] }), 'key')
+```
+
+`REGISTRY_ADDRESS` is the same on Ethereum mainnet and Sepolia (`NETWORKS` has each network's chain id, explorer, and default RPC; `getRegistry(network)` picks one). `REGISTRY_ABI` is the whole contract, writes included. The functions themselves are on the [contract page](/contracts).
+
+`verifyAttestation` takes the key and signature as the registry stores them (raw bytes) or as armored text. It checks that the key has the claimed fingerprint, that the signature is over exactly `I control the Ethereum address: <lowercase address>`, and that the key is valid today, as gpg judges it. `kind` says why a claim doesn't count: `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Show people words, not `reason`:
+
+```ts
+import { claimCheckText, expiresSoon, expiresSoonText, claimFates, claimFateText } from '@thurinlabs/identity-kit/core'
+
+claimCheckText(v)        // { label, sentence, fix }; show `fix` to the owner only
+const soon = expiresSoon(v)
+if (soon) expiresSoonText(soon)   // 'Key expires in 12 days (Mar 6, 2027).'
+
+const fates = claimFates(attestations)            // from useAttestations, keyed by index
+claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Oct 3, 2026.'
+```
+
+A fate is `active`, `revoked` (with the owner's reason), or `replaced` (by a reattest, with the new index). A replaced claim whose key was later marked compromised says so.
+
+**Is this key compromised?** Ask the contract: `keyStatus(owner, fingerprint)` returns `none`, `active`, `revoked`, or `compromised`. Don't infer it from the newest claim: a key can be marked compromised on an older claim while a newer one keeps its own reason. And it is per owner. Anyone can post a claim on any fingerprint and mark it compromised under their own address, so never count "compromised" across all owners of a key.
+
+## Proofs
+
+```ts
+import { identifyProof, verifyProof, displayUrl, proofHref } from '@thurinlabs/identity-kit/core'
 
 const proof = identifyProof({ name: 'proof@thurin.id', value: 'https://gist.github.com/alice/abc123' })
-const result = await verifyProof(proof, fingerprint) // optional 3rd arg: { farcasterHub }
-// → { verified: boolean, reason?: string }
+if (proof) {
+  const result = await verifyProof(proof, fingerprint, { farcasterHub })   // options optional
+  // { verified, reason? }
+}
 ```
 
-`verifyProof` runs the real per-provider check — for GitHub it confirms the gist is **owned** by the claimed user, so a proof can't be forged by pointing at someone else's gist.
+Each provider has its own check. GitHub gists and repositories, and Codeberg repositories, must belong to the account in the URL, so pointing at someone else's doesn't work. The providers and what each checks: [Thurin proofs](/guides/proofs).
 
-### PGP
+## Records
 
 ```ts
-import { parsePgpKey, verifyAttestation } from '@thurinlabs/identity-kit'
+import { REGISTRY_ADDRESS, REGISTRY_ABI, kindName, pickRecords, parseRecord } from '@thurinlabs/identity-kit/core'
 
-const keyInfo = await parsePgpKey(armoredKey)
-// → { fingerprint, userIDs, algorithm, created, expires, notations, subkeys } | null
-
-const verification = await verifyAttestation({ pgpPublicKey, pgpSignature, fingerprint, ethAddress })
-// → { verified, kind, at?, revocationReason?, signingKey?, expiresAt?, algorithm?, reason? }
+kindName('security')   // 'thurin.security'; a name without a dot gets thurin. in front
+const [names, values] = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'recordsOf', args: [owner, 0n] })
+for (const r of pickRecords(names, values)) {
+  const rec = await parseRecord(r.kind, r.text, { armoredKey: armored ?? undefined })
+  // { kind, text, bytes, valid, reason?, data }
+}
 ```
 
-`kind` (1.4.0) says why a claim does or doesn't count: `verified`, `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Key validity is judged now, the way gpg does. `at` is the date that goes with it; a verified result carries `expiresAt`, the earlier of the key's and the signing subkey's expiry. Show people words, not `reason` (the library's own message):
+`pickRecords` keeps Thurin's kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parsePointer`, `addPointer`, and `renderPointer` handle `thurin.pointer`, the release list. The kinds: [Records](/records).
+
+## Writing by permission
+
+Every registry write has a `…For` form that anyone can submit with the owner's EIP-712 signature. These build the typed data for viem's `signTypedData`:
 
 ```ts
-import { claimCheckText, expiresSoon, expiresSoonText, claimFates, claimFateText } from '@thurinlabs/identity-kit'
+import { attestTypedData, revokeTypedData, markCompromisedTypedData } from '@thurinlabs/identity-kit/core'
 
-claimCheckText(verification)
-// → { label: 'key expired',
-//     sentence: 'The key on this claim expired on Mar 5, 2029, so the claim no longer counts.',
-//     fix: 'Extend the key, then Update key. No new signature needed.' }   // show `fix` to the owner only
-
-const soon = expiresSoon(verification)            // within 30 days → { days, at } | null
-if (soon) expiresSoonText(soon)                   // 'Key expires in 12 days (Mar 6, 2027).'
-
-claimFates(attestations).get(1)                   // { state: 'replaced', at, by: 2 } | { state: 'revoked', at } | { state: 'active' }
-claimFateText({ state: 'replaced', at, by: 2 })   // 'Replaced by claim #2 on Oct 3, 2026.'
+const nonce = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'nonces', args: [owner] })
+const typed = revokeTypedData(1, REGISTRY_ADDRESS, { owner, index: 0n, reason: 'retired', nonce, deadline })
+const permission = await wallet.signTypedData({ account: owner, ...typed })
+// anyone: revokeFor(owner, 0n, 'retired', deadline, permission)
 ```
 
-A claim revoked the same second a newer claim of the same owner was created was replaced by it (`reattest` does both in one transaction). Dates are in UTC so every viewer sees the same day.
+Also `reattestTypedData`, `updateKeyTypedData`, `setRecordTypedData`. A `Revoke` permission only revokes an active claim; to mark a claim that's already revoked or replaced as compromised, sign `markCompromisedTypedData` alone. `OWNER_REVOKE_REASONS` is what an owner can pick (`superseded` comes only from a reattest).
 
-### EFP
+## ENS record
 
 ```ts
-import { fetchEFPGraph } from '@thurinlabs/identity-kit'
+import { fetchEnsHint, ensHintWrite } from '@thurinlabs/identity-kit/core'
 
-const graph = await fetchEFPGraph(address)
-// → { followers, following, top8: string[], hasEfp } | null
+const hint = await fetchEnsHint(client, 'ben.thurinlabs.eth', verifiedFingerprint)   // { state: 'match' | 'unset' | 'mismatch', record, expected, reason? }
+const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)                 // setText(node, 'id.thurin', FPR); look the resolver up at write time
 ```
 
-### ENS record
-
-```ts
-import { fetchEnsHint, ensHintFor, ensHintWrite, ENS_HINT_KEY } from '@thurinlabs/identity-kit/core'
-
-const hint = await fetchEnsHint(publicClient, name, verifiedFingerprint)   // { state, record, fingerprint, expected, reason? }
-const call = ensHintWrite(name, verifiedFingerprint)                        // the setText call; look the resolver up at write time
-```
-
-### Contract constants
-
-```ts
-import { REGISTRY_ADDRESS, REGISTRY_ABI, CONTRACT_DEPLOY_BLOCK } from '@thurinlabs/identity-kit'
-```
-
-`REGISTRY_ABI` is read-only (events + `attestationCount` + `getAttestation`). Apps that write claims need their own ABI with `attest`/`revoke`.
+See [Point your ENS name at your claim](/guides/ens-record).
 
 ## Key algorithms
 
-Any curve openpgp.js can compute is verified: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js rejects secp256k1 by default because RFC 9580 does not list it; identity-kit removes secp256k1 from that list and leaves the rest of it alone (1.3.2). A secp256k1 PGP key doubles as an Ethereum key (the address is derived from the same public point), so anything that can sign with the PGP key can sign Ethereum transactions. Hold one if you like; do not fund its derived address.
+Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
 
-## Themes
+## Embed, no React
 
-Three built-in themes: `thurin`, `dark`, `light`. All styles are scoped under `[data-thurin-theme]` with `thurin-` prefixed class names to avoid conflicts with your app's styles.
-
-Import styles when using `ThurinCard`:
-
-```tsx
-import '@thurinlabs/identity-kit/styles'
-```
-
-Hooks-only consumers don't need to import styles.
-
-## Embed (No React Required)
-
-For static sites, Jekyll blogs, WordPress, or any HTML page — use the standalone embed script. Everything runs client-side; there's no Thurin backend in the path.
+For any HTML page. Everything runs in the visitor's browser, straight to Ethereum and each proof's platform.
 
 ```html
-<div
-  data-thurin-card="bendoubleu.eth"
-  data-theme="thurin"
-  data-rpc-url="https://your-node.example"
-></div>
-
-<script src="https://cdn.jsdelivr.net/npm/@thurinlabs/identity-kit@1.3.7/dist/embed.global.js"
-        integrity="sha384-roJOjv0QvBIPKs+NoZXI3wb9181cLvzymEDTS0yszbBo9yP78rECAtAEUj53E+bu"
-        crossorigin="anonymous"></script>
+<div data-thurin-card="thurinlabs.eth" data-theme="thurin"></div>
+<script src="identity-kit-embed.js"></script>
 ```
 
-Pin an exact version with its `integrity` hash, as above: a new release then can't change your page until you choose to update, and a tampered file won't run. Better still, copy `dist/embed.global.js` to your own site (`npm pack @thurinlabs/identity-kit`, then take the file from `package/dist/`) and load it from there: no CDN sees your visitors. That's what thurinlabs.id does. `data-rpc-url` is optional; without it the card reads through the keyless `https://ethereum.publicnode.com`.
+Serve the script yourself: `npm pack @thurinlabs/identity-kit`, then copy `package/dist/embed.global.js` to your site. No CDN sees your visitors, and a new release can't change your page until you copy it. thurinlabs.id does this. If you load it from a CDN, pin the exact version and add its `integrity` hash (`openssl dgst -sha384 -binary embed.global.js | openssl base64 -A`).
 
-| Attribute | Description |
-|-----------|-------------|
-| `data-thurin-card` | ENS name or ETH address to look up (required) |
-| `data-theme` | `thurin`, `dark`, or `light` (default: `thurin`). Change it after render and the card follows, so a page with a theme switch can keep the card in step. |
-| `data-rpc-url` | Optional. Any Ethereum RPC — the card reads the v2 registry with plain calls, so the keyless public default works. |
-| `data-farcaster-hub` | Optional. The Farcaster node used for Farcaster proofs (default: Quilibrium's public keyless node, `https://haatz.quilibrium.com`). |
-| `data-neynar-key` | Optional. Read Farcaster through Neynar with your own key instead. Not needed since 1.3.7. |
-| `data-base-url` | Optional. Where the card's "View on Thurin" link points (default `https://thurin.id`). A page served from ENS can pass its own name so the link stays on ENS. |
+| Attribute | |
+|---|---|
+| `data-thurin-card` | ENS name or address (required) |
+| `data-theme` | `thurin` (default), `dark`, or `light`. Change it later and the card follows. |
+| `data-rpc-url` | any Ethereum RPC; default the keyless `https://ethereum.publicnode.com` |
+| `data-network` | `mainnet` (default), `sepolia`, or `local` |
+| `data-registry-address` | override the registry address |
+| `data-farcaster-hub` | Farcaster node (default Quilibrium's keyless node) |
+| `data-neynar-key` | read Farcaster through Neynar instead |
+| `data-base-url` | where "View on Thurin" points (default `https://thurin.id`); a page served from ENS can pass its own name |
 
-The card talks directly to Ethereum and each proof platform — no intermediary, no keyserver. Cards render automatically on page load and for dynamically added elements.
+Cards render on load and for elements added later.
 
-## Card Image (No JavaScript Required)
+## Card image, no JavaScript
 
-For places where scripts can't run — GitHub READMEs, forum posts, emails — embed a server-rendered PNG identity card instead. Cards are 640×200, generated on the fly, and cached for an hour.
+For READMEs, forums, and email: a 640×200 PNG, rendered on request and cached for an hour.
 
 ```
 https://thurin.id/card/ens/:name
@@ -254,16 +190,10 @@ https://thurin.id/card/eth/:address
 https://thurin.id/card/pgp/:fingerprint
 ```
 
-A trailing `.png` on the identifier is accepted, which helps platforms that expect an image extension:
+A trailing `.png` is accepted:
 
 ```markdown
-[![Thurin identity](https://thurin.id/card/ens/bendoubleu.eth.png)](https://thurin.id/ens/bendoubleu.eth)
+[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)
 ```
 
-| Route | Looks up by |
-|-------|-------------|
-| `/card/ens/:name` | ENS name |
-| `/card/eth/:address` | ETH address |
-| `/card/pgp/:fingerprint` | PGP fingerprint |
-
-The card shows the ENS avatar and name, address, on-chain attestation count, verified proof count, and EFP follower count — the same live data as `ThurinCard`. Full-size 1200×630 share cards are also available at the matching `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` routes; those are what social platforms receive automatically when a Thurin link is shared, so you rarely need to link them directly.
+The 1200×630 share cards at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint` are what social sites fetch when a thurin.id link is shared.

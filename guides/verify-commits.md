@@ -11,7 +11,7 @@ echo "keyserver hkps://keys.thurin.id" >> ~/.gnupg/dirmngr.conf
 gpgconf --kill dirmngr
 ```
 
-[keys.thurin.id](/cli#be-a-keyserver) answers gpg's key requests by reading the Thurin registry. It also speaks plain HKP on port 11371, so a bare `--keyserver keys.thurin.id` works; `hkps://` is the one to put in your config. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
+[keys.thurin.id](/cli?id=be-a-keyserver) answers gpg's key requests by reading the Thurin registry. It also speaks plain HKP on port 11371, so a bare `--keyserver keys.thurin.id` works; `hkps://` is the one to put in your config. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
 
 ## 2. Fetch the signer's key
 
@@ -44,7 +44,7 @@ The key's on-chain claim carries proofs. [thurin.id/ens/ben.thurinlabs.eth](http
 npx @thurinlabs/thurin status ben.thurinlabs.eth
 ```
 
-So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it, and the address never held any ETH: the claim was published through Thurin's [relayer](/cli#run-a-relayer).
+So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it.
 
 ## Let gpg fetch keys on its own
 
@@ -56,7 +56,7 @@ auto-key-retrieve
 
 ## Revocation
 
-If a signing key is compromised, its owner revokes the claim on-chain. `gpg --refresh-keys` then stops receiving it. A commit signed after the revocation shows as signed by an unknown key.
+If a signing key is compromised, its owner revokes the claim as compromised. `gpg --refresh-keys` then stops receiving it, and a commit signed after that shows as signed by an unknown key. The chain keeps the claim and its reason, so `thurin status` still shows when it ended and why.
 
 ## Your own commits
 

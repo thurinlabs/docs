@@ -12,7 +12,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **Who could block you:** our web server, our relay, our keyserver, and the public Ethereum node the site reads from by default. All of them run on one server we operate.
 
-**Why it doesn't matter much:** none of them is needed. The [registry](/contracts) at `0x9302E02e2869e129aC8516fE5eFFd51EA3082c09` takes claims from anyone, directly.
+**Why it doesn't matter much:** none of them is needed. The [registry](/contracts) at `0xFa6956c11163517249f8A67F5560a4406B519451` takes claims from anyone, directly, and you can use it with only Etherscan or `cast` and gpg.
 
 **Your way around us:**
 - Publish from any wallet, or from a terminal with the [CLI](/cli); the relay is only there if you want someone else to pay.
@@ -56,12 +56,13 @@ Details: [privacy policy](https://thurinlabs.id/privacy/).
 **What we can't do to you:** the contract has no admin. We can't change, freeze, or delete your claim, and no one can move funds through it; it holds none.
 
 **What could go wrong, and what we do about it:**
-- *Someone steals your Ethereum key or ENS name.* They could replace the key on your claim or revoke it, and so could you: it becomes a race. Keep the Ethereum key on hardware. If it leaks, revoke the claim and attest again from a fresh address; your PGP key is unaffected.
+- *Someone steals your Ethereum key or ENS name.* They could replace the key on your claim or revoke it, even as compromised, and so could you: it becomes a race. Keep the Ethereum key on hardware. If it leaks, claim your key again from a fresh address; your PGP key is unaffected, and a "compromised" mark on the old address doesn't follow it.
+- *Someone steals your PGP key.* Revoke the claim as compromised, or replace it with a new key and mark the old one in the same transaction. Once marked, that address can never claim the key again.
 - *The Ethereum node lies to the page.* A dishonest node could show a claim that isn't there. Use a node you trust for anything that matters; the CLI works against your own.
 - *Our relay's wallet.* It pays gas unattended, capped at a small daily budget. It can't touch your claim.
 - *A bad release or deploy.* Releases and deploys are signed and tied to public commits, and the library won't publish from uncommitted code. Check before you trust ([how](/guides/verify-release)).
 
-**The contract review:** the registry was reviewed twice before launch, one pass reading the code and one attacking it with 23 throwaway tests. Every finding was fixed before mainnet. This was not a third-party audit.
+**The contract review:** before launch the registry had three adversarial reviews, each by an agent that didn't write the code. The last one checked every write path against an independent model of the rules, over hundreds of thousands of random calls. Every finding was fixed before mainnet. This was not a third-party audit.
 
 **If everything we run disappears:** your claim stays readable from any Ethereum node, gpg still verifies every signature, the code is mirrored on Codeberg, and the CLI runs against any node. There is nothing to migrate.
 
