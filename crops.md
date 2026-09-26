@@ -33,7 +33,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 ## Privacy
 
-**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names on it, the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
+**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names and subkeys on it (an SSH subkey too, which links that SSH key to your address), the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
 
 **What Thurin Labs learns about you:** nothing we keep.
 - No accounts, no cookies, no analytics, no telemetry.

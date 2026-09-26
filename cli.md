@@ -60,7 +60,7 @@ The address needs a little ETH for the fee. No ETH there? See [below](/cli?id=no
 
 Before it asks you to confirm, `attest`:
 
-- exports a minimal copy of the key and leaves out every name with an email (`--include-email` keeps them);
+- exports a minimal copy of the key and leaves out every name with an email (`--include-email` keeps them); every subkey stays, an SSH (authentication) one included;
 - has gpg sign `I control the Ethereum address: 0x…`;
 - checks that signature the same way thurin.id will, plus the size limits and that this address hasn't revoked the key as compromised;
 - shows the names, proof count, and size that will go on-chain.
