@@ -22,7 +22,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] A link to each identity's EFP profile
 - [x] identity-kit: the one library behind the site, the CLI, and the cards
 - [x] A card image for READMEs, and link previews, drawn by thurin.id's server
-- [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
+- [x] ENS hosting at `id.thurinlabs.eth`, `docs.thurinlabs.eth`, and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 
 ## Registry v3 <span class="status status-shipped">Shipped</span>

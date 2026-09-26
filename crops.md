@@ -18,7 +18,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 - Publish from any wallet, or from a terminal with the [CLI](/cli); the relay is only there if you want someone else to pay.
 - Read through your own node: the thurin.id footer lets you change it, and the CLI takes `--rpc`.
 - Run your own keyserver (`thurin keyserver`) or relay (`thurin relay`).
-- Open the sites through ENS (`id.thurinlabs.eth`, `thurinlabs.eth`) if thurin.id is down.
+- Open the sites through ENS (`id.thurinlabs.eth`, `docs.thurinlabs.eth`, `thurinlabs.eth`) if thurin.id is down.
 
 ## Open source and free
 
@@ -26,7 +26,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **You can check that what runs is what's published:**
 - Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
-- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.0 on, on the current registry ([how to check](/guides/verify-release)). Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.1 on, on the current registry ([how to check](/guides/verify-release)). The one exception, 0.13.0, went to npm unsigned and was replaced by 0.13.1 within the hour. Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
 **Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](/guides/verify-deploy).

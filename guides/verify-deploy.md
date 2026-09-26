@@ -6,14 +6,15 @@ You need `git`, Node 20.19 or newer (for thurin.id; 22.12+ on the 22 line), and 
 
 ## 1. Find the live CID
 
-thurin.id and thurinlabs.id are also published under ENS names, and any ENS gateway reports the CID it serves:
+thurin.id, docs.thurin.id, and thurinlabs.id are also published under ENS names, and any ENS gateway reports the CID it serves:
 
 ```bash
 curl -sI https://id.thurinlabs.eth.limo/ | grep -i x-ipfs-roots     # thurin.id
+curl -sI https://docs.thurinlabs.eth.limo/ | grep -i x-ipfs-roots   # docs.thurin.id
 curl -sI https://thurinlabs.eth.limo/ | grep -i x-ipfs-roots        # thurinlabs.id
 ```
 
-Or read the contenthash of `id.thurinlabs.eth` / `thurinlabs.eth` in any ENS app.
+Or read the contenthash of `id.thurinlabs.eth` / `docs.thurinlabs.eth` / `thurinlabs.eth` in any ENS app.
 
 ## 2. Find the deploy tag
 
