@@ -170,8 +170,28 @@ thurin ens link ben.thurinlabs.eth --calldata   # print the transaction for the 
 thurin key list                   # your keys, with the names and proofs that would be published
 thurin key export <fingerprint>   # the minimal armored export
 thurin key fetch thurinlabs.eth   # the key stored on-chain; --import adds it to your keyring
+thurin key ssh bendoubleu.eth     # its SSH keys, as authorized_keys lines
 thurin key default <fingerprint>  # the key to use when --key isn't given
 ```
+
+## Log in with SSH
+
+Add an authentication subkey to your PGP key, and your claim carries an SSH key too:
+
+```bash
+gpg --quick-add-key <fingerprint> ed25519 auth 2y
+thurin update-key          # or claim the key for the first time with thurin attest
+```
+
+`thurin key ssh <identity>` prints every valid SSH key from the claim that counts, one `authorized_keys` line each, like `github.com/<user>.keys` with no one in control. Append them to a file, or let sshd ask at every login:
+
+```
+# /etc/ssh/sshd_config
+AuthorizedKeysCommand /usr/local/bin/thurin key ssh 0x<address>
+AuthorizedKeysCommandUser nobody
+```
+
+Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. The command asks the Ethereum node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
 
 ## Wallet, which is not a wallet
 
