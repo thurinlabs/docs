@@ -50,7 +50,7 @@ thurin.id reads proofs from the key stored in your claim, never from a keyserver
 **On the site:** open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds the claim, open **Your claims**, and click **Update**. Paste the output of the command the page shows:
 
 ```bash
-gpg --export-options export-minimal,no-export-attributes --export-filter drop-subkey='usage = a' --armor --export YOUR_FINGERPRINT
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
 ```
 
 Check the summary (names, proof count), then **Update key**.

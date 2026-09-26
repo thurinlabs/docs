@@ -190,7 +190,7 @@ Keystores are the V3 format `cast`, geth, and most wallets import. `--password-f
 gpg fetches keys from keyservers with one HTTP request. `thurin keyserver` answers it from the registry.
 
 ```bash
-thurin keyserver    # hkp://127.0.0.1:11371
+thurin keyserver    # hkp://127.0.0.1:11371; add --rpc <url> to read through your own node
 gpg --keyserver hkp://127.0.0.1:11371 --recv-keys 08B9374FDFBEC67EFFA24E669D3D86E35361EF7B
 ```
 
@@ -248,13 +248,14 @@ People use it with `--relay <url>` or `"relay"` in their config. It's the one co
 | option | |
 |---|---|
 | `--network mainnet\|sepolia\|local` | which chain (default mainnet; `local` is anvil on 8545) |
-| `--rpc <url>` | your own node |
+| `--rpc <url>` | your own node (also `THURIN_RPC_URL`) |
 | `--account <name\|path>` | the keystore that signs or pays |
 | `--password-file <path>` | the keystore password, for scripts |
 | `--key <fingerprint>` | which PGP key |
 | `--site <url>` | where links point (default https://thurin.id) |
 | `--json` | data on stdout |
 | `--yes` | don't ask before sending |
+| `--show-network` | list the hosts the command contacted, when it ends (also `THURIN_SHOW_NETWORK=1`) |
 
 Defaults live in `~/.config/thurin/config.json`, for example `{"network":"sepolia","rpc":{"mainnet":"https://…"},"account":"identity"}`.
 
