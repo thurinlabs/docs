@@ -695,7 +695,7 @@ thurin attest --authorize --deadline 1d     # default 7d
 
 Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
 
-Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. On thurin.id: wallet menu → Cancel unused permissions. `--relay <url>` posts it to a [relay](https://docs.thurin.id/#/cli?id=run-a-relay) that pays, with no link at all.
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](https://docs.thurin.id/#/contracts) from the same address. `--relay <url>` posts it to a [relay](https://docs.thurin.id/#/cli?id=run-a-relay) that pays, with no link at all.
 
 **The PGP key isn't here** (a card, an air-gapped machine):
 
