@@ -2,7 +2,7 @@
 
 Every Thurin Labs site is a folder on IPFS, named by its content ID (CID). This guide rebuilds a site from its public source and checks you get the same CID, which proves the site you load is exactly that code, with nothing added.
 
-You need `git`, Node 20 or newer (for thurin.id), and [kubo](https://docs.ipfs.tech/install/command-line/) (`ipfs`). Nothing is uploaded and no IPFS daemon is needed: kubo only computes the hash. Run `ipfs init` once if you have never used it.
+You need `git`, Node 20.19 or newer (for thurin.id; 22.12+ on the 22 line), and [kubo](https://docs.ipfs.tech/install/command-line/) (`ipfs`). Nothing is uploaded and no IPFS daemon is needed: kubo only computes the hash. Run `ipfs init` once if you have never used it.
 
 ## 1. Find the live CID
 
@@ -55,7 +55,7 @@ THURIN_COMMIT=$(git rev-parse HEAD) npm run build
 ipfs add --only-hash -r -Q --cid-version 1 --hidden dist
 ```
 
-The printed CID should equal the one in the tag and step 1. We checked this with Node 20, 22, and 24: the lockfiles pin everything that matters, so the Node version doesn't change the result. `THURIN_COMMIT` is the commit stamp that thurin.id shows in its page source (`<meta name="thurin-commit">`).
+The printed CID should equal the one in the tag and step 1. We checked this with Node 20, 22, and 24 (last on 26 September 2026, deploy `deploy-2026-09-26-2216`): the lockfiles pin everything that matters, so the Node version doesn't change the result. `THURIN_COMMIT` is the commit stamp that thurin.id shows in its page source (`<meta name="thurin-commit">`).
 
 ## If it doesn't match
 

@@ -1,6 +1,6 @@
 # CROPS
 
-> **Checked 24 September 2026**, on the live sites, against the [CROPS review checklist](https://ethskills.com/crops/SKILL.md) from ETHSKILLS, which turns the Ethereum Foundation's CROPS principles ([EF Mandate](https://blog.ethereum.org/2026/03/13/ef-mandate)) into concrete checks. This is our own review; the Ethereum Foundation did not review Thurin.id.
+> **Checked 26 September 2026**, on the live sites, against the [CROPS review checklist](https://ethskills.com/crops/SKILL.md) from ETHSKILLS, which turns the Ethereum Foundation's CROPS principles ([EF Mandate](https://blog.ethereum.org/2026/03/13/ef-mandate)) into concrete checks. This is our own review; the Ethereum Foundation did not review Thurin.id.
 
 The Ethereum Foundation asks every project to answer four questions: can someone block you (**C**ensorship resistance), can you see and fork all of it (**O**pen source and free), what does it learn about you (**P**rivacy), and what happens if it fails or the team disappears (**S**ecurity). This page is Thurin.id's answer, including what we have not solved.
 
