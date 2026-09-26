@@ -40,7 +40,7 @@ Check each step before doing it; skip what's already done.
    - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
      open where the wallet is;
    - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
-     (`--relayer https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
+     (`--relay https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
      within a daily budget).
 5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
    `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go
@@ -100,7 +100,7 @@ On mainnet a claim is about 430,000 gas, and `update-key` about 300,000. At 1 gw
 
 ## Thurin.id
 
-> Prove more. Reveal less.
+> PGP keys on Ethereum · Old trust – new ground
 
 Thurin.id puts your PGP key on your Ethereum address. The claim lives in a contract on Ethereum that nobody controls, and anyone can check it with gpg and any Ethereum node. Proofs on the key link it to your accounts elsewhere: GitHub, a domain, Farcaster, Codeberg, Mastodon.
 
@@ -695,7 +695,7 @@ thurin attest --authorize --deadline 1d     # default 7d
 
 Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
 
-Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, and it can't be recalled without ETH, so the deadline is printed every time. `--relayer <url>` posts it to a [relay](https://docs.thurin.id/#/cli?id=run-a-relay) that pays, with no link at all.
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. On thurin.id: wallet menu → Cancel unused permissions. `--relay <url>` posts it to a [relay](https://docs.thurin.id/#/cli?id=run-a-relay) that pays, with no link at all.
 
 **The PGP key isn't here** (a card, an air-gapped machine):
 
@@ -831,9 +831,9 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
-`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (bad permission), 403 or 429 (limits), 502 (the chain refused), 503 (budget spent), or 500 (anything else). `GET /` shows the network, payer, budget, and today's spend.
+`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (a bad permission, or the registry's reason for refusing it), 403 or 429 (limits), 502 (the chain or RPC failed), 503 (budget spent), or 500 (anything else). `GET /` shows the network and chain id, payer, budget, and today's spend; thurin.id offers the relay only when its network matches.
 
-People use it with `--relayer <url>` or `"relayer"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
+People use it with `--relay <url>` or `"relay"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
 
 ### Options
 

@@ -48,7 +48,7 @@ Check each step before doing it; skip what's already done.
    - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
      open where the wallet is;
    - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
-     (`--relayer https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
+     (`--relay https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
      within a daily budget).
 5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
    `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go

@@ -1,6 +1,6 @@
 # Thurin.id
 
-> Prove more. Reveal less.
+> PGP keys on Ethereum · Old trust – new ground
 
 Thurin.id puts your PGP key on your Ethereum address. The claim lives in a contract on Ethereum that nobody controls, and anyone can check it with gpg and any Ethereum node. Proofs on the key link it to your accounts elsewhere: GitHub, a domain, Farcaster, Codeberg, Mastodon.
 
