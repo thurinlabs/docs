@@ -1596,7 +1596,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] ENS hosting at `id.thurinlabs.eth` and `thurinlabs.eth`
 - [x] Docs and `llms.txt` for AI agents
 
-### Registry v3 <span class="status status-progress">In progress</span>
+### Registry v3 <span class="status status-shipped">Shipped</span>
 
 *What if the contract was the whole tool?*
 
@@ -1607,8 +1607,8 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] Records as named text, listed by the contract, and they follow a claim when it's replaced
 - [x] Three adversarial reviews, the last with a model-based test of every claim state; every finding fixed (not a third-party audit; see [CROPS](https://docs.thurin.id/#/crops))
 - [x] Deployed and verified on Sepolia (Etherscan and Sourcify)
-- [ ] Deployed on Ethereum mainnet, the same address as Sepolia
-- [ ] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
+- [x] Deployed on Ethereum mainnet, the same address as Sepolia (26 September 2026)
+- [x] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
 
 ### Thurin CLI <span class="status status-shipped">Shipped</span>
 
@@ -1671,7 +1671,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits
 - [x] A public [CROPS](https://docs.thurin.id/#/crops) review, checked against the live sites
 
-### Encrypt to an identity <span class="status status-progress">In progress</span>
+### Encrypt to an identity <span class="status status-shipped">Shipped</span>
 
 *What if you could encrypt a file to a name?*
 
@@ -1682,7 +1682,7 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] "Can receive encrypted messages" shown on identities whose key supports it
 - [x] The recipient left out of the message, so an intercepted one doesn't point at a name
 
-### Web of trust <span class="status status-designed">Designed</span>
+### Web of trust <span class="status status-next">Next</span>
 
 *What if vouching for someone counted for something?*
 
