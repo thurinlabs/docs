@@ -4,6 +4,7 @@
 - [Proofs](/guides/proofs)
 - [Managing notations](/guides/gnupg)
 - [ENS record](/guides/ens-record)
+- [Encrypt to an identity](/guides/encrypt)
 - Providers
   - [Codeberg](/guides/codeberg)
   - [DNS](/guides/dns)

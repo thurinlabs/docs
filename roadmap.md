@@ -30,12 +30,12 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 *What if the contract was the whole tool?*
 
 - [x] Usable with only Etherscan or `cast` and gpg: the key comes out ready for `gpg --import`, the claim ready for `gpg --verify` ([how](/contracts?id=use-it-with-gpg-and-cast))
-- [x] Keys and signatures stored as raw bytes: a claim costs about half what it did
+- [x] Keys and signatures stored as raw bytes: a first claim costs about a third less than on v2, a later one about half
 - [x] Revoke with a reason; "compromised" is final, and can be marked later if you find out afterwards
 - [x] Replace a stolen key and mark it compromised in one transaction
 - [x] Records as named text, listed by the contract, and they follow a claim when it's replaced
 - [x] Three adversarial reviews, the last with a model-based test of every claim state; every finding fixed (not a third-party audit; see [CROPS](/crops))
-- [ ] Deployed and verified on Sepolia
+- [x] Deployed and verified on Sepolia (Etherscan and Sourcify)
 - [ ] Deployed on Ethereum mainnet, the same address as Sepolia
 - [ ] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
 
@@ -100,15 +100,16 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits
 - [x] A public [CROPS](/crops) review, checked against the live sites
 
-## Encrypt to an identity <span class="status status-next">Next</span>
+## Encrypt to an identity <span class="status status-progress">In progress</span>
 
 *What if you could encrypt a file to a name?*
 
-- [ ] Encrypt a message or file to any verified Thurin.id identity, in the browser
-- [ ] Same in the CLI, with signing
-- [ ] An Encrypt tab on the identity page, next to Overview, Claims, and Records
-- [ ] A warning when an identity's key changed recently, before you encrypt to it
-- [ ] "Accepts encrypted mail" shown on identities whose key supports it
+- [x] Encrypt a message or file to any verified Thurin.id identity, in the browser ([how](/guides/encrypt))
+- [x] Same in the CLI, with signing
+- [x] An Encrypt tab on the identity page, next to Overview, Claims, and Records
+- [x] A warning when an identity's key changed recently, before you encrypt to it
+- [x] "Can receive encrypted messages" shown on identities whose key supports it
+- [x] The recipient left out of the message, so an intercepted one doesn't point at a name
 
 ## Web of trust <span class="status status-designed">Designed</span>
 

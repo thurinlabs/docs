@@ -399,6 +399,53 @@ const resolver = await publicClient.getEnsResolver({ name: call.name })
 
 ---
 
+<!-- https://docs.thurin.id/#/guides/encrypt -->
+
+## Encrypt to an identity
+
+Every verified claim carries a full PGP key, usually with an encryption subkey. Thurin.id finds the right one for a name, so you can encrypt a message or a file to `bendoubleu.eth` without asking anyone for their key. Only the owner's key can open it.
+
+### In the browser
+
+Open the identity and choose **Encrypt**: `thurin.id/ens/<name>/encrypt`. Write a message or choose a file, then **Encrypt**.
+
+- A message comes back as an armored block to copy or download (`message-for-<name>.asc`).
+- A file comes back as `<file>.gpg`.
+
+Everything happens in the tab. The page uses the key it already checked, fetches nothing new, and uploads nothing; Thurin never sees the message. Deliver it any way you like: email, chat, a USB stick. The recipient opens it with `gpg --decrypt`.
+
+### From a terminal
+
+```bash
+echo "meet at noon" | thurin encrypt bendoubleu.eth > note.asc   # a message, armored
+thurin encrypt bendoubleu.eth report.pdf                         # writes report.pdf.gpg
+thurin encrypt bendoubleu.eth report.pdf --sign                  # signed with your own key too
+```
+
+The CLI hands the chosen key to gpg with `--recipient-file`, so nothing is imported into your keyring, and `--sign` works with your usual key. `-o` picks the output; `--armor` armors a file.
+
+### Which key, and when it refuses
+
+Only the **claim that counts**: the newest active claim that verifies. An unverified claim could be someone else's fake claim for that address, so it is never used. The page and the CLI refuse, in one sentence, when:
+
+- no claim counts for the identity;
+- its newest claim doesn't verify;
+- its key has no encryption subkey (it can sign but not receive);
+- its encryption subkey has expired.
+
+When the key arrived in the **last 7 days**, both warn first: "This key was added 3 days ago. If you were expecting a different one, check with them another way." Someone holding a stolen wallet can only bring in their own key with a new claim, and a new claim is dated.
+
+### What the message reveals
+
+- **The recipient is hidden.** A normal PGP message names its recipient's key ID; with keys on-chain next to names, that would point straight at the person. Thurin.id leaves the ID out (gpg's `--throw-keyids`), and gpg finds the right key by trying each of the recipient's own: "anonymous recipient; trying secret key …". Lines like `ecdh failed … Checksum error` along the way only mean gpg tried a key that wasn't the one; it keeps going. With several keys on cards, it may ask for more than one PIN. `thurin encrypt --show-recipient` names the recipient, if you want that.
+- **The sender is not proven.** The browser doesn't sign (a web page never holds your private key), so anyone could have sent it. To sign, use `thurin encrypt --sign`.
+
+### For the recipient
+
+Nothing to set up: `gpg --decrypt note.asc`. A hardware key works like any other message. Keep your encryption subkey current (`gpg --quick-set-expire <fingerprint> 2y '*'`, then **Update key** at [thurin.id/attest](https://thurin.id/attest)); an expired one means nobody can encrypt to you.
+
+---
+
 <!-- https://docs.thurin.id/#/guides/codeberg -->
 
 ## Codeberg
@@ -765,6 +812,16 @@ thurin key fetch thurinlabs.eth   # the key stored on-chain; --import adds it to
 thurin key ssh bendoubleu.eth     # its SSH keys, as authorized_keys lines
 thurin key default <fingerprint>  # the key to use when --key isn't given
 ```
+
+### Encrypt to someone
+
+```bash
+echo "meet at noon" | thurin encrypt bendoubleu.eth > note.asc   # stdin → armored message on stdout
+thurin encrypt bendoubleu.eth report.pdf                         # writes report.pdf.gpg
+thurin encrypt bendoubleu.eth report.pdf --sign -o out.gpg       # signed with your key, named output
+```
+
+Only to the claim that counts, and only while its encryption subkey is valid; otherwise one sentence says why and it exits 1. It warns when the key arrived in the last 7 days. gpg encrypts with `--recipient-file`, so nothing lands in your keyring. The recipient's key ID is left out of the message (`--show-recipient` puts it back). More: [Encrypt to an identity](https://docs.thurin.id/#/guides/encrypt).
 
 ### Log in with SSH
 
@@ -1244,6 +1301,20 @@ const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)            
 
 See [Point your ENS name at your claim](https://docs.thurin.id/#/guides/ens-record).
 
+### Encrypt
+
+```ts
+import { readClaims, encryptionKeyFor, encryptRefusalText, keyChangedText, encryptTo } from '@thurinlabs/identity-kit'
+
+const k = await encryptionKeyFor(await readClaims(client, owner))   // the claim that counts, or a reason
+if (!k.ok) throw new Error(encryptRefusalText(k))                   // no claim / unverified / no encryption subkey / expired
+const warning = keyChangedText(k)                                   // non-null when the key arrived in the last 7 days
+const armored = await encryptTo(k.key, 'meet at noon')              // recipient hidden by default
+const bytes = await encryptTo(k.key, fileBytes, { filename: 'report.pdf' })
+```
+
+`encryptTo` uses the kit's openpgp settings, so keys on secp256k1 (what a Keycard holds) work too. `{ hideRecipient: false }` names the recipient's key ID. See [Encrypt to an identity](https://docs.thurin.id/#/guides/encrypt).
+
 ### Key algorithms
 
 Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
@@ -1529,12 +1600,12 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 *What if the contract was the whole tool?*
 
 - [x] Usable with only Etherscan or `cast` and gpg: the key comes out ready for `gpg --import`, the claim ready for `gpg --verify` ([how](https://docs.thurin.id/#/contracts?id=use-it-with-gpg-and-cast))
-- [x] Keys and signatures stored as raw bytes: a claim costs about half what it did
+- [x] Keys and signatures stored as raw bytes: a first claim costs about a third less than on v2, a later one about half
 - [x] Revoke with a reason; "compromised" is final, and can be marked later if you find out afterwards
 - [x] Replace a stolen key and mark it compromised in one transaction
 - [x] Records as named text, listed by the contract, and they follow a claim when it's replaced
 - [x] Three adversarial reviews, the last with a model-based test of every claim state; every finding fixed (not a third-party audit; see [CROPS](https://docs.thurin.id/#/crops))
-- [ ] Deployed and verified on Sepolia
+- [x] Deployed and verified on Sepolia (Etherscan and Sourcify)
 - [ ] Deployed on Ethereum mainnet, the same address as Sepolia
 - [ ] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
 
@@ -1599,15 +1670,16 @@ What Thurin.id is building, in the order it will ship. Everything here is open s
 - [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits
 - [x] A public [CROPS](https://docs.thurin.id/#/crops) review, checked against the live sites
 
-### Encrypt to an identity <span class="status status-next">Next</span>
+### Encrypt to an identity <span class="status status-progress">In progress</span>
 
 *What if you could encrypt a file to a name?*
 
-- [ ] Encrypt a message or file to any verified Thurin.id identity, in the browser
-- [ ] Same in the CLI, with signing
-- [ ] An Encrypt tab on the identity page, next to Overview, Claims, and Records
-- [ ] A warning when an identity's key changed recently, before you encrypt to it
-- [ ] "Accepts encrypted mail" shown on identities whose key supports it
+- [x] Encrypt a message or file to any verified Thurin.id identity, in the browser ([how](https://docs.thurin.id/#/guides/encrypt))
+- [x] Same in the CLI, with signing
+- [x] An Encrypt tab on the identity page, next to Overview, Claims, and Records
+- [x] A warning when an identity's key changed recently, before you encrypt to it
+- [x] "Can receive encrypted messages" shown on identities whose key supports it
+- [x] The recipient left out of the message, so an intercepted one doesn't point at a name
 
 ### Web of trust <span class="status status-designed">Designed</span>
 

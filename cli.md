@@ -174,6 +174,16 @@ thurin key ssh bendoubleu.eth     # its SSH keys, as authorized_keys lines
 thurin key default <fingerprint>  # the key to use when --key isn't given
 ```
 
+## Encrypt to someone
+
+```bash
+echo "meet at noon" | thurin encrypt bendoubleu.eth > note.asc   # stdin → armored message on stdout
+thurin encrypt bendoubleu.eth report.pdf                         # writes report.pdf.gpg
+thurin encrypt bendoubleu.eth report.pdf --sign -o out.gpg       # signed with your key, named output
+```
+
+Only to the claim that counts, and only while its encryption subkey is valid; otherwise one sentence says why and it exits 1. It warns when the key arrived in the last 7 days. gpg encrypts with `--recipient-file`, so nothing lands in your keyring. The recipient's key ID is left out of the message (`--show-recipient` puts it back). More: [Encrypt to an identity](/guides/encrypt).
+
 ## Log in with SSH
 
 Add an authentication subkey to your PGP key, and your claim carries an SSH key too:

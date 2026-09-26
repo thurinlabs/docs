@@ -122,6 +122,20 @@ const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)            
 
 See [Point your ENS name at your claim](/guides/ens-record).
 
+## Encrypt
+
+```ts
+import { readClaims, encryptionKeyFor, encryptRefusalText, keyChangedText, encryptTo } from '@thurinlabs/identity-kit'
+
+const k = await encryptionKeyFor(await readClaims(client, owner))   // the claim that counts, or a reason
+if (!k.ok) throw new Error(encryptRefusalText(k))                   // no claim / unverified / no encryption subkey / expired
+const warning = keyChangedText(k)                                   // non-null when the key arrived in the last 7 days
+const armored = await encryptTo(k.key, 'meet at noon')              // recipient hidden by default
+const bytes = await encryptTo(k.key, fileBytes, { filename: 'report.pdf' })
+```
+
+`encryptTo` uses the kit's openpgp settings, so keys on secp256k1 (what a Keycard holds) work too. `{ hideRecipient: false }` names the recipient's key ID. See [Encrypt to an identity](/guides/encrypt).
+
 ## Key algorithms
 
 Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
