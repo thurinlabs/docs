@@ -23,7 +23,8 @@ INTRO_INDEX = f"""# Thurin.id docs
 HEADER = f"""
 Thurin.id puts a PGP key on an Ethereum address: a claim in a contract nobody controls, checkable with gpg and
 any Ethereum node. Proofs on the key link it to accounts elsewhere. An agent can drive everything with the CLI
-(`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see PGPRegistry below).
+(`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see [PGPRegistry]({SITE}/contracts.md)).
+Not installed? Use `npx @thurinlabs/thurin` wherever this says `thurin`.
 
 ---
 
@@ -57,20 +58,23 @@ Check each step before doing it; skip what's already done.
    - their wallet has a little ETH: the browser at https://thurin.id/attest, or the CLI with a keystore.
      **The person makes or imports the keystore themselves, in their own terminal** (`thurin wallet create <name>`
      shows a recovery phrase; `thurin wallet import <name>` asks for a key or phrase). Never run those, or
-     `thurin wallet export --private-key`, for them: the secret would land in your transcript. The CLI refuses to
-     print a secret anywhere but a terminal;
+     `thurin wallet export --private-key`, for them: the secret would land in your transcript, even when
+     you run it inside a terminal;
    - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
      open where the wallet is;
    - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
-     (`--relay https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
-     within a daily budget).
+     (`--relay https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address,
+     and for key updates and records, within a daily budget and a few requests an hour).
 5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
    `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go
    on-chain, and asks once. **Never pass `--yes` on mainnet without the person's explicit yes in this
    session**, after they've seen that summary: a claim is public and can't be deleted.
 6. **Proofs.** For each account: put `thurin-id=openpgp4fpr:<fingerprint>` on the platform, add the
    `proof@thurin.id=<url>` notation to the key with gpg, then `thurin update-key` (one transaction, no new
-   signature). Each provider's page below says exactly where the line goes and what URL to use.
+   signature). No ETH? `thurin update-key --authorize --relay https://relay.thurin.id`. Each provider's page
+   ([Codeberg]({SITE}/guides/codeberg.md), [DNS]({SITE}/guides/dns.md), [Farcaster]({SITE}/guides/farcaster.md),
+   [GitHub]({SITE}/guides/github.md), [Mastodon]({SITE}/guides/mastodon.md)) says exactly where the line goes
+   and what URL to use.
 7. **Confirm.** `thurin status <address or ENS> --json`.
 
 ### Checking your work
@@ -114,7 +118,7 @@ On mainnet a claim is about 430,000 gas, and `update-key` about 300,000. At 1 gw
 - New proofs or names on the same key: `thurin update-key`.
 - A new key: `thurin reattest --key <new>` (records move with it). If the old key was stolen, add `--compromised`.
 - End a claim: `thurin revoke <index> --reason retired|other|compromised`.
-- Records (a security contact, a canary, a release list): `thurin record set <name> <value>`; see Records below.
+- Records (a security contact, a canary, a release list): `thurin record set <name> <value>`; see [Records]({SITE}/records.md).
 """
 
 

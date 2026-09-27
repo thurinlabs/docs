@@ -197,11 +197,11 @@ thurin update-key          # or claim the key for the first time with thurin att
 
 ```
 # /etc/ssh/sshd_config
-AuthorizedKeysCommand /usr/local/bin/thurin key ssh 0x<address> --rpc http://127.0.0.1:8545
+AuthorizedKeysCommand /usr/bin/thurin key ssh 0x<address> --rpc http://127.0.0.1:8545
 AuthorizedKeysCommandUser nobody
 ```
 
-Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. **Use your own Ethereum node** (`--rpc`): sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party; fine for looking people up, not for letting them into your server. Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. The command asks the node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
+Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. **Use your own Ethereum node** (`--rpc`): sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party; fine for looking people up, not for letting them into your server. Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. sshd needs the absolute path (`command -v thurin`), and Node must be installed system-wide: sshd's minimal PATH won't find one from nvm. The command asks the node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
 
 ## Wallet, which is not a wallet
 
@@ -213,7 +213,7 @@ thurin wallet export <name>    # the encrypted file; --private-key prints the ke
 thurin wallet default <name>
 ```
 
-Keystores are the V3 format `cast`, geth, and most wallets import. `--password-file <path>` for scripts.
+Keystores are the V3 format `cast`, geth, and most wallets import. `--password-file <path>` for scripts. `wallet create` and `export --private-key` print their secret only to a terminal, never to a pipe or a file.
 
 ## Be a keyserver
 
@@ -295,7 +295,7 @@ The registry is `0xFa6956c11163517249f8A67F5560a4406B519451`, the same address o
 
 ## For agents
 
-Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](/llms.txt ':ignore') is the index for agents; [llms-full.txt](/llms-full.txt ':ignore') has every page in one file. An agent never runs `thurin wallet create`, `wallet import`, or `wallet export --private-key` for someone: those handle the secret, so the person runs them in their own terminal (the CLI refuses to print a secret anywhere but a terminal).
+Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](/llms.txt ':ignore') is the index for agents; [llms-full.txt](/llms-full.txt ':ignore') has every page in one file. An agent never runs `thurin wallet create`, `wallet import`, or `wallet export --private-key` for someone: those handle the secret, so the person runs them in their own terminal.
 
 ## Source
 
