@@ -1,0 +1,1792 @@
+# Thurin.id docs, in one file
+
+> Every page of https://docs.thurin.id, in the sidebar's order, for AI agents and anyone who wants it all at once.
+> The short index is https://docs.thurin.id/llms.txt. The "For agents" section is written for these files; everything after it is built from the pages.
+
+Thurin.id puts a PGP key on an Ethereum address: a claim in a contract nobody controls, checkable with gpg and
+any Ethereum node. Proofs on the key link it to accounts elsewhere. An agent can drive everything with the CLI
+(`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see PGPRegistry below).
+
+---
+
+## For agents: helping someone set up Thurin.id
+
+### What you can do, and what only they can
+
+You can run every command here. Only the person can:
+- type their gpg passphrase (gpg asks through pinentry) and their keystore password (or give you a `--password-file`);
+- confirm a transaction in their own wallet (browser extension, phone, hardware);
+- post the proof on their accounts (a gist, a DNS record, a cast, a repo, a profile field), unless they've given you
+  those tools (`gh`, a DNS API);
+- make, import, or export a wallet (`thurin wallet create`, `import`, `export --private-key`): those show or take a secret;
+- decide what goes public. A claim is public and permanent: it can be revoked, never deleted. Tell them before you publish.
+
+Never ask for or handle a private key or passphrase in chat. If you need one, stop and let them type it.
+
+### The path, in order
+
+Check each step before doing it; skip what's already done.
+
+1. **gpg 2.2 or newer.** Check: `gpg --version`. Install: `brew install gnupg`, `sudo apt install gnupg`,
+   `sudo dnf install gnupg2`, `sudo pacman -S gnupg`, or Gpg4win.
+2. **A PGP key.** Check: `gpg -K --with-colons` (a `sec` line means they have one). If they have several, ask which.
+   Make one: `gpg --quick-gen-key "Their Name" ed25519 sign 2y`, then
+   `gpg --quick-add-key <fingerprint> cv25519 encr 2y`. Thurin.id never makes keys; gpg does.
+3. **A name without an email on the key.** Only those names are published (unless they opt in with
+   `--include-email`), and proofs must sit on one. Check: `gpg --list-keys <fingerprint>`. Add one:
+   `gpg --quick-add-uid <fingerprint> "Their Name"`.
+4. **An Ethereum address, and a way to pay.** The claim goes on the address that signs. Pick one:
+   - their wallet has a little ETH: the browser at https://thurin.id/attest, or the CLI with a keystore.
+     **The person makes or imports the keystore themselves, in their own terminal** (`thurin wallet create <name>`
+     shows a recovery phrase; `thurin wallet import <name>` asks for a key or phrase). Never run those, or
+     `thurin wallet export --private-key`, for them: the secret would land in your transcript. The CLI refuses to
+     print a secret anywhere but a terminal;
+   - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
+     open where the wallet is;
+   - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
+     (`--relay https://relay.thurin.id` posts it to Thurin Labs' relay, which pays for one claim per address
+     within a daily budget).
+5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
+   `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go
+   on-chain, and asks once. **Never pass `--yes` on mainnet without the person's explicit yes in this
+   session**, after they've seen that summary: a claim is public and can't be deleted.
+6. **Proofs.** For each account: put `thurin-id=openpgp4fpr:<fingerprint>` on the platform, add the
+   `proof@thurin.id=<url>` notation to the key with gpg, then `thurin update-key` (one transaction, no new
+   signature). Each provider's page below says exactly where the line goes and what URL to use.
+7. **Confirm.** `thurin status <address or ENS> --json`.
+
+### Checking your work
+
+`thurin status <identity> --json` returns `identities[0]` with `current` (the newest active claim that
+verifies, or null), `claims` (all of them), and `proofs`. Exit code 0 means a verified claim, 1 means no
+verified claim, 2 means bad usage, and 3 means a chain or network error.
+
+- `claims[].verification.kind`: `verified`, or why that claim doesn't count: `expired`, `signing-key-expired`,
+  `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. When
+  `current` is null, the newest active claim's `kind` says what to fix.
+- `proofs[]`: `{provider, display, url, verified, reason}`. A proof with `verified: false` has a `reason`;
+  fix what it says and look again (proofs are checked live, nothing is cached).
+- `claims[].state`: `active`, `revoked`, or `replaced`; `revokeReason` says why it ended.
+
+The person can also look at https://thurin.id/eth/<address>.
+
+### Mistakes to avoid
+
+- Public keyservers play no part: the key comes from the chain. Don't tell anyone to upload to or wait on
+  keys.openpgp.org.
+- Signing by hand: the statement has no line break after it. Use `printf '%s'`, never `echo`.
+- The wrong key: with several keys, gpg signs with its default one. Pass `--key <fingerprint>`.
+- Proofs added but not showing: the notation is on a name with an email (left out), or the key on the claim
+  wasn't updated afterwards (`thurin update-key`).
+- Claiming the same key again: an address has one active claim per key. To change keys, use
+  `thurin reattest --key <new>`; to refresh names or proofs, use `update-key`.
+- "compromised" is final for that address and key. Only use it when the key may really be in someone
+  else's hands.
+
+### Practice first, and cost
+
+`--network sepolia` runs everything on Ethereum's test network: the same contract address, and test ETH
+from any Sepolia faucet. It's a good first run for someone unsure.
+
+On mainnet a claim is about 430,000 gas, and `update-key` about 300,000. At 1 gwei that's 0.00043 ETH and
+0.0003 ETH; check the gas price with `cast gas-price` or a gas tracker.
+
+### Later changes
+
+- New proofs or names on the same key: `thurin update-key`.
+- A new key: `thurin reattest --key <new>` (records move with it). If the old key was stolen, add `--compromised`.
+- End a claim: `thurin revoke <index> --reason retired|other|compromised`.
+- Records (a security contact, a canary, a release list): `thurin record set <name> <value>`; see Records below.
+
+
+---
+
+<!-- https://docs.thurin.id/README.md -->
+
+## Thurin.id
+
+> PGP keys on Ethereum · Old trust – new ground
+
+Thurin.id puts your PGP key on your Ethereum address. The claim lives in a contract on Ethereum that nobody controls, and anyone can check it with gpg and any Ethereum node. Proofs on the key link it to your accounts elsewhere: GitHub, a domain, Farcaster, Codeberg, Mastodon.
+
+No Thurin Labs server sits in the middle. [thurin.id](https://thurin.id), the CLI, and the library all read the chain directly.
+
+### Start here
+
+- [Getting started](https://docs.thurin.id/guides/getting-started.md): a key, a claim, and your first proof
+- [Proofs](https://docs.thurin.id/guides/proofs.md): how a key points at an account and back
+- [Managing notations](https://docs.thurin.id/guides/gnupg.md): adding and removing proofs with gpg
+
+### Tools
+
+- [thurin.id](https://thurin.id): look anyone up, or [add your key](https://thurin.id/attest)
+- [Thurin CLI](https://docs.thurin.id/cli.md): the same from a terminal, plus a keyserver gpg can use
+- [Identity Kit](https://docs.thurin.id/sdk.md): the library, for your own app or script, and a card image for your README
+- [PGPRegistry](https://docs.thurin.id/contracts.md): the contract, usable on its own from Etherscan or `cast`
+
+### More
+
+- [Records](https://docs.thurin.id/records.md): small values on a claim, like a security contact or a canary
+- [CROPS](https://docs.thurin.id/crops.md): what we can and can't do to you
+- [Verify commits](https://docs.thurin.id/guides/verify-commits.md), [a release](https://docs.thurin.id/guides/verify-release.md), or [a deploy](https://docs.thurin.id/guides/verify-deploy.md) with nothing but gpg and the chain
+- [Roadmap](https://docs.thurin.id/roadmap.md): what's next
+- For AI agents: [llms.txt](https://docs.thurin.id/llms.txt) (an index of every page, with a guide to helping someone set up; [llms-full.txt](https://docs.thurin.id/llms-full.txt) has them all in one file)
+
+---
+
+<!-- https://docs.thurin.id/guides/getting-started.md -->
+
+## Getting started
+
+From nothing to a claim with a proof on it. You'll need gpg in a terminal, a wallet, and a little ETH for the fee.
+
+### 1. Install gpg
+
+GnuPG 2.2 or newer. Check with `gpg --version`.
+
+- **macOS:** `brew install gnupg`
+- **Debian/Ubuntu:** `sudo apt install gnupg`
+- **Fedora:** `sudo dnf install gnupg2`
+- **Arch:** `sudo pacman -S gnupg`
+- **Windows:** [Gpg4win](https://www.gpg4win.org/)
+
+### 2. Make a key
+
+If you already have one, skip ahead. A new Ed25519 key with your name and no email, plus an encryption subkey:
+
+```bash
+gpg --quick-gen-key "Your Name" ed25519 sign 2y
+gpg --quick-add-key YOUR_FINGERPRINT cv25519 encr 2y
+```
+
+gpg prints the fingerprint when it makes the key; `gpg --fingerprint "Your Name"` shows it again. It's the 40-character hex string, like `03E5 3D80 7CE3 8C13 0ED4 2ECE CD3D 0D7F 0C9E 5FB8`.
+
+### 3. Check it has a name without an email
+
+Your claim publishes the key on-chain for good, and by default only the names on it that contain no email. If every name on your key has an email, add one without:
+
+```bash
+gpg --quick-add-uid YOUR_FINGERPRINT "Your Name"
+```
+
+The attest page spots this too and shows the command with your name filled in. Proofs go on this name. Your email stays off-chain unless you choose to include it.
+
+### 4. Add your key to your address
+
+1. Open [thurin.id/attest](https://thurin.id/attest) and connect your wallet.
+2. Copy the one command the page shows and run it. It signs the line `I control the Ethereum address: 0x…` with your key and prints your public key. Paste the whole output back.
+3. The page checks the signature and shows exactly what goes on-chain: the name, any proofs, and what it left out.
+4. **Publish** and confirm in your wallet.
+
+The command uses the first key gpg can sign with. If the page names the wrong key, click **Use a different key**.
+
+Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
+
+Rather use a terminal? `npx @thurinlabs/thurin attest` does the same; see the [CLI](https://docs.thurin.id/cli.md).
+
+### 5. Add a proof
+
+A proof links your key to an account elsewhere, both ways: the key names the account, and the account shows your fingerprint.
+
+1. Put `thurin-id=openpgp4fpr:YOUR_FINGERPRINT` on the platform: [GitHub](https://docs.thurin.id/guides/github.md), [DNS](https://docs.thurin.id/guides/dns.md), [Farcaster](https://docs.thurin.id/guides/farcaster.md), [Codeberg](https://docs.thurin.id/guides/codeberg.md), or [Mastodon](https://docs.thurin.id/guides/mastodon.md).
+2. Add a `proof@thurin.id` notation to your key that points at it ([how](https://docs.thurin.id/guides/gnupg.md)).
+3. Put the updated key on your claim ([how](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim)). One transaction, no new signature.
+
+Look yourself up on thurin.id and press **Check proofs**: the proof gets a check mark.
+
+---
+
+<!-- https://docs.thurin.id/guides/proofs.md -->
+
+## Proofs
+
+A proof links your PGP key to an account on another platform, in both directions:
+
+1. **The key points at the account.** A `proof@thurin.id` notation on your key holds a URL: a GitHub gist, a DNS name, a Farcaster cast, a Codeberg repo, a Mastodon profile.
+2. **The account points back at the key.** What's at that URL contains your fingerprint as `openpgp4fpr:FINGERPRINT`.
+
+Anyone can check both, so both must be controlled by the same person.
+
+```
+┌──────────┐   proof@thurin.id notation (a URL)   ┌──────────────────┐
+│ PGP key  │ ───────────────────────────────────→ │ GitHub, DNS,     │
+│          │ ←─────────────────────────────────── │ Farcaster, …     │
+└──────────┘   openpgp4fpr:FINGERPRINT            └──────────────────┘
+```
+
+### Providers
+
+| Provider | Where the fingerprint goes | Notation |
+|---|---|---|
+| [GitHub](https://docs.thurin.id/guides/github.md) | a public gist (or, for an organisation, a repo description) | `proof@thurin.id=https://gist.github.com/user/id` |
+| [DNS](https://docs.thurin.id/guides/dns.md) | a TXT record | `proof@thurin.id=dns:example.com?type=TXT` |
+| [Farcaster](https://docs.thurin.id/guides/farcaster.md) | a public cast | `proof@thurin.id=https://farcaster.xyz/user/0xhash` |
+| [Codeberg](https://docs.thurin.id/guides/codeberg.md) | a repo description | `proof@thurin.id=https://codeberg.org/user/repo` |
+| [Mastodon](https://docs.thurin.id/guides/mastodon.md) | a profile field or your bio | `proof@thurin.id=https://mastodon.social/@user` |
+
+### What to put on the platform
+
+The same line everywhere:
+
+```
+thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+```
+
+The fingerprint is the full one, any case: 40 hex characters for most keys, 64 for newer (v6) keys. The check looks for `openpgp4fpr:` followed by your fingerprint (Mastodon also takes the bare fingerprint or the 16-character key ID); the `thurin-id=` label just tells a reader what the line is for.
+
+### How a proof is checked
+
+When someone looks you up, their browser (or the CLI, which checks unless run with `--no-proofs`):
+
+1. reads the key stored in your claim, and checks your claim's signature against it;
+2. reads the `proof@thurin.id` notations on the published name and lists them, marked **not checked**;
+3. when they press **Check proofs**, fetches each proof from its platform, and checks it contains your fingerprint and belongs to the account named;
+4. shows a check mark, or the reason it failed.
+
+Proofs are checked only when asked because checking tells each platform the reader's IP and which identity they're looking at. Someone who wants every page checked can choose "Always check" in the thurin.id footer; it's saved in their browser. Until then, a handle is just text anyone could have typed into their own key, so it never shows a check mark.
+
+It all runs on the reader's side. The only requests go to an Ethereum node and, once asked, to the platforms themselves. Nothing caches proofs: one you delete stops verifying the next time someone checks.
+
+### Before you start
+
+- A [claim](https://docs.thurin.id/guides/getting-started.md) on thurin.id.
+- A name on your key without an email. Notations on names that contain an email are left off the published key, unless you chose to include your email.
+
+---
+
+<!-- https://docs.thurin.id/guides/gnupg.md -->
+
+## Managing notations
+
+A proof is a `proof@thurin.id` notation on your key. This page adds, lists, and removes them with gpg, then puts the updated key on your claim.
+
+### Add a notation
+
+```bash
+gpg --edit-key YOUR_FINGERPRINT
+```
+
+Pick the name without an email (the one that gets published), then add the notation:
+
+```
+gpg> list
+gpg> uid 1
+gpg> notation
+Enter the notation: proof@thurin.id=dns:example.com?type=TXT
+gpg> save
+```
+
+`uid 1` selects the first name; `list` shows which number is which, and a `*` marks the selected one. Repeat `notation` for each proof.
+
+In one line, without the prompt:
+
+```bash
+printf 'uid 1\nnotation\nproof@thurin.id=dns:example.com?type=TXT\nsave\n' | gpg --batch --command-fd 0 --edit-key YOUR_FINGERPRINT
+```
+
+### List them
+
+```bash
+gpg --list-options show-notations --list-sigs YOUR_FINGERPRINT
+```
+
+### Remove one
+
+Same as adding, with a `-` in front of the value:
+
+```
+gpg> uid 1
+gpg> notation
+Enter the notation: -proof@thurin.id=dns:example.com?type=TXT
+gpg> save
+```
+
+### Update the key on your claim
+
+thurin.id reads proofs from the key stored in your claim, never from a keyserver. After any change, put the new key on-chain: one transaction, no new signature.
+
+**On the site:** open [thurin.id/attest](https://thurin.id/attest), connect the wallet that holds the claim, open **Your claims**, and click **Update**. Paste the output of the command the page shows:
+
+```bash
+gpg --export-options export-minimal,no-export-attributes --armor --export YOUR_FINGERPRINT
+```
+
+Check the summary (names, proof count), then **Update key**.
+
+**From a terminal:** `thurin update-key`. See the [CLI](https://docs.thurin.id/cli.md).
+
+Names containing an email stay off unless you chose to include your email.
+
+### Moving to a new key
+
+Make the new key, then add it with **New claim** on the attest page and pick your current claim under **Replace an existing claim**. The old claim is revoked and the new one published in the same transaction, and your records move to the new claim. If the old key may be in someone else's hands, tick **The old key was compromised**: that marks it so, and this address can never claim it again.
+
+Found out later? Under **Your claims**, a revoked or replaced claim has **Mark compromised**. It works once per claim.
+
+---
+
+<!-- https://docs.thurin.id/guides/ens-record.md -->
+
+## Point your ENS name at your claim
+
+An ENS profile lists the accounts a name owns: `com.github`, `com.twitter`, `url`. None of them is checked by anyone. A Thurin.id claim is the one thing on a profile that can be: the name owner set the address, and the address signed the claim, on-chain.
+
+`id.thurin` is an ENS text record that points a name at that claim. It is a hint for ENS viewers, not a proof. The proof is the claim.
+
+### The record
+
+| key | value |
+|---|---|
+| `id.thurin` | the fingerprint of the key claimed by the address the name resolves to, 40 hex characters, uppercase, no spaces, no `0x` |
+
+For example, `ben.thurinlabs.eth` carries:
+
+```
+id.thurin = 6E0053911942A889426C1866E34D9266098F7FE7
+```
+
+`id.thurin` is a service key under [ENSIP-5](https://docs.ens.domains/ensip/5): reverse-dot of the domain that owns it. [ENSIP-18](https://docs.ens.domains/ensip/18) asks that service-key values carry no formatting, so the value is the bare fingerprint. Readers should accept case, spaces, and a `0x` prefix anyway.
+
+### What a reader does
+
+1. Resolve the name to its address.
+2. Read the address's current claim from the [registry](https://docs.thurin.id/contracts.md) and verify it, which is what identity-kit, thurin.id, and the CLI already do.
+3. Read `id.thurin` and compare.
+
+Three answers:
+
+| state | meaning |
+|---|---|
+| matches | the record names the verified key. Show it as verified. |
+| not set | the name has no record. Nothing is wrong; the claim still stands. |
+| points elsewhere | the record names a key the address has not claimed, or is not a fingerprint at all. A signal worth showing. |
+
+The record never adds trust. Step 2 is complete without it. What it adds is a pointer that any ENS viewer can render, the same way it renders `com.github`, so someone looking at a name has a place to go.
+
+### Set it
+
+From [thurin.id](https://thurin.id): open your name. Under the current fingerprint is an **ens record** badge: green when the record points at this key, red when it points elsewhere, plain when it isn't set (hover for which). Connect the wallet that manages the name and press **Set it**. One transaction, on the name's own resolver.
+
+From the CLI:
+
+```bash
+thurin ens check ben.thurinlabs.eth            # what the record says now
+thurin ens link ben.thurinlabs.eth             # set it from the keystore
+thurin ens link ben.thurinlabs.eth --calldata  # print the transaction for a wallet elsewhere
+```
+
+From the [ENS app](https://app.ens.domains): add a text record with key `id.thurin` and the fingerprint as its value. Check the result with `thurin ens check <name>`.
+
+The transaction must come from an account that may write the name's records: the owner, or a manager. The wallet holding the Thurin.id claim need not be that account, and often isn't.
+
+### ENSv2
+
+Nothing changes for the record: ENSv2 keeps ENSIP-5 text records as they are. Two notes for anyone writing one:
+
+- ENSv2 gives every account its own resolver. Look the resolver up at write time; never hardcode one. Thurin.id's tools do.
+- Migrating a name from v1 may clear its records. Set `id.thurin` again after migrating.
+
+### Verification badges in ENS apps
+
+There is no ENS-level verification. What a profile shows as verified is a choice each app makes. An app that wants to show a Thurin.id claim as verified reads the registry, through [identity-kit](https://docs.thurin.id/sdk.md) or on its own, and `id.thurin` tells it where to look.
+
+### From code
+
+```ts
+import { fetchEnsHint, ensHintWrite } from '@thurinlabs/identity-kit'
+
+const hint = await fetchEnsHint(publicClient, 'ben.thurinlabs.eth', verifiedFingerprint)
+// hint.state: 'match' | 'unset' | 'mismatch'; hint.reason on a mismatch
+
+const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)   // setText(namehash, 'id.thurin', 'FPR…')
+const resolver = await publicClient.getEnsResolver({ name: call.name })
+```
+
+---
+
+<!-- https://docs.thurin.id/guides/encrypt.md -->
+
+## Encrypt to an identity
+
+Every verified claim carries a full PGP key, usually with an encryption subkey. Thurin.id finds the right one for a name, so you can encrypt a message or a file to `bendoubleu.eth` without asking anyone for their key. Only the owner's key can open it.
+
+### In the browser
+
+Open the identity and choose **Encrypt**: `thurin.id/ens/<name>/encrypt`. Write a message or choose a file, then **Encrypt**.
+
+- A message comes back as an armored block to copy or download (`message-for-<name>.asc`).
+- A file comes back as `<file>.gpg`.
+
+Everything happens in the tab. The page uses the key it already checked, fetches nothing new, and uploads nothing; Thurin never sees the message. Deliver it any way you like: email, chat, a USB stick. The recipient opens it with `gpg --decrypt`.
+
+### From a terminal
+
+```bash
+echo "meet at noon" | thurin encrypt bendoubleu.eth > note.asc   # a message, armored
+thurin encrypt bendoubleu.eth report.pdf                         # writes report.pdf.gpg
+thurin encrypt bendoubleu.eth report.pdf --sign                  # signed with your own key too
+```
+
+The CLI hands the chosen key to gpg with `--recipient-file`, so nothing is imported into your keyring, and `--sign` works with your usual key. `-o` picks the output; `--armor` armors a file.
+
+### Which key, and when it refuses
+
+Only the **claim that counts**: the newest active claim that verifies. An unverified claim could be someone else's fake claim for that address, so it is never used. The page and the CLI refuse, in one sentence, when:
+
+- no claim counts for the identity;
+- its newest claim doesn't verify;
+- its key has no encryption subkey (it can sign but not receive);
+- its encryption subkey has expired.
+
+When the key arrived in the **last 7 days**, both warn first: "This key was added 3 days ago. If you were expecting a different one, check with them another way." Someone holding a stolen wallet can only bring in their own key with a new claim, and a new claim is dated.
+
+### What the message reveals
+
+- **The recipient is hidden.** A normal PGP message names its recipient's key ID; with keys on-chain next to names, that would point straight at the person. Thurin.id leaves the ID out (gpg's `--throw-keyids`), and gpg finds the right key by trying each of the recipient's own: "anonymous recipient; trying secret key …". Lines like `ecdh failed … Checksum error` along the way only mean gpg tried a key that wasn't the one; it keeps going. With several keys on cards, it may ask for more than one PIN. `thurin encrypt --show-recipient` names the recipient, if you want that.
+- **The sender is not proven.** The browser doesn't sign (a web page never holds your private key), so anyone could have sent it. To sign, use `thurin encrypt --sign`.
+
+### For the recipient
+
+Nothing to set up: `gpg --decrypt note.asc`. A hardware key works like any other message. Keep your encryption subkey current (`gpg --quick-set-expire <fingerprint> 2y '*'`, then **Update key** at [thurin.id/attest](https://thurin.id/attest)); an expired one means nobody can encrypt to you.
+
+---
+
+<!-- https://docs.thurin.id/guides/codeberg.md -->
+
+## Codeberg
+
+A repository whose description holds your fingerprint.
+
+### 1. Make a repository
+
+On [codeberg.org](https://codeberg.org), create a public repository, for example `thurin-proof`, with this description:
+
+```
+thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+```
+
+It can be empty; only the description matters. Your account's visibility must be **Public**.
+
+### 2. Add the notation
+
+With the repository's URL ([how](https://docs.thurin.id/guides/gnupg.md)):
+
+```
+proof@thurin.id=https://codeberg.org/USERNAME/thurin-proof
+```
+
+### 3. Update the key on your claim
+
+[One transaction, no new signature](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim).
+
+### What's checked
+
+The repository is fetched from the Codeberg API. It must belong to the account in the URL, and its description must contain `openpgp4fpr:` followed by your fingerprint. It's checked whenever someone checks your proofs, so keep it public.
+
+On thurin.id it shows as `✓ CODEBERG username`, linking to your profile and to the repository.
+
+---
+
+<!-- https://docs.thurin.id/guides/dns.md -->
+
+## DNS
+
+A TXT record on your domain with your fingerprint in it.
+
+### 1. Add a TXT record
+
+On the domain itself (name `@` or blank), with the value:
+
+```
+thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+```
+
+It doesn't interfere with other records. Check it's live with `dig TXT example.com +short`. A subdomain such as `_thurin.example.com` works too; use it in the notation below.
+
+### 2. Add the notation
+
+```
+proof@thurin.id=dns:example.com?type=TXT
+```
+
+([how](https://docs.thurin.id/guides/gnupg.md)). For a subdomain: `proof@thurin.id=dns:_thurin.example.com?type=TXT`.
+
+### 3. Update the key on your claim
+
+[One transaction, no new signature](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim).
+
+### What's checked
+
+The domain's TXT records are fetched through Cloudflare's DNS-over-HTTPS resolver, and one of them must contain `openpgp4fpr:` followed by your fingerprint. New records can take a few minutes to show.
+
+On thurin.id it shows as `✓ DNS example.com`, linking to the domain.
+
+---
+
+<!-- https://docs.thurin.id/guides/farcaster.md -->
+
+## Farcaster
+
+A public cast with your fingerprint in it.
+
+### 1. Post a cast
+
+From any Farcaster client:
+
+```
+Verifying my identity with @thurinlabs
+
+thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+```
+
+Any other text is fine, as long as the cast contains `openpgp4fpr:` followed by your fingerprint.
+
+### 2. Add the notation
+
+With the cast's URL ([how](https://docs.thurin.id/guides/gnupg.md)):
+
+```
+proof@thurin.id=https://farcaster.xyz/USERNAME/0xCASTHASH
+```
+
+### 3. Update the key on your claim
+
+[One transaction, no new signature](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim).
+
+### What's checked
+
+The username in the URL is resolved to its Farcaster account, and the cast is looked up among that account's casts, so it must be one you posted. Its text must contain your fingerprint. By default this is read from a public Farcaster node that needs no key (Quilibrium's Hypersnap node); the [library](https://docs.thurin.id/sdk.md) can use another. Don't delete the cast: it's checked whenever someone checks your proofs.
+
+On thurin.id it shows as `✓ FARCASTER @username`, linking to your profile and to the cast.
+
+---
+
+<!-- https://docs.thurin.id/guides/github.md -->
+
+## GitHub
+
+A public gist with your fingerprint in it. An organisation can't own a gist, so it uses a repository description instead ([below](https://docs.thurin.id/guides/github.md#for-an-organisation)).
+
+### 1. Make a public gist
+
+At [gist.github.com](https://gist.github.com), create a **public** gist with any filename and this content:
+
+```
+thurin-id=openpgp4fpr:YOUR_FINGERPRINT
+```
+
+Other text around it is fine.
+
+### 2. Add the notation
+
+With the gist's URL ([how](https://docs.thurin.id/guides/gnupg.md)):
+
+```
+proof@thurin.id=https://gist.github.com/USERNAME/GIST_ID
+```
+
+### 3. Update the key on your claim
+
+[One transaction, no new signature](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim).
+
+### For an organisation
+
+1. Create a public repository under the organisation, for example `thurin-proof`, and set its **description** to `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`.
+2. Add `proof@thurin.id=https://github.com/ORG/thurin-proof` as the notation on the organisation's key.
+3. Update the key on the organisation's claim.
+
+A personal account can use a repository too.
+
+### What's checked
+
+The gist (or repository) is fetched from the GitHub API. It must belong to the account in the URL, so pointing at someone else's gist doesn't work, and its content (or description) must contain `openpgp4fpr:` followed by your fingerprint. It's checked whenever someone checks your proofs, so keep it public and don't delete it.
+
+On thurin.id it shows as `✓ GITHUB username`, linking to your profile and to the gist.
+
+---
+
+<!-- https://docs.thurin.id/guides/mastodon.md -->
+
+## Mastodon
+
+Your fingerprint on your profile: in a profile field, or in your bio.
+
+### 1. Add it to your profile
+
+In your server's profile settings, add a field:
+
+- **Label:** `Thurin.id` (or anything)
+- **Value:** `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`
+
+For a clickable link instead, use `https://thurin.id/pgp/YOUR_FINGERPRINT` as the value; it contains the fingerprint too. Either works in your bio as well. Mastodon is the one provider that also accepts the 16-character key ID in place of the full fingerprint.
+
+### 2. Add the notation
+
+With your profile's URL ([how](https://docs.thurin.id/guides/gnupg.md)):
+
+```
+proof@thurin.id=https://mastodon.social/@alice
+```
+
+### 3. Update the key on your claim
+
+[One transaction, no new signature](https://docs.thurin.id/guides/gnupg.md#update-the-key-on-your-claim).
+
+### What's checked
+
+The account is fetched from its own server's public API, and a profile field or the bio must contain your fingerprint (or key ID). It checks the profile itself, not a post, so there's nothing to delete by accident; just keep the fingerprint there. Works with any Mastodon-compatible server.
+
+On thurin.id it shows as `✓ MASTODON @alice@mastodon.social`, linking to the profile.
+
+---
+
+<!-- https://docs.thurin.id/cli.md -->
+
+## Thurin CLI
+
+`thurin` does what thurin.id does, from a terminal: look anyone up, and add, change, or end your own claim. Every check runs before any gas is spent. Every command has `--json` output and exit codes, so scripts and agents can drive it.
+
+Two rules:
+
+- **It is not a wallet.** It makes, imports, lists, and exports keystores. No balances, no transfers.
+- **It never holds a PGP secret, and it doesn't make keys.** Every PGP step is your own `gpg`; passphrases go through pinentry.
+
+### Install
+
+```bash
+npm install -g @thurinlabs/thurin
+# or, without installing:
+npx @thurinlabs/thurin status thurinlabs.eth
+```
+
+Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases are signed; [Verify a release](https://docs.thurin.id/guides/verify-release.md) shows how to check one.
+
+`thurin --help` is one screen. `thurin help <command>` has the rest (`status`, `key`, `wallet`, `attest`, `no-eth`, `record`, `ens`, `keyserver`, `relay`, `options`).
+
+### Look someone up
+
+```
+$ thurin status alice.eth
+alice.eth  0x8f3C…2b41  (mainnet)
+claims      2 total · 1 active · 1 ended
+fingerprint 9C4E27B1D0835F6A2E71C4B8093DA5F16B2E8C47  ✓ verified
+name        Alice
+key         Ed25519 · created 2026-03-02 · claimed 2026-09-12 · expires 2028-03-01
+proofs
+  ✓ GitHub     alice
+  ✓ DNS        alice.example
+history
+  #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
+  #1 9C4E27B1…6B2E8C47 2026-09-12 active verified
+```
+
+It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
+
+When a claim doesn't count, the line says why: `✗ key expired`, `✗ key revoked`, `✗ key compromised`, `✗ signing key expired`, `✗ signing key revoked`, `✗ not supported`, or `✗ doesn't verify`. A key that expires within 30 days gets `⚠ key expires in 12 days`. If a keystore on this machine holds the address, the line adds the fix, for example `extend it (gpg --quick-set-expire), then thurin update-key`.
+
+### Add your key
+
+gpg makes the key. Leave the email off if you don't want it published:
+
+```bash
+gpg --quick-gen-key "Your Name" ed25519 sign 2y
+gpg --quick-add-key <fingerprint> cv25519 encr 2y
+```
+
+Then an address, and the claim:
+
+```bash
+thurin wallet create identity     # a fresh address; the 12 words are shown once
+thurin attest --key <fingerprint>
+```
+
+The address needs a little ETH for the fee. No ETH there? See [below](https://docs.thurin.id/cli.md#no-eth-on-this-machine).
+
+Before it asks you to confirm, `attest`:
+
+- exports a minimal copy of the key and leaves out every name with an email (`--include-email` keeps them); every subkey stays, an SSH (authentication) one included;
+- has gpg sign `I control the Ethereum address: 0x…`;
+- checks that signature the same way thurin.id will, plus the size limits and that this address hasn't revoked the key as compromised;
+- shows the names, proof count, and size that will go on-chain.
+
+`--account` takes a name from `thurin wallet list` or a path to any V3 keystore, Foundry's included. `THURIN_PRIVATE_KEY` in the environment also works, for scripts.
+
+### Change or end a claim
+
+```bash
+thurin update-key                        # new names or proofs, same key, no new signature
+thurin reattest --key <new fingerprint>  # replace the claim in one transaction
+thurin revoke --reason retired           # end it; it stays in the history
+```
+
+Each takes an optional claim index (`thurin status` lists them). With one active claim it's picked for you.
+
+- **update-key:** after adding a proof notation ([how](https://docs.thurin.id/guides/gnupg.md)), extending the expiry, or adding a subkey. The fingerprint stays, so the claim stays; only the stored key changes.
+- **reattest:** the old claim is revoked and the new one published together. Its records move to the new claim; `--drop-records` leaves them behind. If the old key was stolen, add `--compromised` to mark it in the same transaction.
+- **revoke:** `--reason compromised`, `retired`, or `other`, or leave it off. **Compromised is final:** this address can never claim that key again. Found out later? `thurin revoke <index> --reason compromised` marks a claim that's already revoked or replaced, once.
+
+### No ETH on this machine
+
+Three ways, depending on where things are.
+
+**Your ETH wallet is elsewhere** (a hardware wallet, a phone):
+
+```bash
+thurin attest --no-key --owner you.eth
+```
+
+It signs and checks everything, then prints a `https://thurin.id/attest#handoff=…` link. Open it where the wallet is, connect the address you named, and publish. The key and signature ride in the part after `#`, which browsers never send to a server. `reattest`, `update-key`, and `record set` take `--no-key` too.
+
+**No ETH anywhere:** sign a permission instead of a transaction. It's free.
+
+```bash
+thurin attest --authorize                   # a link anyone can publish and pay for
+thurin attest --authorize --out auth.json   # or a file
+thurin attest --authorize --deadline 1d     # default 7d
+```
+
+Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
+
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](https://docs.thurin.id/contracts.md) from the same address. `--relay <url>` posts it to a [relay](https://docs.thurin.id/cli.md#run-a-relay) that pays, with no link at all.
+
+**The PGP key isn't here** (a card, an air-gapped machine):
+
+```bash
+thurin attest --statement --owner you.eth    # prints the line to sign
+# where the key is:
+#   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode --disable-signer-uid > s.sig
+#   gpg --export <fingerprint> > pub.gpg
+thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
+```
+
+Sign the line with no line break after it (`printf '%s'`, not `echo`). A clearsigned statement works too. From there every check runs as usual. `update-key` takes `--key-file` alone.
+
+**The Ethereum key isn't here either.** `--authorize` needs one EIP-712 signature, and anything that signs typed data can make it:
+
+```bash
+thurin attest --authorize --owner you.eth --signer "my-card-tool sign"   # typed data on stdin, signature on stdout
+
+thurin attest --authorize --owner you.eth --sign-out slip.json           # air gap: writes what to sign, stops
+thurin authorize finish slip.json --signature 0x…                        # checks it, then the link
+```
+
+A signature from anyone but `--owner` is refused.
+
+`--site <url>` points links somewhere other than thurin.id, such as a local build.
+
+### Records
+
+Small values on your claim, readable by anyone. The kinds and what they mean are on the [Records](https://docs.thurin.id/records.md) page.
+
+```bash
+thurin record get thurinlabs.eth                # every record on the claim
+thurin record get thurinlabs.eth canary         # one value, so it pipes
+thurin record get thurinlabs.eth canary | gpg --verify
+thurin record set security "mailto:security@example.com"
+thurin record set canary --file canary.asc
+thurin record clear security
+```
+
+A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when the address has more than one active.
+
+`record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
+
+```bash
+thurin record add-release "thurin-cli 0.13.2" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2
+thurin record get thurinlabs.eth releases
+```
+
+A signature proves *this key signed it*. The record adds *this identity named it*, which a stolen PGP key can't do without a transaction everyone can see. The list keeps the newest releases that fit in 1 KB; older ones drop off but stay in the chain's history. See [Verify a release](https://docs.thurin.id/guides/verify-release.md).
+
+### ENS
+
+```bash
+thurin ens check ben.thurinlabs.eth             # does the name's id.thurin record match its claim?
+thurin ens link ben.thurinlabs.eth              # set it from the keystore
+thurin ens link ben.thurinlabs.eth --calldata   # print the transaction for the wallet that manages the name
+```
+
+`link` refuses a name without a verified claim and does nothing when the record already matches. See [the guide](https://docs.thurin.id/guides/ens-record.md).
+
+### Keys
+
+```bash
+thurin key list                   # your keys, with the names and proofs that would be published
+thurin key export <fingerprint>   # the minimal armored export
+thurin key fetch thurinlabs.eth   # the key stored on-chain; --import adds it to your keyring
+thurin key ssh bendoubleu.eth     # its SSH keys, as authorized_keys lines
+thurin key default <fingerprint>  # the key to use when --key isn't given
+```
+
+### Encrypt to someone
+
+```bash
+echo "meet at noon" | thurin encrypt bendoubleu.eth > note.asc   # stdin → armored message on stdout
+thurin encrypt bendoubleu.eth report.pdf                         # writes report.pdf.gpg
+thurin encrypt bendoubleu.eth report.pdf --sign -o out.gpg       # signed with your key, named output
+```
+
+Only to the claim that counts, and only while its encryption subkey is valid; otherwise one sentence says why and it exits 1. It warns when the key arrived in the last 7 days. gpg encrypts with `--recipient-file`, so nothing lands in your keyring. The recipient's key ID is left out of the message (`--show-recipient` puts it back). More: [Encrypt to an identity](https://docs.thurin.id/guides/encrypt.md).
+
+### Log in with SSH
+
+Add an authentication subkey to your PGP key, and your claim carries an SSH key too:
+
+```bash
+gpg --quick-add-key <fingerprint> ed25519 auth 2y
+thurin update-key          # or claim the key for the first time with thurin attest
+```
+
+`thurin key ssh <identity>` prints every valid SSH key from the claim that counts, one `authorized_keys` line each, like `github.com/<user>.keys` with no one in control. Append them to a file, or let sshd ask at every login:
+
+```
+# /etc/ssh/sshd_config
+AuthorizedKeysCommand /usr/local/bin/thurin key ssh 0x<address> --rpc http://127.0.0.1:8545
+AuthorizedKeysCommandUser nobody
+```
+
+Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. **Use your own Ethereum node** (`--rpc`): sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party; fine for looking people up, not for letting them into your server. Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. The command asks the node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
+
+### Wallet, which is not a wallet
+
+```bash
+thurin wallet create <name>    # encrypted keystore in ~/.config/thurin/keystores
+thurin wallet import <name>    # a private key, 12 words, or --from keystore.json
+thurin wallet list
+thurin wallet export <name>    # the encrypted file; --private-key prints the key
+thurin wallet default <name>
+```
+
+Keystores are the V3 format `cast`, geth, and most wallets import. `--password-file <path>` for scripts.
+
+### Be a keyserver
+
+gpg fetches keys from keyservers with one HTTP request. `thurin keyserver` answers it from the registry.
+
+```bash
+thurin keyserver    # hkp://127.0.0.1:11371; add --rpc <url> to read through your own node
+gpg --keyserver hkp://127.0.0.1:11371 --recv-keys 08B9374FDFBEC67EFFA24E669D3D86E35361EF7B
+```
+
+Make it gpg's default and everything built on gpg reads Ethereum:
+
+```bash
+echo "keyserver hkp://127.0.0.1:11371" >> ~/.gnupg/dirmngr.conf
+gpgconf --kill dirmngr
+```
+
+- `gpg --refresh-keys` picks up revocations: a revoked claim isn't served.
+- `--locate-keys` and `--search-keys` work by fingerprint, key ID, Ethereum address, or ENS name.
+- With `auto-key-retrieve` in `gpg.conf`, `git log --show-signature` and signed mail fetch unknown keys on their own.
+- Open it in a browser for a search page.
+
+What it won't do:
+
+- **Search by email.** Emails are off-chain unless the owner chose otherwise.
+- **Take uploads.** There's no `/pks/add`; a key is published by its owner attesting, so nobody can flood yours with signatures.
+- **Keep anything.** No database; chain reads and a short cache (60 seconds by default; keys.thurin.id uses 120).
+
+A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what it asked for, so a keyserver can withhold a key but never swap one. Pick how much you trust that:
+
+| where | you trust | how |
+|---|---|---|
+| `hkps://keys.thurin.id` | Thurin Labs' server not to withhold | `gpg --keyserver hkps://keys.thurin.id --recv-keys <fpr>` |
+| your own server | your server | `thurin keyserver --host 0.0.0.0` behind TLS |
+| this machine | nobody | `thurin keyserver` |
+
+Write the `hkps://`: a bare `keys.thurin.id` means plain HKP to gpg.
+
+### Run a relay
+
+A relay is `thurin submit` behind an HTTP port: it takes permissions, runs the same checks, and pays for them from a hot keystore, within limits. Anyone can run one. Thurin Labs runs one at relay.thurin.id.
+
+```bash
+thurin wallet create hot                   # fund it with pocket money
+thurin relay --account hot --budget 0.01   # ETH per day
+```
+
+| option | default | |
+|---|---|---|
+| `--budget` | 0.01 | ETH it may spend per rolling 24 hours |
+| `--free-attests` | 1 | `attest` calls it pays for per address; other writes are only rate-limited |
+| `--per-hour` | 10 | requests per caller |
+| `--max-gas` | 6000000 | per transaction |
+| `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
+
+`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (a bad permission, or the registry's reason for refusing it), 403 or 429 (limits), 502 (the chain or RPC failed), 503 (budget spent), or 500 (anything else). `GET /` shows the network and chain id, payer, budget, and today's spend; thurin.id offers the relay only when its network matches.
+
+People use it with `--relay <url>` or `"relay"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
+
+### Options
+
+| option | |
+|---|---|
+| `--network mainnet\|sepolia\|local` | which chain (default mainnet; `local` is anvil on 8545) |
+| `--rpc <url>` | your own node (also `THURIN_RPC_URL`) |
+| `--account <name\|path>` | the keystore that signs or pays |
+| `--password-file <path>` | the keystore password, for scripts |
+| `--key <fingerprint>` | which PGP key |
+| `--site <url>` | where links point (default https://thurin.id) |
+| `--json` | data on stdout |
+| `--yes` | don't ask before sending |
+| `--show-network` | list the hosts the command contacted, when it ends (also `THURIN_SHOW_NETWORK=1`) |
+
+Defaults live in `~/.config/thurin/config.json`, for example `{"network":"sepolia","rpc":{"mainnet":"https://…"},"account":"identity"}`.
+
+Exit codes: 0 ok · 1 a check failed · 2 usage · 3 chain or network error.
+
+The registry is `0xFa6956c11163517249f8A67F5560a4406B519451`, the same address on Ethereum mainnet and Sepolia ([contract](https://docs.thurin.id/contracts.md)).
+
+### For agents
+
+Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](https://docs.thurin.id/llms.txt) is the index for agents; [llms-full.txt](https://docs.thurin.id/llms-full.txt) has every page in one file. An agent never runs `thurin wallet create`, `wallet import`, or `wallet export --private-key` for someone: those handle the secret, so the person runs them in their own terminal (the CLI refuses to print a secret anywhere but a terminal).
+
+### Source
+
+[github.com/thurinlabs/thurin-cli](https://github.com/thurinlabs/thurin-cli) · MIT. Built on [identity-kit](https://docs.thurin.id/sdk.md), so "verified" means the same here as on thurin.id.
+
+---
+
+<!-- https://docs.thurin.id/guides/verify-commits.md -->
+
+## Verify signed commits from the chain
+
+GitHub's green "Verified" badge means GitHub has a copy of the signer's key. That is trust in GitHub. This page checks a commit signature against a key fetched from Ethereum, with nothing but gpg.
+
+### 1. Point gpg at the chain
+
+One line, once:
+
+```bash
+echo "keyserver hkps://keys.thurin.id" >> ~/.gnupg/dirmngr.conf
+gpgconf --kill dirmngr
+```
+
+[keys.thurin.id](https://docs.thurin.id/cli.md#be-a-keyserver) answers gpg's key requests by reading the registry on Ethereum. Write it as `hkps://keys.thurin.id`: a bare `keys.thurin.id` means plain HKP on port 11371 to gpg, which also works but isn't encrypted. It has no upload and no database: a key is there because its owner published a claim from their own address. To trust nobody at all, run the same server on your own machine with `thurin keyserver` and point the line at `hkp://127.0.0.1:11371`.
+
+### 2. Fetch the signer's key
+
+Every Thurin Labs commit is signed by the key `6E00 5391 1942 A889 426C 1866 E34D 9266 098F 7FE7`, claimed on-chain from **ben.thurinlabs.eth**: a subname the company issued, pointing at an address only its holder controls. The org vouches for the name; the person holds the key.
+
+```bash
+gpg --recv-keys 6E0053911942A889426C1866E34D9266098F7FE7
+```
+
+gpg checks that the key it received hashes to the fingerprint it asked for, so a keyserver cannot substitute one. Always fetch by the full fingerprint, never a short key ID.
+
+### 3. Verify
+
+```bash
+git clone https://github.com/thurinlabs/thurin-cli && cd thurin-cli
+git log -1 --show-signature
+```
+
+```
+gpg: Good signature from "Ben Woodall (Ben Thurin Key) <ben@thurin.id>"
+```
+
+That signature was checked against a key that came from Ethereum, not from GitHub. `[unknown]` after the name is gpg's web-of-trust marker, which is separate; the signature itself is good.
+
+### 4. Check who the key belongs to
+
+The key's on-chain claim carries proofs. [thurin.id/ens/ben.thurinlabs.eth](https://thurin.id/ens/ben.thurinlabs.eth) shows the claim and its GitHub proof for `benwoody`, the account the commits come from. From a terminal:
+
+```bash
+npx @thurinlabs/thurin status ben.thurinlabs.eth
+```
+
+So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it.
+
+### Let gpg fetch keys on its own
+
+With this in `~/.gnupg/gpg.conf`, verification pulls unknown keys from the chain as it goes, and `git log --show-signature` on any repo whose signers have claims just works:
+
+```
+auto-key-retrieve
+```
+
+### Revocation
+
+If a signing key is compromised, its owner revokes the claim as compromised. The keyserver stops serving it, so `gpg --refresh-keys` finds nothing new, but a copy already in your keyring stays until you delete it (`gpg --delete-keys <fpr>`). The chain keeps the claim and its reason, so `thurin status` still shows when it ended and why.
+
+### Your own commits
+
+1. [Attest your key](https://thurin.id/attest), with a [GitHub proof](https://docs.thurin.id/guides/github.md) on it.
+2. `git config --global commit.gpgsign true` and `user.signingkey <your fingerprint>`.
+3. Send people here instead of to a badge.
+
+---
+
+<!-- https://docs.thurin.id/guides/verify-release.md -->
+
+## Verify a Thurin CLI release
+
+Every Thurin CLI release is signed by the Thurin Labs key, claimed on-chain from thurinlabs.eth. This page checks a release with only gpg and the chain. No Thurin software is involved until the key has arrived from Ethereum.
+
+### What a release contains
+
+On the [GitHub release](https://github.com/thurinlabs/thurin-cli/releases), three files:
+
+| File | What it is |
+|---|---|
+| `thurinlabs-thurin-<version>.tgz` | the package, byte-identical to what npm serves |
+| `SHA256SUMS` | its checksum |
+| `SHA256SUMS.asc` | the checksum file, signed by the Thurin Labs key |
+
+The tarball is built and signed on a person's machine, not in CI. CI never holds a key.
+
+### 1. Get the key from the chain
+
+```bash
+gpg --keyserver hkps://keys.thurin.id --recv-keys 08B9374FDFBEC67EFFA24E669D3D86E35361EF7B
+```
+
+That is the Thurin Labs key, `08B9 374F DFBE C67E FFA2 4E66 9D3D 86E3 5361 EF7B`. Its on-chain claim proves the GitHub organisation, both domains, and the Codeberg organisation: [thurin.id/ens/thurinlabs.eth](https://thurin.id/ens/thurinlabs.eth). To trust no server at all, run `thurin keyserver` locally instead.
+
+### 2. Verify the signature
+
+```bash
+gpg --verify SHA256SUMS.asc SHA256SUMS
+```
+
+```
+gpg: Good signature from "Thurin Labs <hello@thurin.id>"
+```
+
+### 3. Verify the file
+
+```bash
+sha256sum -c SHA256SUMS
+```
+
+```
+thurinlabs-thurin-0.13.2.tgz: OK
+```
+
+### 4. Check the chain names this release
+
+```bash
+npx @thurinlabs/thurin record get thurinlabs.eth releases
+```
+
+```
+thurin-cli 0.13.2      2026-09-26  sha256 5e470ab66782faadbd5a146915ada6c701e1562f3ddb8450124e2d93aed0e057  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2
+```
+
+The same list is on the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records).
+
+Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
+
+### 5. Check it is what npm serves
+
+```bash
+npm pack @thurinlabs/thurin@0.13.2 && sha256sum thurinlabs-thurin-0.13.2.tgz
+```
+
+The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
+
+### What this proves, and what it doesn't
+
+It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin.id's part is answering "whose key is this"; the rest is gpg and sha256sum.
+
+With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. The current registry names 0.13.2, 0.13.1, and 0.11.0 to 0.12.0 (carried over from the registry before it). For anything older, stop at step 3: those were named only on the old registry, which Thurin's tools no longer read. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+
+### Anyone's releases
+
+Steps 2 to 4 work for any project that names its releases on its claim: fetch its key, then `thurin record get <its name> releases`. To name your own, sign your `SHA256SUMS` and run `thurin record add-release "<name> <version>" SHA256SUMS --url <release page>` from the address that holds your claim ([CLI](https://docs.thurin.id/cli.md#records)).
+
+### Releases
+
+| Version | Date | Signed by |
+|---|---|---|
+| [0.13.2](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2) | 2026-09-26 | 08B9…EF7B |
+| [0.13.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.1) | 2026-09-26 | 08B9…EF7B |
+| [0.12.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.12.0) | 2026-09-24 | 08B9…EF7B |
+| [0.11.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.1) | 2026-09-24 | 08B9…EF7B |
+| [0.11.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.0) | 2026-09-24 | 08B9…EF7B |
+| [0.10.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.10.0) | 2026-09-23 | 08B9…EF7B |
+| [0.9.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.9.0) | 2026-09-22 | 08B9…EF7B |
+| [0.8.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.8.0) | 2026-09-21 | 08B9…EF7B |
+| [0.7.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.7.0) | 2026-09-20 | 08B9…EF7B |
+| [0.6.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0) | 2026-09-19 | 08B9…EF7B |
+| [0.5.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.1) | 2026-09-19 | 08B9…EF7B |
+
+---
+
+<!-- https://docs.thurin.id/guides/verify-deploy.md -->
+
+## Verify a deploy
+
+Every Thurin Labs site is a folder on IPFS, named by its content ID (CID). This guide rebuilds a site from its public source and checks you get the same CID, which proves the site you load is exactly that code, with nothing added.
+
+You need `git`, Node 20.19 or newer (for thurin.id; 22.12+ on the 22 line), and [kubo](https://docs.ipfs.tech/install/command-line/) (`ipfs`). Nothing is uploaded and no IPFS daemon is needed: kubo only computes the hash. Run `ipfs init` once if you have never used it.
+
+### 1. Find the live CID
+
+thurin.id, docs.thurin.id, and thurinlabs.id are also published under ENS names, and any ENS gateway reports the CID it serves:
+
+```bash
+curl -sI https://id.thurinlabs.eth.limo/ | grep -i x-ipfs-roots     # thurin.id
+curl -sI https://docs.thurinlabs.eth.limo/ | grep -i x-ipfs-roots   # docs.thurin.id
+curl -sI https://thurinlabs.eth.limo/ | grep -i x-ipfs-roots        # thurinlabs.id
+```
+
+Or read the contenthash of `id.thurinlabs.eth` / `docs.thurinlabs.eth` / `thurinlabs.eth` in any ENS app.
+
+### 2. Find the deploy tag
+
+Every deploy is a signed tag in the site's repository, named `deploy-YYYY-MM-DD-HHMM` (UTC), whose message names the CID it put live. Pick the tag whose CID matches step 1 and check its signature:
+
+```bash
+git clone https://github.com/thurinlabs/thurin-id && cd thurin-id    # or docs, thurinlabs, mathom-site
+git tag -l 'deploy-*' --format='%(refname:short)  %(contents:body)' | grep -B1 -A2 <CID>
+gpg --keyserver hkps://keys.thurin.id --recv-keys 6E0053911942A889426C1866E34D9266098F7FE7
+git tag -v deploy-YYYY-MM-DD-HHMM
+```
+
+The key `6E00…7FE7` is claimed on-chain by [ben.thurinlabs.eth](https://thurin.id/ens/ben.thurinlabs.eth); `keys.thurin.id` serves it from the registry.
+
+### 3a. Rebuild docs, thurinlabs.id, or mathom
+
+These sites have no build step. The published folder is exactly the files in the tagged commit:
+
+```bash
+mkdir /tmp/site && git archive deploy-YYYY-MM-DD-HHMM | tar -x -C /tmp/site
+ipfs add --only-hash -r -Q --cid-version 1 --hidden /tmp/site
+```
+
+The printed CID should equal the one in the tag and step 1.
+
+### 3b. Rebuild thurin.id
+
+thurin.id bundles [identity-kit](https://docs.thurin.id/sdk.md) from a sibling folder, at the kit commit the tag names (`identity-kit <commit>` in the tag message). The production build settings are committed in `.env.production`.
+
+```bash
+mkdir /tmp/rebuild && cd /tmp/rebuild
+git clone https://github.com/thurinlabs/identity-kit
+git clone https://github.com/thurinlabs/thurin-id
+git -C identity-kit checkout <kit commit from the tag message>
+git -C thurin-id checkout deploy-YYYY-MM-DD-HHMM
+(cd identity-kit && npm ci && npm run build)
+cd thurin-id && npm ci
+THURIN_COMMIT=$(git rev-parse HEAD) npm run build
+ipfs add --only-hash -r -Q --cid-version 1 --hidden dist
+```
+
+The printed CID should equal the one in the tag and step 1. We checked this with Node 20, 22, and 24 (last on 26 September 2026, deploy `deploy-2026-09-26-2216`): the lockfiles pin everything that matters, so the Node version doesn't change the result. `THURIN_COMMIT` is the commit stamp that thurin.id shows in its page source (`<meta name="thurin-commit">`).
+
+### If it doesn't match
+
+- Make sure you used the tag, not a branch, and for thurin.id the kit commit from the tag message.
+- Deploys of docs, thurinlabs.id, and mathom before 24 September 2026, 16:54 UTC uploaded the working folder rather than the commit, and deploys of thurin.id before 24 September 2026, 17:36 UTC used settings that weren't committed; those can't be rebuilt this way.
+- Anything else is worth reporting: see the `security` record on [thurinlabs.eth](https://thurin.id/ens/thurinlabs.eth/records).
+
+---
+
+<!-- https://docs.thurin.id/sdk.md -->
+
+## Identity Kit
+
+The library behind thurin.id, the CLI, and the share cards: it reads claims from the registry, checks them with openpgp.js, and checks the proofs on the key. One core, so "verified" means the same thing everywhere.
+
+**npm:** [`@thurinlabs/identity-kit`](https://www.npmjs.com/package/@thurinlabs/identity-kit) · **Source:** [GitHub](https://github.com/thurinlabs/identity-kit)
+
+```bash
+npm install @thurinlabs/identity-kit
+```
+
+Runs in Node, workers, and browsers; the only peer dependency is `viem`. `@thurinlabs/identity-kit/core` is the same entry.
+
+### Read an address
+
+```ts
+import { createPublicClient, http } from 'viem'
+import { mainnet } from 'viem/chains'
+import { readClaims, keyStanding } from '@thurinlabs/identity-kit'
+
+const client = createPublicClient({ chain: mainnet, transport: http('https://ethereum.publicnode.com'), batch: { multicall: true } })
+const owner = '0x539C7e1E454296Dc150B95a0acCC05bCa3b33538'
+
+const claims = await readClaims(client, owner)
+const { kind, claim } = keyStanding(claims)
+```
+
+`readClaims` returns every claim, oldest first: `index`, `fingerprint` (lowercase), `createdAt`, `state`, `revokeReason`, `replacedBy`, the armored `pgpPublicKey` and `pgpSignature`, and `verification`. It reads and verifies the newest 50 (`{ limit }` changes that); older claims come back with `verification: null`, because an address can hold 65,535 claims and each one checked costs two reads and a signature check. `batch: { multicall: true }` turns the reads into one request.
+
+`keyStanding` says where the key stands:
+
+| `kind` | `claim` |
+|---|---|
+| `verified` | the newest active claim that verifies: show its key |
+| `not-counted` | the newest active claim; none verify, and its `verification` says why |
+| `inactive` | the newest claim; every claim has ended |
+| `none` | `null`; the address never claimed a key |
+
+Nothing from a claim that doesn't verify (its proofs, its names) should be shown: the stored key isn't the owner's until its signature binds it to the address.
+
+`findOwners(client, { fingerprint })` or `{ keyId }` goes the other way: every address that ever claimed the key, each with the fingerprint it claimed (a key ID can match more than one key). ENS is up to you: resolve the name with viem first.
+
+In React, wrap it in whatever you use for data:
+
+```tsx
+const { data: claims } = useQuery({ queryKey: ['claims', owner], queryFn: () => readClaims(client, owner) })
+```
+
+**Avatars:** `avatarUrl` and `avatarFallbacks` only return avatars on IPFS, Arweave, inline data, a content-addressed NFT, or `euc.li` (where the ENS app stores uploads). An avatar on the owner's own server would hand it every viewer's IP, so it's left out.
+
+`REGISTRY_ADDRESS` is the same on Ethereum mainnet and Sepolia (`NETWORKS` has each network's chain id, explorer, and default RPC; `getRegistry(network)` picks one). `REGISTRY_ABI` is the whole contract, writes included. The functions themselves are on the [contract page](https://docs.thurin.id/contracts.md).
+
+`readClaims` calls `verifyAttestation`, which you can also call yourself; it takes the key and signature as the registry stores them (raw bytes) or as armored text. It checks that the key has the claimed fingerprint, that the signature is over exactly `I control the Ethereum address: <lowercase address>`, and that the key is valid today, as gpg judges it. `kind` says why a claim doesn't count: `expired`, `signing-key-expired`, `revoked`, `compromised`, `signing-key-revoked`, `unsupported` (e.g. DSA), or `bad-signature`. Show people words, not the raw `reason`:
+
+```ts
+import { claimCheckText, expiresSoon, expiresSoonText, claimFates, claimFateText } from '@thurinlabs/identity-kit'
+
+const v = claim.verification
+claimCheckText(v)        // { label, sentence, fix }; show `fix` to the owner only
+const soon = expiresSoon(v)
+if (soon) expiresSoonText(soon)   // 'Key expires in 12 days (Mar 6, 2027).'
+
+const fates = claimFates(claims)                  // `claims` from readClaims, keyed by index
+claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Sep 12, 2026.'
+```
+
+A fate is `active`, `revoked` (with the owner's reason), or `replaced` (by a reattest, with the new index). A replaced claim whose key was later marked compromised says so.
+
+**Is this key compromised?** Ask the contract: `keyStatus(owner, fingerprint)` returns `none`, `active`, `revoked`, or `compromised`. Don't infer it from the newest claim: a key can be marked compromised on an older claim while a newer one keeps its own reason. And it is per owner. Anyone can post a claim on any fingerprint and mark it compromised under their own address, so never count "compromised" across all owners of a key.
+
+### Proofs
+
+```ts
+import { identifyProof, verifyProof, displayUrl, proofHref } from '@thurinlabs/identity-kit'
+
+const proof = identifyProof({ name: 'proof@thurin.id', value: 'https://gist.github.com/alice/abc123' })
+if (proof) {
+  const result = await verifyProof(proof, fingerprint, { farcasterHub })   // options optional
+  // { verified, reason? }
+}
+```
+
+Each provider has its own check. GitHub gists and repositories, and Codeberg repositories, must belong to the account in the URL, so pointing at someone else's doesn't work. The providers and what each checks: [Proofs](https://docs.thurin.id/guides/proofs.md).
+
+### Records
+
+```ts
+import { REGISTRY_ADDRESS, REGISTRY_ABI, kindName, pickRecords, parseRecord } from '@thurinlabs/identity-kit'
+
+kindName('security')   // 'thurin.security'; a name without a dot gets thurin. in front
+const [names, values] = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'recordsOf', args: [owner, 0n] })
+for (const r of pickRecords(names, values)) {
+  const rec = await parseRecord(r.kind, r.text, { armoredKey: claim.pgpPublicKey ?? undefined })
+  // { kind, text, bytes, valid, reason?, data }
+}
+```
+
+`pickRecords` keeps the `thurin.` kinds in display order; pass `null` as a third argument for every record. `parseRecord` never throws: a value that doesn't fit its kind comes back `valid: false` with a reason, and is still shown. With `armoredKey`, a clearsigned canary is checked against the claim's key. `pageRecords(names, values)` is the order an identity page uses: Thurin's kinds first, then anyone else's. `checkKindName` and `checkRecordValue` apply the registry's limits before you spend gas. `parseReleases`, `addRelease`, and `renderReleases` handle `thurin.releases`, a release list. The kinds: [Records](https://docs.thurin.id/records.md).
+
+### Writing by permission
+
+Every owner write has a `…For` form that anyone can submit with the owner's EIP-712 signature. These build the typed data for viem's `signTypedData`:
+
+```ts
+import { attestTypedData, revokeTypedData, markCompromisedTypedData } from '@thurinlabs/identity-kit'
+
+const nonce = await client.readContract({ address: REGISTRY_ADDRESS, abi: REGISTRY_ABI, functionName: 'nonces', args: [owner] })
+const typed = revokeTypedData(1, REGISTRY_ADDRESS, { owner, index: 0n, reason: 'retired', nonce, deadline })
+const permission = await wallet.signTypedData({ account: owner, ...typed })
+// anyone: revokeFor(owner, 0n, 'retired', deadline, permission)
+```
+
+Also `reattestTypedData`, `updateKeyTypedData`, `setRecordTypedData`. A `Revoke` permission only revokes an active claim; to mark a claim that's already revoked or replaced as compromised, sign `markCompromisedTypedData` alone. `OWNER_REVOKE_REASONS` is what an owner can pick (`superseded` comes only from a reattest).
+
+### ENS record
+
+```ts
+import { fetchEnsHint, ensHintWrite } from '@thurinlabs/identity-kit'
+
+const hint = await fetchEnsHint(client, 'ben.thurinlabs.eth', verifiedFingerprint)   // { state: 'match' | 'unset' | 'mismatch', record, expected, reason? }
+const call = ensHintWrite('ben.thurinlabs.eth', verifiedFingerprint)                 // setText(node, 'id.thurin', FPR); look the resolver up at write time
+```
+
+See [Point your ENS name at your claim](https://docs.thurin.id/guides/ens-record.md).
+
+### Encrypt
+
+```ts
+import { readClaims, encryptionKeyFor, encryptRefusalText, keyChangedText, encryptTo } from '@thurinlabs/identity-kit'
+
+const k = await encryptionKeyFor(await readClaims(client, owner))   // the claim that counts, or a reason
+if (!k.ok) throw new Error(encryptRefusalText(k))                   // no claim / unverified / no encryption subkey / expired
+const warning = keyChangedText(k)                                   // non-null when the key arrived in the last 7 days
+const armored = await encryptTo(k.key, 'meet at noon')              // recipient hidden by default
+const bytes = await encryptTo(k.key, fileBytes, { filename: 'report.pdf' })
+```
+
+`encryptTo` uses the kit's openpgp settings, so keys on secp256k1 (what a Keycard holds) work too. `{ hideRecipient: false }` names the recipient's key ID. See [Encrypt to an identity](https://docs.thurin.id/guides/encrypt.md).
+
+### Key algorithms
+
+Anything openpgp.js can verify: Ed25519, Cv25519, NIST P-256/384/521, brainpool, RSA, and secp256k1. openpgp.js refuses secp256k1 by default; the kit allows it and nothing else. A secp256k1 PGP key is also an Ethereum key (same public point), so whatever can sign with it can sign transactions. Don't fund its address.
+
+### README card
+
+A 640×200 image of an identity: its name, address, PGP key, and whether the key is verified on Ethereum (or why not). thurin.id's server draws it and caches it for an hour, so showing it makes the reader's browser ask no one else; on GitHub, its image proxy fetches it, so not even thurin.id sees your readers.
+
+```
+https://thurin.id/card/ens/:name
+https://thurin.id/card/eth/:address
+https://thurin.id/card/pgp/:fingerprint
+```
+
+A trailing `.png` is accepted, and `?theme=light` draws it in light colours. In a README, this picks the one that matches the reader's GitHub theme:
+
+```html
+<a href="https://thurin.id/ens/thurinlabs.eth">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://thurin.id/card/ens/thurinlabs.eth.png">
+    <img alt="thurinlabs.eth on Thurin.id" src="https://thurin.id/card/ens/thurinlabs.eth.png?theme=light">
+  </picture>
+</a>
+```
+
+Or just one: `[![Thurin.id](https://thurin.id/card/ens/thurinlabs.eth.png)](https://thurin.id/ens/thurinlabs.eth)`.
+
+The same content at 1200×630, at `/og/ens/:name`, `/og/eth/:address`, and `/og/pgp/:fingerprint`, is what social sites show when a thurin.id link is shared.
+
+---
+
+<!-- https://docs.thurin.id/contracts.md -->
+
+## PGPRegistry
+
+The contract that holds every Thurin.id claim. A claim puts a PGP key on an Ethereum address: the key, and a signature by that key over a line naming the address. Anyone can write one, only the address can change it, and nobody can take it down. There is no owner, no admin, no fee, and no upgrade.
+
+Everything on this page works from Etherscan or `cast` with gpg. thurin.id, the CLI, and the library are conveniences on top.
+
+| | |
+|---|---|
+| Address | `0xFa6956c11163517249f8A67F5560a4406B519451` |
+| Networks | Ethereum mainnet and Sepolia, same address ([Etherscan](https://etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451) · [Sepolia Etherscan](https://sepolia.etherscan.io/address/0xFa6956c11163517249f8A67F5560a4406B519451)) |
+| Source | [github.com/thurinlabs/pgp-registry](https://github.com/thurinlabs/pgp-registry), verified on Etherscan and Sourcify |
+| Build | solc 0.8.37, via-IR, optimizer 200, EVM cancun; deployed through the CREATE2 deployer with salt `keccak256("thurin.pgp-registry.v3")` |
+
+`VERSION()` returns `3`.
+
+### A claim
+
+- **The key**, as raw bytes (`gpg --export`). Keep it minimal: your names and proofs, no third-party signatures. Up to 16 KB.
+- **The signature**: the key's detached text-mode signature over `statementFor(owner)`, which is `I control the Ethereum address: 0x…` with the address in lowercase, no line break after it. Up to 8 KB. A whole clearsigned message of the same line also works.
+- **The fingerprint**: 20 bytes for a v4 key, 32 for v6.
+
+The contract checks sizes and that the bytes look like a key and a signature. It does not check the PGP signature itself; readers do (gpg, identity-kit, the CLI). A claim that doesn't verify is shown as unverified and hurts no one else.
+
+One active claim per address and key. Claims are never deleted: revoking one keeps it in the history.
+
+### Use it with gpg and cast
+
+Reads need no wallet. Any RPC works; `ethereum.publicnode.com` needs no key.
+
+```bash
+export ETH_RPC_URL=https://ethereum.publicnode.com
+REG=0xFa6956c11163517249f8A67F5560a4406B519451
+OWNER=0x…   # the address to look up
+ME=0x…      # your own address, when making a claim
+
+cast call $REG "summary(address)(uint256,uint256,bool,uint256)" $OWNER        # total, active, has current, its index
+cast call $REG "armoredKey(address,uint256)(string)" $OWNER 0 | jq -r . | gpg --import
+cast call $REG "clearsigned(address,uint256)(string)" $OWNER 0 | jq -r . | gpg --verify
+```
+
+`gpg --verify` should say *Good signature* and the text should name `$OWNER`. That is the whole check.
+
+To make a claim, sign the statement and export the key, then send both as bytes:
+
+```bash
+cast call $REG "statementFor(address)(string)" $ME | jq -r . | tr -d '\n' | gpg --detach-sign --textmode --disable-signer-uid > claim.sig
+gpg --export-options export-minimal --export YOUR_FINGERPRINT > claim.key
+cast send $REG "attest(bytes,bytes,bytes)" 0xYOUR_FINGERPRINT \
+  0x$(xxd -p claim.sig | tr -d '\n') 0x$(xxd -p claim.key | tr -d '\n') --account you
+```
+
+Leave out names with an email address unless you want them public (add `--export-filter keep-uid='uid !~ @'`).
+
+**On Etherscan** the forms want bytes. Paste an armored key or signature into `armorToBytes` under *Read Contract* and it hands back the bytes to paste into `attest` under *Write Contract*. It copes with the line breaks the form drops.
+
+### Writes
+
+The owner sends these directly:
+
+```solidity
+attest(bytes fingerprint, bytes signature, bytes key) → uint256 index
+reattest(uint256 revokeIndex, bytes fingerprint, bytes signature, bytes key, bool keepRecords) → uint256 index
+updateKey(uint256 index, bytes key)
+revoke(uint256 index, string reason)                    // "", "compromised", "retired", "other"
+setRecord(uint256 index, string kind, string value)     // "" clears
+multicall(bytes[] calls) → bytes[]
+cancelAuthorization()
+```
+
+- `updateKey` swaps the stored key for a new export of the same key: new names or proofs, no new signature.
+- `reattest` revokes one claim and publishes another in one transaction, for a new key or a fresh signature. The old claim reads *replaced* and points at the new one. With `keepRecords` its records move to the new claim.
+- `revoke` ends a claim. **"compromised" is final:** this address can never claim that key again. A claim already revoked or replaced can be revoked again as "compromised" once, later, if you find out afterwards. That fails while the same key still has an active claim here; revoke that one first.
+- To replace a stolen key in one transaction: `multicall([reattest(old, …), revoke(old, "compromised")])`.
+
+### Permissions: someone else pays
+
+Each write has a `…For` twin that anyone can send with the owner's EIP-712 signature, so the owner's address never needs ETH: `attestFor`, `reattestFor`, `updateKeyFor`, `revokeFor`, `setRecordFor`, and `markCompromisedFor`. Each takes the same arguments plus `owner`, `deadline`, and `permission` (the signature). Contract wallets sign through ERC-1271.
+
+`revokeFor` only revokes an active claim. Marking a revoked claim compromised later is `markCompromisedFor`, its own permission, so a revoke you signed once can't be reused to lock a key months later.
+
+Domain: `{ name: "Thurin PGPRegistry", version: "3", chainId, verifyingContract }`.
+
+```
+Attest(address owner,bytes fingerprint,bytes signature,bytes key,uint256 nonce,uint256 deadline)
+Reattest(address owner,uint256 revokeIndex,bytes fingerprint,bytes signature,bytes key,bool keepRecords,uint256 nonce,uint256 deadline)
+UpdateKey(address owner,uint256 index,bytes key,uint256 nonce,uint256 deadline)
+Revoke(address owner,uint256 index,string reason,uint256 nonce,uint256 deadline)
+SetRecord(address owner,uint256 index,string kind,string value,uint256 nonce,uint256 deadline)
+MarkCompromised(address owner,uint256 index,uint256 nonce,uint256 deadline)
+```
+
+`nonces(owner)` is the next nonce. A permission is spent only when it lands; one that fails stays usable until its deadline. To kill every permission you've signed at the current nonce, call `cancelAuthorization()`. identity-kit builds these structs (`attestTypedData` and the rest); the CLI's `--authorize` signs them.
+
+### Reads
+
+For people, as text:
+
+```solidity
+statementFor(address owner) → string                 // the line to sign
+armoredKey(address owner, uint256 index) → string    // for gpg --import
+clearsigned(address owner, uint256 index) → string   // for gpg --verify
+claim(address owner, uint256 index) → (ClaimView, string key, string statement, string[] recordNames)
+summary(address owner) → (uint256 total, uint256 active, bool hasCurrent, uint256 currentIndex)
+keyStatus(address owner, bytes fingerprint) → string // "none", "active", "revoked", "compromised"
+recordsOf(address owner, uint256 index) → (string[] names, string[] values)
+recordText(address owner, uint256 index, string kind) → string
+armorToBytes(string armored) → bytes
+```
+
+For tools:
+
+```solidity
+claimsOf(address owner) → ClaimView[]                // oldest first
+claimsOfRange(address owner, uint256 start, uint256 count) → ClaimView[]
+claimCount(address owner) → uint256
+current(address owner) → (bool found, uint256 index, ClaimView)   // newest active claim
+keyBytes(address owner, uint256 index) → bytes
+signatureBytes(address owner, uint256 index) → bytes
+ownersOf(bytes fingerprint) → address[]              // + ownersOfCount, ownersOfRange
+fingerprintsForKeyId(bytes8 keyId) → bytes[]         // + …Count, …Range
+nonces(address owner) → uint256
+```
+
+```solidity
+struct ClaimView {
+    uint256 index;
+    bytes   fingerprint;
+    uint64  createdAt;       // Unix seconds
+    uint64  revokedAt;       // 0 = active
+    string  state;           // "active", "revoked", or "replaced"
+    uint256 replacedBy;      // the new claim's index, when replaced
+    string  revokeReason;    // "", "compromised", "retired", "superseded", or "other"
+    uint8   messageVersion;  // 0 = clearsigned as sent, 1 = detached signature
+}
+```
+
+Reading them right:
+
+- **Is this key compromised?** Ask `keyStatus(owner, fingerprint)`. A late mark changes only the claim it was made on, so the newest claim on a key can still show another reason. `revokedAt` keeps the date the claim ended, not the date it was marked.
+- **"Compromised" belongs to one address.** Anyone can post a claim on any fingerprint and revoke it as compromised. It says what that address thinks, nothing more. Never count it across the owners of a key.
+- `ownersOf` and `fingerprintsForKeyId` list everyone who ever claimed, and anyone can add to them. Check each owner's claims, and use the `Range` forms when a list could be long.
+- A long key ID is the last 8 bytes of a v4 fingerprint, or the first 8 of a v6 one.
+
+### Records
+
+Short text on a claim: up to 1 KB, one per name, set by the owner, readable by anyone. Names are `a-z 0-9 - .`, up to 31 bytes; a name without a dot means `thurin.<name>`, so `canary` is `thurin.canary`. Setting needs an active claim; clearing works on any. What the names mean: [Records](https://docs.thurin.id/records.md).
+
+### Events
+
+```solidity
+Attested(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, bytes fingerprint, address payload, uint8 messageVersion, address submitter)
+KeyUpdated(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, address oldPayload, address newPayload, address submitter)
+Revoked(address indexed owner, bytes32 indexed fingerprintHash, uint256 indexed index, string reason, uint256 replacedBy, address submitter)
+RecordSet(address indexed owner, uint256 indexed index, bytes32 indexed kindHash, string kind, string value, address submitter)
+RecordsMoved(address indexed owner, uint256 indexed fromIndex, uint256 indexed toIndex)
+NonceUsed(address indexed owner, uint256 nonce)
+```
+
+Nothing needs events to read the registry; they're the history. `fingerprintHash` is `keccak256` of the fingerprint bytes. `Revoked.replacedBy` is the new index + 1, or 0. A late compromised mark emits a second `Revoked`. After `RecordsMoved`, a clear on the old index still emits `RecordSet` but changes nothing: the records live on the new claim.
+
+### What it can't protect
+
+- **Your Ethereum key.** Whoever holds it can replace or revoke your claims. Keep it on hardware. If it leaks, revoke and claim again from a new address; the PGP key is fine.
+- **Records are forever.** Clearing a record removes it from the contract, but every value stays in the chain's history and in `RecordSet`. Don't put anything there you'd want back.
+
+---
+
+<!-- https://docs.thurin.id/records.md -->
+
+## Records
+
+A record is a short text on a claim: one per name, up to 1 KB, set only by the owner, readable by anyone. The registry lists every record on a claim (`recordsOf`), so nothing needs to know a name in advance. This page says what the `thurin.` names mean.
+
+An identity page shows its records under the **Records** tab: [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records), the `thurin.` kinds first, then anyone else's as plain text. Connect the wallet that holds the claim and the same tab lets you set and clear Thurin.id's plain kinds, and clear the others. Or from the CLI:
+
+```bash
+thurin record set canary "All keys under my control as of 2026-09-25."
+thurin record get thurinlabs.eth canary
+thurin record clear canary
+```
+
+Names are `a-z 0-9 - .`, up to 31 bytes. `thurin.` is the default, so `canary` means `thurin.canary`. `--no-key` and `--authorize` work on records as on claims, so the address that owns the claim never has to hold ETH.
+
+When you replace a claim, its records move to the new one. If the key changed, sign a new canary: the old one was signed by the old key.
+
+### Kinds Thurin.id defines
+
+| kind | what it says | value |
+|---|---|---|
+| `thurin.railgun` | pay me privately by name | a Railgun `0zk1…` address |
+| `thurin.security` | send sensitive reports here | a URL or a contact line; encrypt to the key on the claim |
+| `thurin.successor` | my next key | the fingerprint of the key that replaces this one |
+| `thurin.affiliation` | I'm with this identity | `{"v":1,"with":"<address or name>","role":"…"}`; `role` optional |
+| `thurin.canary` | nothing compromised as of a date | a dated line (`2026-09-25`), clearsigned with the claim's key; an unsigned one shows as unsigned |
+| `thurin.releases` | the releases I put out | a list of releases, each with the sha256 of its checksum file; kept by `thurin record add-release` ([how people check one](https://docs.thurin.id/guides/verify-release.md)) |
+| `thurin.private` | a box only I can read | an armored PGP message encrypted to your own key (read-only; see below) |
+| `thurin.disclosure` | a box for people I choose | an armored PGP message encrypted to their keys (read-only; see below) |
+
+Simple kinds are UTF-8 text. Structured kinds are small JSON with a `v`; readers ignore fields they do not know. Encrypted kinds are armored PGP messages, shown as "encrypted, N bytes" and never decrypted by the page.
+
+Thurin.id's tools read and show the encrypted kinds but don't help you write them, on purpose. A record stays in the chain's history forever, so anything encrypted there can be read by whoever gets a recipient's key later, however many years later. A PGP message also names the keys it was encrypted to, which ties you to those people in public. Share secrets some other way.
+
+A value that does not fit its kind is still shown, as text, with the reason. Nothing is hidden and nothing is trusted.
+
+### What a record proves
+
+That the owner of the claim said it, at the block it was set, and has not cleared it. That is all. A `thurin.railgun` record says "pay me here"; it does not prove control of the 0zk address. A `thurin.affiliation` record is one side's statement until the other side sets a matching one. A `thurin.successor` record names a key; the named key's own claim is the proof.
+
+### Your own kinds
+
+Anyone can define a kind. Use a reverse-dot name from a domain you control, `com.example.thing`, within 31 bytes, and document its value format where people can find it. Set it with `thurin record set com.example.thing "<value>"`, or `setRecord` on the [contract](https://docs.thurin.id/contracts.md). Thurin.id's tools read it (`thurin record get <identity> com.example.thing`), and the identity page shows it as text; there, the owner can clear it but not edit it. No registration, no permission.
+
+### Records are forever
+
+Clearing a record takes it off the claim, but every value it ever had stays in the chain's history, in the `RecordSet` event of the transaction that set it. Don't publish anything you'd want back.
+
+---
+
+<!-- https://docs.thurin.id/roadmap.md -->
+
+## Roadmap
+
+What Thurin.id is building, in the order it will ship. Everything here is open source and runs with no Thurin Labs server in the path.
+
+### Status key
+
+| Status | Meaning |
+|---|---|
+| (Shipped) | live on Ethereum mainnet |
+| (Testnet) | deployed on Sepolia, being exercised |
+| (In progress) | code exists, not yet released |
+| (Next) | the next thing to be built |
+| (Designed) | written up, not started |
+
+### Thurin.id (Shipped)
+
+*What if everyone knew who you were… because you let them?*
+
+- [x] Identity explorer at [thurin.id](https://thurin.id): look up any ENS name, Ethereum address, or PGP fingerprint
+- [x] On-chain identity claims at [thurin.id/attest](https://thurin.id/attest): an Ethereum address bound to a PGP key, published from the address itself
+- [x] Proofs: GitHub, Codeberg, DNS, Farcaster, and Mastodon, checked in the browser against the platform itself, when the visitor asks
+- [x] A link to each identity's EFP profile
+- [x] identity-kit: the one library behind the site, the CLI, and the cards
+- [x] A card image for READMEs, and link previews, drawn by thurin.id's server
+- [x] ENS hosting at `id.thurinlabs.eth`, `docs.thurinlabs.eth`, and `thurinlabs.eth`
+- [x] Docs and `llms.txt` for AI agents
+
+### Registry v3 (Shipped)
+
+*What if the contract was the whole tool?*
+
+- [x] Usable with only Etherscan or `cast` and gpg: the key comes out ready for `gpg --import`, the claim ready for `gpg --verify` ([how](https://docs.thurin.id/contracts.md#use-it-with-gpg-and-cast))
+- [x] Keys and signatures stored as raw bytes: a first claim costs about a third less than on v2, a later one about half
+- [x] Revoke with a reason; "compromised" is final, and can be marked later if you find out afterwards
+- [x] Replace a stolen key and mark it compromised in one transaction
+- [x] Records as named text, listed by the contract, and they follow a claim when it's replaced
+- [x] Three adversarial reviews, the last with a model-based test of every claim state; every finding fixed (not a third-party audit; see [CROPS](https://docs.thurin.id/crops.md))
+- [x] Deployed and verified on Sepolia (Etherscan and Sourcify)
+- [x] Deployed on Ethereum mainnet, the same address as Sepolia (26 September 2026)
+- [x] identity-kit 2.0, the CLI, and thurin.id switched to v3; existing claims re-published
+
+### Thurin CLI (Shipped)
+
+*What if your online identity worked from a terminal?*
+
+- [x] Attest, update a key, revoke, and check status from a terminal ([`npx @thurinlabs/thurin`](https://docs.thurin.id/cli.md))
+- [x] Uses your existing gpg keyring; no keys leave your machine
+- [x] Sign in the terminal, publish from a hardware or phone wallet (`--no-key` hands a link to thurin.id)
+- [x] Sign a permission offline and submit it from any funded account (`--authorize`, `thurin submit`)
+- [x] Keep the Ethereum key on a card or an air-gapped machine: hand the typed data to any signer, or write it to a file and finish later (`--signer`, `--sign-out`, `thurin authorize finish`)
+- [x] Attest with a PGP key that isn't on this machine: print the line, sign it where the key is, bring two files back (`--statement`, `--key-file`)
+
+### Sponsored claims (Shipped)
+
+*What if you could prove it’s you from a terminal, with an address that has never held a coin?*
+
+- [x] Sign a claim without holding any ETH, in the browser or the CLI
+- [x] Anyone with a wallet can open the link and pay for someone else's claim; it lands under the signer
+- [x] An open-source relay anyone can run to sponsor their community (`thurin relay`)
+- [x] Thurin Labs' own relay at relay.thurin.id: one claim per address, within a daily budget
+
+### The keyserver (Shipped)
+
+*What if the keyserver was Ethereum?*
+
+- [x] A local keyserver: point gpg at it and `--recv-keys` reads Ethereum, no keyserver database anywhere (`thurin keyserver`)
+- [x] A hosted copy at keys.thurin.id for gpg users without the CLI; anyone can run one
+- [x] Verify signed commits and signed releases with only gpg, keys fetched from the chain ([guides](https://docs.thurin.id/guides/verify-commits.md))
+- [x] A front door: open the keyserver in a browser for the dirmngr line, a search box, and the classic listing with who claims each key on-chain
+- [ ] Pseudonymous mode: fresh keys, no proofs, all network traffic over Tor by default
+
+### ENS (Shipped)
+
+*What if your ENS profile could prove its key?*
+
+- [x] `id.thurin`: an ENS text record that points a name at the key its address claims; a hint any ENS viewer can show, checked from the chain ([guide](https://docs.thurin.id/guides/ens-record.md))
+- [x] The identity page checks the record against the claim: matches, not set, or points elsewhere, with a one-transaction "Set it"
+- [x] `thurin ens check` and `thurin ens link` in the CLI
+- [ ] The Thurin.id icon on EFP profile cards, shown when a name carries the record (pull request open)
+
+### Records (Shipped)
+
+*What if the chain could name the release too?*
+
+- [x] A release list on any claim naming each release's checksum file, so a signed release is one its publisher put out, not only one its key signed (`thurin record add-release`); Thurin Labs names every CLI release this way
+- [x] Small values attached to a claim, set from the page or the CLI (`thurin record set|get|clear`)
+- [x] A Railgun record: publish your 0zk address so people can pay you privately by name
+- [x] Records tab on the identity page, and the [kinds](https://docs.thurin.id/records.md) it shows: private payments, security contact, successor key, affiliation, canary, releases, private, disclosure
+
+### Privacy and trust (Shipped)
+
+*What if the tools that check identities kept nothing about the people using them?*
+
+- [x] No accounts, cookies, analytics, or telemetry on any Thurin Labs site
+- [x] Our servers keep no access logs; the keyserver and relay record no IP addresses
+- [x] Pick the Ethereum node your browser reads from (thurin.id footer); no API key ships in any page
+- [x] Light and dark on thurin.id, thurinlabs.id, and these docs
+- [x] Profile pictures only from sources the name's owner can't watch
+- [x] Scripts and fonts served by our own sites, not pulled from CDNs
+- [x] Every site deploy a signed tag naming what went live; releases signed and matched to their commits
+- [x] A public [CROPS](https://docs.thurin.id/crops.md) review, checked against the live sites
+
+### Encrypt to an identity (Shipped)
+
+*What if you could encrypt a file to a name?*
+
+- [x] Encrypt a message or file to any verified Thurin.id identity, in the browser ([how](https://docs.thurin.id/guides/encrypt.md))
+- [x] Same in the CLI, with signing
+- [x] An Encrypt tab on the identity page, next to Overview, Claims, and Records
+- [x] A warning when an identity's key changed recently, before you encrypt to it
+- [x] "Can receive encrypted messages" shown on identities whose key supports it
+- [x] The recipient left out of the message, so an intercepted one doesn't point at a name
+
+### Web of trust (Next)
+
+*What if vouching for someone counted for something?*
+
+- [ ] Vouch for a key you have checked, published on-chain
+- [ ] Vouches shown on the identity page, with a link to each voucher
+- [ ] Vouches weighed by the voucher's own evidence; no token, no staking
+
+### Later
+
+- [ ] Thurin Score: a transparent confidence rating over the evidence, including the web of trust
+- [ ] Pay for a claim from shielded funds, so an identity address never has to hold ETH in the open
+
+---
+
+Changes land on [GitHub](https://github.com/thurinlabs).
+
+---
+
+<!-- https://docs.thurin.id/crops.md -->
+
+## CROPS
+
+> **Checked 26 September 2026**, on the live sites, against the [CROPS review checklist](https://ethskills.com/crops/SKILL.md) from ETHSKILLS, which turns the Ethereum Foundation's CROPS principles ([EF Mandate](https://blog.ethereum.org/2026/03/13/ef-mandate)) into concrete checks. This is our own review; the Ethereum Foundation did not review Thurin.id.
+
+The Ethereum Foundation asks every project to answer four questions: can someone block you (**C**ensorship resistance), can you see and fork all of it (**O**pen source and free), what does it learn about you (**P**rivacy), and what happens if it fails or the team disappears (**S**ecurity). This page is Thurin.id's answer, including what we have not solved.
+
+### The short version
+
+Your claim lives in a contract on Ethereum that nobody controls: no owner, no admin, no pause, no fees, no upgrades. Everything Thurin Labs runs is a convenience on top of it, and each one can be replaced by something you run yourself. If Thurin Labs disappeared tomorrow, every claim would still be readable from any Ethereum node and checkable with gpg.
+
+### Censorship resistance
+
+**Who could block you:** our web server, our relay, and our keyserver, all on one server we operate, and the public Ethereum node the site reads from by default (PublicNode, a third party).
+
+**Why it doesn't matter much:** none of them is needed. The [registry](https://docs.thurin.id/contracts.md) at `0xFa6956c11163517249f8A67F5560a4406B519451` takes claims from anyone, directly, and you can use it with only Etherscan or `cast` and gpg.
+
+**Your way around us:**
+- Publish from any wallet, or from a terminal with the [CLI](https://docs.thurin.id/cli.md); the relay is only there if you want someone else to pay.
+- Read through your own node: the thurin.id footer lets you change it, and the CLI takes `--rpc`.
+- Run your own keyserver (`thurin keyserver`) or relay (`thurin relay`).
+- Open the sites through ENS (`id.thurinlabs.eth`, `docs.thurinlabs.eth`, `thurinlabs.eth`) if thurin.id is down.
+
+### Open source and free
+
+**Everything that runs Thurin.id is public:** the contract (verified on Etherscan), the library, the CLI, the sites, the share-card service. MIT license, docs Apache-2.0. Fork it, run it, change it; no permission needed.
+
+**You can check that what runs is what's published:**
+- Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
+- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.1 on, on the current registry, which also carries over 0.11.0 to 0.12.0 from the one before ([how to check](https://docs.thurin.id/guides/verify-release.md)). The one exception, 0.13.0, went to npm unsigned and was replaced by 0.13.1 within the hour. Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Scripts are served by the sites themselves, never pulled from a CDN at view time.
+
+**Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](https://docs.thurin.id/guides/verify-deploy.md).
+
+### Privacy
+
+**What is public, forever:** your claim. Your Ethereum address, your PGP key with the names and subkeys on it (an SSH subkey too, which links that SSH key to your address), the proofs you chose to add, any records you set, and when. That is the product, and the attest page shows you exactly what will be published before you publish it. Email addresses stay off the key and out of the signature by default. Replacing the key or clearing a record doesn't erase the old one: the chain keeps its history.
+
+**What Thurin Labs learns about you:** nothing we keep.
+- No accounts, no cookies, no analytics, no telemetry.
+- Our servers keep no access logs. The keyserver and relay record no IP addresses; the keyserver's log never says what was looked up. A failed web request can leave one line in an error log, which is deleted after two weeks.
+- The pages are fetched from IPFS through our server, which tells the IPFS gateway nothing about you.
+- Our pages tell outside services nothing about which page asked (no referrer).
+- Nothing is sent to WalletConnect unless you choose to connect a phone wallet.
+
+**Who else your browser talks to**, and what they see (your IP, and which identity you looked at):
+- An Ethereum node, on every lookup. By default PublicNode (`ethereum.publicnode.com`), which needs no key. Change it in the thurin.id footer; the choice stays in your browser.
+- The platforms behind each proof, **only when you press Check proofs**: GitHub, Codeberg, Cloudflare's DNS resolver, a public Farcaster node (Quilibrium's, by default), and the Mastodon server named in the proof, which the identity's owner picks. "Always check" in the footer turns that on for every page, in your browser only.
+- For profile pictures: euc.li (where the ENS app stores avatars), an IPFS gateway (Filebase, with Pinata's as a fallback), or arweave.net. Never a server the name's owner picked, so they can't see who looks.
+- For an ENS name that keeps its data on its owner's server (an "offchain" name): that server, but only when you typed the name yourself.
+
+Links to Etherscan, the ENS app, and EFP contact nothing until you click them. Card images are drawn by our server, so a README or page showing one asks no one else.
+
+**If that is too much:** use the CLI against your own node, with `thurin status --no-proofs` to ask nothing else. A mode that sends everything over Tor is [planned](https://docs.thurin.id/roadmap.md).
+
+Details: [privacy policy](https://thurinlabs.id/privacy/).
+
+### Security
+
+**What we can't do to you:** the contract has no admin. We can't change, freeze, or delete your claim, and no one can move funds through it; it holds none.
+
+**What could go wrong, and what we do about it:**
+- *Someone steals your Ethereum key.* They could replace the key on your claim or revoke it, even as compromised, and so could you: it becomes a race. Keep the Ethereum key on hardware. If it leaks, claim your key again from a fresh address; your PGP key is unaffected, and a "compromised" mark on the old address doesn't follow it.
+- *Someone takes your ENS name.* Claims hang off the address, not the name, so they can't touch your claim. They can point the name at their own address, where a claim of theirs would show under your old name. Anyone who looks you up by address, or checks your key's fingerprint, isn't fooled; Encrypt warns when a key arrived in the last 7 days.
+- *Someone steals your PGP key.* Revoke the claim as compromised, or replace it with a new key and mark the old one in the same transaction. Once marked, that address can never claim the key again.
+- *The Ethereum node lies to the page.* A dishonest node could show a claim that isn't there. Use a node you trust for anything that matters; the CLI works against your own.
+- *Our relay's wallet.* It pays gas unattended, capped at a small daily budget. It can't touch your claim.
+- *A bad release or deploy.* Releases and deploys are signed and tied to public commits, and the library won't publish from uncommitted code. Check before you trust ([how](https://docs.thurin.id/guides/verify-release.md)).
+
+**The contract review:** before launch the registry had three adversarial reviews, each by an agent that didn't write the code. The last one checked every write path against an independent model of the rules, over hundreds of thousands of random calls. Every finding was fixed before mainnet. This was not a third-party audit.
+
+**If everything we run disappears:** your claim stays readable from any Ethereum node, gpg still verifies every signature, the code is mirrored on Codeberg, and the CLI runs against any node. There is nothing to migrate.
+
+### What we accept
+
+- Claims are public by design. The fix is choosing what to publish, not hiding it.
+- One person runs the hosted pieces on one server. Each has a do-it-yourself path, and the contract needs none of them.
+- Checking a proof means asking the platform it points at.
+- A public Ethereum node sees what you look up unless you pick your own.
+
+Found something we got wrong? Contact details are on [thurinlabs.eth's claim](https://thurin.id/ens/thurinlabs.eth/records) (the `security` record).

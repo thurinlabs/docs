@@ -1,16 +1,26 @@
 #!/usr/bin/env python3
-"""Build llms.txt from the pages, in sidebar order. Run after editing any page: python3 make-llms.py"""
+"""Build llms.txt (an index: intro, the agent guide, links to every page) and llms-full.txt (every page, in
+sidebar order) from the pages. Links point at the raw .md files, which any agent can fetch.
+Run after editing any page: python3 make-llms.py"""
 import re
 from pathlib import Path
 
 ROOT = Path(__file__).parent
 SITE = 'https://docs.thurin.id'
 
-HEADER = f"""# Thurin.id docs, in one file
+INTRO_FULL = f"""# Thurin.id docs, in one file
 
 > Every page of {SITE}, in the sidebar's order, for AI agents and anyone who wants it all at once.
-> The "For agents" section is written for this file; everything after it is built from the pages.
+> The short index is {SITE}/llms.txt. The "For agents" section is written for these files; everything after it is built from the pages.
+"""
 
+INTRO_INDEX = f"""# Thurin.id docs
+
+> An index for AI agents: what Thurin.id is, a guide to helping someone set it up, and a link to every page as
+> raw Markdown. Everything in one file: {SITE}/llms-full.txt
+"""
+
+HEADER = f"""
 Thurin.id puts a PGP key on an Ethereum address: a claim in a contract nobody controls, checkable with gpg and
 any Ethereum node. Proofs on the key link it to accounts elsewhere. An agent can drive everything with the CLI
 (`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see PGPRegistry below).
@@ -26,6 +36,7 @@ You can run every command here. Only the person can:
 - confirm a transaction in their own wallet (browser extension, phone, hardware);
 - post the proof on their accounts (a gist, a DNS record, a cast, a repo, a profile field), unless they've given you
   those tools (`gh`, a DNS API);
+- make, import, or export a wallet (`thurin wallet create`, `import`, `export --private-key`): those show or take a secret;
 - decide what goes public. A claim is public and permanent: it can be revoked, never deleted. Tell them before you publish.
 
 Never ask for or handle a private key or passphrase in chat. If you need one, stop and let them type it.
@@ -43,8 +54,11 @@ Check each step before doing it; skip what's already done.
    `--include-email`), and proofs must sit on one. Check: `gpg --list-keys <fingerprint>`. Add one:
    `gpg --quick-add-uid <fingerprint> "Their Name"`.
 4. **An Ethereum address, and a way to pay.** The claim goes on the address that signs. Pick one:
-   - their wallet has a little ETH: the browser at https://thurin.id/attest, or the CLI with a keystore
-     (`thurin wallet import <name>` or `thurin wallet create <name>`);
+   - their wallet has a little ETH: the browser at https://thurin.id/attest, or the CLI with a keystore.
+     **The person makes or imports the keystore themselves, in their own terminal** (`thurin wallet create <name>`
+     shows a recovery phrase; `thurin wallet import <name>` asks for a key or phrase). Never run those, or
+     `thurin wallet export --private-key`, for them: the secret would land in your transcript. The CLI refuses to
+     print a secret anywhere but a terminal;
    - their ETH is in a wallet elsewhere: `thurin attest --no-key --owner <address or ENS>` prints a link they
      open where the wallet is;
    - no ETH at all: `thurin attest --authorize` signs a free permission; anyone can publish it
@@ -52,7 +66,8 @@ Check each step before doing it; skip what's already done.
      within a daily budget).
 5. **The claim.** `thurin attest --key <fingerprint>` exports the key, has gpg sign
    `I control the Ethereum address: 0x…`, checks everything the way thurin.id will, shows what will go
-   on-chain, and asks once (`--yes` skips the question; show the person the summary first).
+   on-chain, and asks once. **Never pass `--yes` on mainnet without the person's explicit yes in this
+   session**, after they've seen that summary: a claim is public and can't be deleted.
 6. **Proofs.** For each account: put `thurin-id=openpgp4fpr:<fingerprint>` on the platform, add the
    `proof@thurin.id=<url>` notation to the key with gpg, then `thurin update-key` (one transaction, no new
    signature). Each provider's page below says exactly where the line goes and what URL to use.
@@ -113,13 +128,29 @@ def pages():
     return out
 
 
+def md_url(path, anchor=''):
+    """A site route (/guides/proofs, ?id=x) → the raw Markdown file, which any agent can fetch."""
+    page = path.strip('/') or 'README'
+    return f'{SITE}/{page}.md' + (f'#{anchor}' if anchor else '')
+
+
 def absolute(text):
-    """Site links → full docs URLs (docsify routes through #/), so they work outside the site."""
+    """Site links → full URLs of the raw .md files (plain files stay as they are)."""
     text = re.sub(r"\]\((/[^)\s]+) ':ignore'\)", lambda m: f']({SITE}{m.group(1)})', text)   # plain files
     def fix(m):
-        path, anchor = m.group(1), m.group(2) or ''
-        return f']({SITE}/#{path or "/"}{anchor})'
+        anchor = m.group(2)[4:] if m.group(2) else ''
+        return f']({md_url(m.group(1), anchor)})'
     return re.sub(r'\]\((/[^)\s?#]*)(\?id=[^)\s]*)?\)', fix, text)
+
+
+def plain(text):
+    """Roadmap status badges (<span class="status …">Shipped</span>) → the word in parentheses."""
+    return re.sub(r'<span class="status[^"]*">([^<]+)</span>', r'(\1)', text)
+
+
+def title(body):
+    m = re.search(r'^# (.+)$', body, re.M)
+    return plain(m.group(1)).strip() if m else ''
 
 
 def demote(text):
@@ -134,10 +165,12 @@ def demote(text):
     return '\n'.join(out)
 
 
-parts = [HEADER]
+full, index = [INTRO_FULL + HEADER], []
 for p in pages():
     body = (ROOT / p).read_text().strip()
-    url = f'{SITE}/#/' + ('' if p == 'README.md' else p[:-3])
-    parts.append(f'---\n\n<!-- {url} -->\n\n' + demote(absolute(body)))
-(ROOT / 'llms.txt').write_text('\n\n'.join(parts) + '\n')
-print(f'llms.txt: {len(parts) - 1} pages')
+    url = md_url('/' + ('' if p == 'README.md' else p[:-3]))
+    full.append(f'---\n\n<!-- {url} -->\n\n' + demote(plain(absolute(body))))
+    index.append(f'- [{title(body) or p[:-3]}]({url})')
+(ROOT / 'llms-full.txt').write_text('\n\n'.join(full) + '\n')
+(ROOT / 'llms.txt').write_text(INTRO_INDEX + HEADER + '\n---\n\n## Every page (raw Markdown)\n\n' + '\n'.join(index) + '\n')
+print(f'llms.txt: index of {len(index)} pages · llms-full.txt: {len(full) - 1} pages')

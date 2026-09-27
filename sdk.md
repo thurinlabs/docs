@@ -60,7 +60,7 @@ const soon = expiresSoon(v)
 if (soon) expiresSoonText(soon)   // 'Key expires in 12 days (Mar 6, 2027).'
 
 const fates = claimFates(claims)                  // `claims` from readClaims, keyed by index
-claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Oct 3, 2026.'
+claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Sep 12, 2026.'
 ```
 
 A fate is `active`, `revoked` (with the owner's reason), or `replaced` (by a reattest, with the new index). A replaced claim whose key was later marked compromised says so.

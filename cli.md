@@ -27,13 +27,13 @@ alice.eth  0x8f3C…2b41  (mainnet)
 claims      2 total · 1 active · 1 ended
 fingerprint 9C4E27B1D0835F6A2E71C4B8093DA5F16B2E8C47  ✓ verified
 name        Alice
-key         Ed25519 · created 2026-03-02 · claimed 2026-10-01 · expires 2028-03-01
+key         Ed25519 · created 2026-03-02 · claimed 2026-09-12 · expires 2028-03-01
 proofs
   ✓ GitHub     alice
   ✓ DNS        alice.example
 history
   #0 1A2B3C4D…5E6F7A8B 2026-06-10 replaced → #1
-  #1 9C4E27B1…6B2E8C47 2026-10-01 active verified
+  #1 9C4E27B1…6B2E8C47 2026-09-12 active verified
 ```
 
 It takes an ENS name, an address, a fingerprint, or a 16-character key ID. Exit code 1 means no verified claim. `status` checks proofs, since you asked; `--no-proofs` asks nothing but the Ethereum node and lists them as not checked.
@@ -148,7 +148,7 @@ A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when
 `record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
 
 ```bash
-thurin record add-release "thurin-cli 0.13.0" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.0
+thurin record add-release "thurin-cli 0.13.2" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2
 thurin record get thurinlabs.eth releases
 ```
 
@@ -197,11 +197,11 @@ thurin update-key          # or claim the key for the first time with thurin att
 
 ```
 # /etc/ssh/sshd_config
-AuthorizedKeysCommand /usr/local/bin/thurin key ssh 0x<address>
+AuthorizedKeysCommand /usr/local/bin/thurin key ssh 0x<address> --rpc http://127.0.0.1:8545
 AuthorizedKeysCommandUser nobody
 ```
 
-Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. The command asks the Ethereum node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
+Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. **Use your own Ethereum node** (`--rpc`): sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party; fine for looking people up, not for letting them into your server. Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. The command asks the node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
 
 ## Wallet, which is not a wallet
 
@@ -295,7 +295,7 @@ The registry is `0xFa6956c11163517249f8A67F5560a4406B519451`, the same address o
 
 ## For agents
 
-Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](/llms.txt ':ignore') has the whole reference in one file.
+Everything runs unattended except two prompts: the gpg passphrase (pinentry) and the keystore password (`--password-file`). With `--json`, `--yes`, and the exit codes, `status`, `attest`, `update-key`, and `record set` script end to end. An agent whose address holds no ETH runs `thurin attest --authorize --out auth.json` and hands the file to whoever pays. [llms.txt](/llms.txt ':ignore') is the index for agents; [llms-full.txt](/llms-full.txt ':ignore') has every page in one file. An agent never runs `thurin wallet create`, `wallet import`, or `wallet export --private-key` for someone: those handle the secret, so the person runs them in their own terminal (the CLI refuses to print a secret anywhere but a terminal).
 
 ## Source
 

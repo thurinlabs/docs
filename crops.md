@@ -26,7 +26,7 @@ Your claim lives in a contract on Ethereum that nobody controls: no owner, no ad
 
 **You can check that what runs is what's published:**
 - Every site deploy is a signed `deploy-…` tag in that site's repository, naming the IPFS content it put live. thurin.id also shows its commit in the page source.
-- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.1 on, on the current registry ([how to check](/guides/verify-release)). The one exception, 0.13.0, went to npm unsigned and was replaced by 0.13.1 within the hour. Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
+- Every CLI release since 0.5.1 is signed with the company key and named on-chain from thurinlabs.eth; from 0.13.1 on, on the current registry, which also carries over 0.11.0 to 0.12.0 from the one before ([how to check](/guides/verify-release)). The one exception, 0.13.0, went to npm unsigned and was replaced by 0.13.1 within the hour. Library releases are signed git tags from 1.3.2 on, and the library refuses to publish from uncommitted code.
 - Scripts are served by the sites themselves, never pulled from a CDN at view time.
 
 **Rebuild it yourself:** every site rebuilds from its deploy tag to the identical content ID, which we've checked for all four and for Node 20, 22, and 24. The steps: [Verify a deploy](/guides/verify-deploy).
@@ -59,7 +59,8 @@ Details: [privacy policy](https://thurinlabs.id/privacy/).
 **What we can't do to you:** the contract has no admin. We can't change, freeze, or delete your claim, and no one can move funds through it; it holds none.
 
 **What could go wrong, and what we do about it:**
-- *Someone steals your Ethereum key or ENS name.* They could replace the key on your claim or revoke it, even as compromised, and so could you: it becomes a race. Keep the Ethereum key on hardware. If it leaks, claim your key again from a fresh address; your PGP key is unaffected, and a "compromised" mark on the old address doesn't follow it.
+- *Someone steals your Ethereum key.* They could replace the key on your claim or revoke it, even as compromised, and so could you: it becomes a race. Keep the Ethereum key on hardware. If it leaks, claim your key again from a fresh address; your PGP key is unaffected, and a "compromised" mark on the old address doesn't follow it.
+- *Someone takes your ENS name.* Claims hang off the address, not the name, so they can't touch your claim. They can point the name at their own address, where a claim of theirs would show under your old name. Anyone who looks you up by address, or checks your key's fingerprint, isn't fooled; Encrypt warns when a key arrived in the last 7 days.
 - *Someone steals your PGP key.* Revoke the claim as compromised, or replace it with a new key and mark the old one in the same transaction. Once marked, that address can never claim the key again.
 - *The Ethereum node lies to the page.* A dishonest node could show a claim that isn't there. Use a node you trust for anything that matters; the CLI works against your own.
 - *Our relay's wallet.* It pays gas unattended, capped at a small daily budget. It can't touch your claim.

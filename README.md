@@ -25,4 +25,4 @@ No Thurin Labs server sits in the middle. [thurin.id](https://thurin.id), the CL
 - [CROPS](/crops): what we can and can't do to you
 - [Verify commits](/guides/verify-commits), [a release](/guides/verify-release), or [a deploy](/guides/verify-deploy) with nothing but gpg and the chain
 - [Roadmap](/roadmap): what's next
-- For AI agents: [llms.txt](/llms.txt ':ignore'), every page in one file, with a guide to helping someone set up
+- For AI agents: [llms.txt](/llms.txt ':ignore') (an index of every page, with a guide to helping someone set up; [llms-full.txt](/llms-full.txt ':ignore') has them all in one file)
