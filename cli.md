@@ -148,7 +148,7 @@ A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when
 `record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
 
 ```bash
-thurin record add-release "thurin-cli 0.13.3" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.3
+thurin record add-release "thurin-cli 0.13.4" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4
 thurin record get thurinlabs.eth releases
 ```
 
@@ -269,7 +269,7 @@ thurin relay --account hot --budget 0.01   # ETH per day
 | `--max-gas` | 6000000 | per transaction |
 | `--port`, `--host` | 8787, 127.0.0.1 | put a TLS proxy in front |
 
-`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (a bad permission, or the registry's reason for refusing it), 403 or 429 (limits), 502 (the chain or RPC failed), 503 (budget spent), or 500 (anything else). `GET /` shows the network and chain id, payer, budget, and today's spend; thurin.id offers the relay only when its network matches.
+`POST /` with what `--authorize --out` writes. The answer is `{hash, block, owner, op, proofs, payer, identity}`, or `{error}` with 400 (a bad permission, or the registry's reason for refusing it), 403 or 429 (limits), 502 (the chain or RPC failed), 503 (budget spent), or 500 (anything else). `GET /` shows the relay's version, the network and chain id, payer, budget, and today's spend; thurin.id offers the relay only when its network matches.
 
 People use it with `--relay <url>` or `"relay"` in their config. It's the one command that spends without asking, gas only, one transaction at a time.
 

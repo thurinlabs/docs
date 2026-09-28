@@ -39,7 +39,7 @@ sha256sum -c SHA256SUMS
 ```
 
 ```
-thurinlabs-thurin-0.13.3.tgz: OK
+thurinlabs-thurin-0.13.4.tgz: OK
 ```
 
 ## 4. Check the chain names this release
@@ -49,7 +49,7 @@ npx @thurinlabs/thurin record get thurinlabs.eth releases
 ```
 
 ```
-thurin-cli 0.13.3      2026-09-27  sha256 73e562fb8b4aacb2f21174ac3855b0a51b538dc1f2b31bb07037fd521725fcaa  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.3
+thurin-cli 0.13.4      2026-09-28  sha256 94b515383f70109fb7ba5768ea05e85a332f1491e07c34006044f7314f00893c  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4
 ```
 
 The same list is on the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records).
@@ -59,7 +59,7 @@ Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.e
 ## 5. Check it is what npm serves
 
 ```bash
-npm pack @thurinlabs/thurin@0.13.3 && sha256sum thurinlabs-thurin-0.13.3.tgz
+npm pack @thurinlabs/thurin@0.13.4 && sha256sum thurinlabs-thurin-0.13.4.tgz
 ```
 
 The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
@@ -68,7 +68,7 @@ The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thuri
 
 It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin.id's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
-With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. The current registry names 0.13.1 to 0.13.3, and 0.11.0 to 0.12.0 (carried over from the registry before it). For anything older, stop at step 3: those were named only on the old registry, which Thurin's tools no longer read. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. The current registry names 0.13.1 to 0.13.4, and 0.11.0 to 0.12.0 (carried over from the registry before it). For anything older, stop at step 3: those were named only on the old registry, which Thurin's tools no longer read. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
 
 ## Anyone's releases
 
@@ -78,6 +78,7 @@ Steps 2 to 4 work for any project that names its releases on its claim: fetch it
 
 | Version | Date | Signed by |
 |---|---|---|
+| [0.13.4](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4) | 2026-09-28 | 08B9…EF7B |
 | [0.13.3](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.3) | 2026-09-27 | 08B9…EF7B |
 | [0.13.2](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2) | 2026-09-26 | 08B9…EF7B |
 | [0.13.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.1) | 2026-09-26 | 08B9…EF7B |
