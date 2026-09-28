@@ -148,7 +148,7 @@ A name without a dot gets `thurin.` in front. `--index <n>` picks the claim when
 `record add-release` names a release on-chain by its checksum file. Anyone who ships software can keep a list:
 
 ```bash
-thurin record add-release "thurin-cli 0.13.4" SHA256SUMS --url https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4
+thurin record add-release "myproject 1.2.0" SHA256SUMS --url https://github.com/you/myproject/releases/tag/v1.2.0
 thurin record get thurinlabs.eth releases
 ```
 

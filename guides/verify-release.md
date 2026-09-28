@@ -39,7 +39,7 @@ sha256sum -c SHA256SUMS
 ```
 
 ```
-thurinlabs-thurin-0.13.4.tgz: OK
+thurinlabs-thurin-<version>.tgz: OK
 ```
 
 ## 4. Check the chain names this release
@@ -49,17 +49,17 @@ npx @thurinlabs/thurin record get thurinlabs.eth releases
 ```
 
 ```
-thurin-cli 0.13.4      2026-09-28  sha256 94b515383f70109fb7ba5768ea05e85a332f1491e07c34006044f7314f00893c  https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4
+thurin-cli <version>   <date>  sha256 <hash of SHA256SUMS>  https://github.com/thurinlabs/thurin-cli/releases/tag/v<version>
 ```
 
 The same list is on the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records).
 
-Compare the hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
+Find the line for the version you downloaded and compare its hash to your own `sha256sum SHA256SUMS`. If they match, thurinlabs.eth itself named this checksum file on-chain: the release is one Thurin Labs put out, not merely one its key signed.
 
 ## 5. Check it is what npm serves
 
 ```bash
-npm pack @thurinlabs/thurin@0.13.4 && sha256sum thurinlabs-thurin-0.13.4.tgz
+npm pack @thurinlabs/thurin@<version> && sha256sum thurinlabs-thurin-<version>.tgz
 ```
 
 The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
@@ -68,26 +68,12 @@ The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thuri
 
 It proves the release was signed by whoever holds the Thurin Labs key, and that the key is the one claimed on-chain from thurinlabs.eth with four proofs. Thurin.id's part is answering "whose key is this"; the rest is gpg and sha256sum.
 
-With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. The current registry names 0.13.1 to 0.13.4, and 0.11.0 to 0.12.0 (carried over from the registry before it). For anything older, stop at step 3: those were named only on the old registry, which Thurin's tools no longer read. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
+With step 4, it also proves the release is one Thurin Labs put out: the chain names the key *and* the checksum file, so a reader trusts nothing but Ethereum and gpg. The current registry names every release from 0.13.1 on, and 0.11.0 to 0.12.0 (carried over from the registry before it). For anything older, stop at step 3: those were named only on the old registry, which Thurin's tools no longer read. It does not prove the code is good; read it, it is MIT. And a keyserver, including ours, can withhold a revocation. If that matters, fetch from your own `thurin keyserver`.
 
 ## Anyone's releases
 
 Steps 2 to 4 work for any project that names its releases on its claim: fetch its key, then `thurin record get <its name> releases`. To name your own, sign your `SHA256SUMS` and run `thurin record add-release "<name> <version>" SHA256SUMS --url <release page>` from the address that holds your claim ([CLI](/cli?id=records)).
 
-## Releases
+## All releases
 
-| Version | Date | Signed by |
-|---|---|---|
-| [0.13.4](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.4) | 2026-09-28 | 08B9…EF7B |
-| [0.13.3](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.3) | 2026-09-27 | 08B9…EF7B |
-| [0.13.2](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.2) | 2026-09-26 | 08B9…EF7B |
-| [0.13.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.13.1) | 2026-09-26 | 08B9…EF7B |
-| [0.12.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.12.0) | 2026-09-24 | 08B9…EF7B |
-| [0.11.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.1) | 2026-09-24 | 08B9…EF7B |
-| [0.11.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.11.0) | 2026-09-24 | 08B9…EF7B |
-| [0.10.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.10.0) | 2026-09-23 | 08B9…EF7B |
-| [0.9.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.9.0) | 2026-09-22 | 08B9…EF7B |
-| [0.8.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.8.0) | 2026-09-21 | 08B9…EF7B |
-| [0.7.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.7.0) | 2026-09-20 | 08B9…EF7B |
-| [0.6.0](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.6.0) | 2026-09-19 | 08B9…EF7B |
-| [0.5.1](https://github.com/thurinlabs/thurin-cli/releases/tag/v0.5.1) | 2026-09-19 | 08B9…EF7B |
+Every release is on [GitHub releases](https://github.com/thurinlabs/thurin-cli/releases) with its three files, and named on-chain: the Records tab at [thurin.id/ens/thurinlabs.eth/records](https://thurin.id/ens/thurinlabs.eth/records), or `thurin record get thurinlabs.eth releases`. The chain's list keeps the newest releases that fit in 1 KB; older ones stay in its history.
