@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="referrer" content="no-referrer">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Check a key: demo</title>
+  <script>
+    // The docs' two modes: follow the docs page around this frame, else the saved choice (dark by default).
+    (function () {
+      var t; try { t = window.parent !== window && parent.document.documentElement.dataset.theme } catch (e) {}
+      if (!t) { try { t = localStorage.getItem('thurin-docs-theme') } catch (e) {} }
+      document.documentElement.dataset.theme = t === 'light' ? 'light' : 'dark'
+    })()
+  </script>
+  <style>
+    :root { --bg: #1a1a12; --fg: #e8e6dc; --dim: #a09e90; --line: #3a3a2c; --field: #22221a; --accent: #7c9a3e; --bad: #d0694f; --warn: #c9a640; }
+    :root[data-theme="light"] { --bg: #faf9f5; --fg: #2a2a22; --dim: #6b6960; --line: #d0cfc4; --field: #ffffff; --accent: #5a7228; --bad: #a8412a; --warn: #8a6d12; }
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; background: var(--bg); color: var(--fg); font: 15px/1.5 system-ui, sans-serif; }
+    label { display: block; margin: 0 0 4px; color: var(--dim); font-size: 13px; }
+    input, textarea { width: 100%; padding: 8px 10px; background: var(--field); color: var(--fg); border: 1px solid var(--line); border-radius: 6px; font: 13px/1.4 ui-monospace, SFMono-Regular, Menlo, monospace; }
+    textarea { height: 120px; resize: vertical; }
+    .field { margin-bottom: 12px; }
+    .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+    button { padding: 7px 14px; border-radius: 6px; border: 1px solid var(--line); background: transparent; color: var(--fg); font: inherit; cursor: pointer; }
+    button.primary { margin-left: auto; background: var(--accent); border-color: var(--accent); color: #fff; }
+    button:disabled { opacity: 0.6; cursor: default; }
+    #result { margin-top: 16px; padding: 12px 14px; border: 1px solid var(--line); border-radius: 6px; overflow-wrap: anywhere; }
+    #result[hidden] { display: none; }
+    .status { font-weight: 600; }
+    .verified { color: var(--accent); } .mismatch { color: var(--bad); } .unverified, .unreachable { color: var(--warn); }
+    dl { display: grid; grid-template-columns: max-content 1fr; gap: 2px 12px; margin: 10px 0; font: 13px ui-monospace, SFMono-Regular, Menlo, monospace; }
+    dt { color: var(--dim); } dd { margin: 0; overflow-wrap: anywhere; }
+    .note { margin: 12px 0 0; color: var(--dim); font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="field">
+    <label for="owner">Owner (an ENS name or 0x address)</label>
+    <input id="owner" value="thurinlabs.eth" spellcheck="false" autocomplete="off">
+  </div>
+  <div class="field">
+    <label for="key">The key your page ships</label>
+    <textarea id="key" spellcheck="false"></textarea>
+  </div>
+  <div class="row">
+    <button type="button" id="useReal">Real key</button>
+    <button type="button" id="useSwapped">Swapped key</button>
+    <button type="button" id="check" class="primary">Check</button>
+  </div>
+
+  <div id="result" hidden aria-live="polite"></div>
+  <p class="note">Pressing Check asks ethereum.publicnode.com about the owner. Nothing is sent before.</p>
+
+  <!-- thurinlabs.eth's key, as claimed on Ethereum -->
+  <script type="text/plain" id="realKey">
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEaqWGDBYJKwYBBAHaRw8BAQdA4K0UFXebtOB3/xmTp2XaLaxTlaLLS+/c
+tLHtgQdniMjNC1RodXJpbiBMYWJzwsDBBBMWCgEpAhsBBQkDwmcABAsJCAcE
+FQoJCAUWAgMBAAIeAQIXgAIZARYhBAi5N0/fvsZ+/6JOZp09huNTYe97BQJq
+pZ+iQhSAAAAAAA8AKnByb29mQHRodXJpbi5pZGh0dHBzOi8vZ2l0aHViLmNv
+bS90aHVyaW5sYWJzL3RodXJpbi1wcm9vZi4UgAAAAAAPABZwcm9vZkB0aHVy
+aW4uaWRkbnM6dGh1cmluLmlkP3R5cGU9VFhUMhSAAAAAAA8AGnByb29mQHRo
+dXJpbi5pZGRuczp0aHVyaW5sYWJzLmlkP3R5cGU9VFhURBSAAAAAAA8ALHBy
+b29mQHRodXJpbi5pZGh0dHBzOi8vY29kZWJlcmcub3JnL3RodXJpbmxhYnMv
+dGh1cmluLXByb29mAAoJEJ09huNTYe97UtoBAKurWPEiU3n39XDQxu1/sqx5
+frc5hO8/Taaot1cnMjgSAP9c0zhmXmuiRvtQ3CZkEN+fC/Fg72oyGT5+tzqo
+dbrEC84zBGqlh24WCSsGAQQB2kcPAQEHQKzxibNqgw3XH7CtJokkzJmJfIyh
+dJfRM0lz5UqIOJYSwsA1BBgWCgAmFiEECLk3T9++xn7/ok5mnT2G41Nh73sF
+Amqlh24CGwIFCQHhM4AAgQkQnT2G41Nh73t2IAQZFgoAHRYhBJRifM8uxRSl
+H6TfFghFvDZNuhxyBQJqpYduAAoJEAhFvDZNuhxydQwBAO3CljWKNgWNEdE8
+pWDLj0nxiPc764W/54+5JGEgXOGCAQDmGGHfdUcW+6mB6B3JBjzcnUUBhgF9
+/U8V22sqnGzDAWENAQCXvXM1eRX95qDgmDkb1w2R4FmIH5hdpybjaDdLKKdz
+lgEAp7VQE7YAVAXFgKXMa8unh3XUKspRxkg2VgmtFgyA5wPOOARqpYdzEgor
+BgEEAZdVAQUBAQdAOHPNZQ3yDMKS7VW/n7B0lcxza70JibcipKTRwkdVPAMD
+AQgHwn4EGBYKACYWIQQIuTdP377Gfv+iTmadPYbjU2HvewUCaqWHcwIbDAUJ
+AeEzgAAKCRCdPYbjU2Hve9unAP9GckMF76J8ylAemr+NXqBM5MHU793JSXgZ
+qE28mSRhKAD+PxMnbSfPhodApX/HHnb7L1ykVU5GW3dKnDlNluExzQE=
+=OG2Y
+-----END PGP PUBLIC KEY BLOCK-----
+  </script>
+  <!-- A throwaway key standing in for a swapped one; nobody holds its private half -->
+  <script type="text/plain" id="swappedKey">
+-----BEGIN PGP PUBLIC KEY BLOCK-----
+
+xjMEarvDKxYJKwYBBAHaRw8BAQdAMidS1LkeXto3rPHng0nQw/CJRfjTmRk/
+P5+2Nu/AAnrNElN3YXBwZWQga2V5IChkZW1vKcLAEwQTFgoAhQWCarvDKwML
+CQcJEER332j5G2YuRRQAAAAAABwAIHNhbHRAbm90YXRpb25zLm9wZW5wZ3Bq
+cy5vcmewsCDb8PHxFg7JcSeS9VWqRulSzsMOI5AM5T3uZ1/4/AUVCggODAQW
+AAIBAhkBApsDAh4BFiEEFPOV2sw5RGTZgvXDRHffaPkbZi4AAKaaAP4yoQqh
+ngcUUVi9NOqs1Q3a503n/N5z0UnjhahJlzaUJQEA1nIedDk+Pptc+lFDIZmS
+VlMQ1UqE6hOk3rrqxD0EsQ3OOARqu8MrEgorBgEEAZdVAQUBAQdAW2+jtxfd
+fTr9IgjYPox70myo4dZkj4f0NyKtLK3qbRADAQgHwr4EGBYKAHAFgmq7wysJ
+EER332j5G2YuRRQAAAAAABwAIHNhbHRAbm90YXRpb25zLm9wZW5wZ3Bqcy5v
+cmdKwJmOtTHh0IHbmV+qHMYm0LOYSdP5cCExw7LvT18NHAKbDBYhBBTzldrM
+OURk2YL1w0R332j5G2YuAAA9QQEAyIZMlgl6KJ6L/Dc8hFMsPaxPccgHeugF
+2DHRl62PMp0A/3pyKK4m/EcITlxoiCmtDIyb4uANTSnI9HUygXYyQLAD
+=TLqm
+-----END PGP PUBLIC KEY BLOCK-----
+  </script>
+
+  <!-- The check: one file from @thurinlabs/identity-kit 2.2.1 (licenses: vendor/thurin-check.LICENSES.txt) -->
+  <script src="../vendor/thurin-check.js"></script>
+  <script>
+    var $ = function (id) { return document.getElementById(id) }
+    var WOULD = {
+      verified: 'An encrypt form would go ahead.',
+      mismatch: 'An encrypt form would refuse.',
+      unverified: 'An encrypt form would carry on as it does without the check.',
+      unreachable: 'An encrypt form would warn, or refuse if it prefers.',
+    }
+
+    function useKey(id) { $('key').value = $(id).textContent.trim(); $('result').hidden = true; fit() }
+    function groups(fp) { return fp ? fp.replace(/(.{4})/g, '$1 ').trim() : '' }
+    function text(tag, cls, value) { var el = document.createElement(tag); if (cls) el.className = cls; el.textContent = value; return el }
+
+    function show(r) {
+      var out = $('result'); out.replaceChildren()
+      var head = document.createElement('div')
+      head.append(text('span', 'status ' + r.status, r.status), ' ', text('span', '', r.reason))
+      out.append(head)
+      if (r.fingerprint || r.claimedFingerprint) {
+        var dl = document.createElement('dl')
+        if (r.fingerprint) dl.append(text('dt', '', 'This key'), text('dd', '', groups(r.fingerprint)))
+        if (r.claimedFingerprint) dl.append(text('dt', '', 'On-chain'), text('dd', '', groups(r.claimedFingerprint)))
+        out.append(dl)
+      }
+      out.append(text('div', '', WOULD[r.status]))
+      out.hidden = false
+      fit()
+    }
+
+    $('check').addEventListener('click', async function () {
+      var button = this
+      button.disabled = true; button.textContent = 'Checking…'
+      try {
+        show(await ThurinCheck.checkKeyFor({ key: $('key').value, owner: $('owner').value.trim() }))
+      } catch (e) {
+        var out = $('result'); out.replaceChildren(text('div', 'status mismatch', e.message)); out.hidden = false; fit()
+      } finally {
+        button.disabled = false; button.textContent = 'Check'
+      }
+    })
+    $('useReal').addEventListener('click', function () { useKey('realKey') })
+    $('useSwapped').addEventListener('click', function () { useKey('swappedKey') })
+
+    // Inside the docs, grow the frame to fit, and follow the docs' mode switch.
+    function fit() { if (window.frameElement) window.frameElement.style.height = Math.ceil(document.body.getBoundingClientRect().height) + 2 + 'px' }
+    try {
+      if (window.frameElement) new MutationObserver(function () {
+        document.documentElement.dataset.theme = parent.document.documentElement.dataset.theme === 'light' ? 'light' : 'dark'
+      }).observe(parent.document.documentElement, { attributes: true, attributeFilter: ['data-theme'] })
+    } catch (e) {}
+    useKey('realKey')
+    addEventListener('resize', fit)
+  </script>
+</body>
+</html>

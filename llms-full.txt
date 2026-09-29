@@ -1369,7 +1369,9 @@ The same content at 1200×630, at `/og/ens/:name`, `/og/eth/:address`, and `/og/
 
 Your page ships a PGP key so visitors can encrypt to you. Whoever controls your server can swap that key for their own, and every message after that is theirs to read. Check the key against its owner's claim on Ethereum first: a swapped key won't match, and the page refuses to encrypt.
 
-<!-- live demo goes here -->
+<iframe src="demo/check-key.html" title="Check a key: live demo" style="width: 100%; height: 420px; border: 1px solid var(--sidebar-border-color, #3a3a2c); border-radius: 6px;"></iframe>
+
+Try it: **Real key** is thurinlabs.eth's key as [claimed](https://thurin.id/ens/thurinlabs.eth/claims); **Swapped key** is a throwaway key standing in for a swap. Or paste your own key and name. [Open the demo on its own page](demo/check-key.html ':ignore') to read its source: it's the whole integration.
 
 ### Add it to a page
 
