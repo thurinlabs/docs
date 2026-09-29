@@ -1445,7 +1445,7 @@ ThurinCheck.checkKeyFor({ key, owner, rpc: 'https://your-node.example' })
 
 ### Get the file
 
-`thurin-check.min.js` is built from the kit and attached to each kit release with its SHA-256. Copy it into your site rather than loading it from someone else's server, and keep `thurin-check.LICENSES.txt` beside it: the file bundles [OpenPGP.js](https://openpgpjs.org) (LGPL-3.0) and MIT packages, and the licenses travel with it.
+`thurin-check.min.js` is built from the kit and attached to each [kit release](https://github.com/thurinlabs/identity-kit/releases) with its SHA-256. Copy it into your site rather than loading it from someone else's server, and keep `thurin-check.LICENSES.txt` beside it: the file bundles [OpenPGP.js](https://openpgpjs.org) (LGPL-3.0) and MIT packages, and the licenses travel with it.
 
 ```bash
 sha256sum thurin-check.min.js   # compare with the release
