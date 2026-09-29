@@ -46,7 +46,7 @@
   </div>
   <div class="row">
     <button type="button" id="useReal">Real key</button>
-    <button type="button" id="useSwapped">Swapped key</button>
+    <button type="button" id="useWrong">Wrong key</button>
     <button type="button" id="check" class="primary">Check</button>
   </div>
 
@@ -81,8 +81,8 @@ qE28mSRhKAD+PxMnbSfPhodApX/HHnb7L1ykVU5GW3dKnDlNluExzQE=
 =OG2Y
 -----END PGP PUBLIC KEY BLOCK-----
   </script>
-  <!-- A throwaway key standing in for a swapped one; nobody holds its private half -->
-  <script type="text/plain" id="swappedKey">
+  <!-- A throwaway key nobody has claimed; nobody holds its private half -->
+  <script type="text/plain" id="wrongKey">
 -----BEGIN PGP PUBLIC KEY BLOCK-----
 
 xjMEarvDKxYJKwYBBAHaRw8BAQdAMidS1LkeXto3rPHng0nQw/CJRfjTmRk/
@@ -144,7 +144,7 @@ OURk2YL1w0R332j5G2YuAAA9QQEAyIZMlgl6KJ6L/Dc8hFMsPaxPccgHeugF
       }
     })
     $('useReal').addEventListener('click', function () { useKey('realKey') })
-    $('useSwapped').addEventListener('click', function () { useKey('swappedKey') })
+    $('useWrong').addEventListener('click', function () { useKey('wrongKey') })
 
     // Inside the docs, grow the frame to fit, and follow the docs' mode switch.
     function fit() { if (window.frameElement) window.frameElement.style.height = Math.ceil(document.body.getBoundingClientRect().height) + 2 + 'px' }

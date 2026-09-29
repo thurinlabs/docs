@@ -1367,11 +1367,11 @@ The same content at 1200×630, at `/og/ens/:name`, `/og/eth/:address`, and `/og/
 
 ## Check a key before you encrypt to it
 
-Your page ships a PGP key so visitors can encrypt to you. Whoever controls your server can swap that key for their own, and every message after that is theirs to read. Check the key against its owner's claim on Ethereum first: a swapped key won't match, and the page refuses to encrypt.
+Your page ships a PGP key so visitors can encrypt to you. Check it against its owner's claim on Ethereum before encrypting: a wrong key, or one the owner has revoked, won't match, and the page refuses to encrypt.
 
 <iframe src="demo/check-key.html" title="Check a key: live demo" style="width: 100%; height: 420px; border: 1px solid var(--sidebar-border-color, #3a3a2c); border-radius: 6px;"></iframe>
 
-Try it: **Real key** is thurinlabs.eth's key as [claimed](https://thurin.id/ens/thurinlabs.eth/claims); **Swapped key** is a throwaway key standing in for a swap. Or paste your own key and name. [Open the demo on its own page](demo/check-key.html ':ignore') to read its source: it's the whole integration.
+Try it: **Real key** is thurinlabs.eth's key as [claimed](https://thurin.id/ens/thurinlabs.eth/claims); **Wrong key** is a throwaway key nobody has claimed. Or paste your own key and name. [Open the demo on its own page](demo/check-key.html ':ignore') to read its source: it's the whole integration.
 
 ### Add it to a page
 
@@ -1418,16 +1418,16 @@ import { checkKeyFor } from '@thurinlabs/identity-kit'
 const r = await checkKeyFor(client, { key: armoredKey, owner: 'security.example.eth' })
 ```
 
-Useful in a build step too: fail the deploy if a bundled key doesn't match.
+Run it in your build too, and fail the deploy if a bundled key doesn't match: a wrong key is then caught before anyone sees it.
 
 ### What it protects against
 
-- **A swapped key file.** A bad commit, a bad deploy, or someone who can change files on the server but not the owner's claim. The owner's claim can only be written with the owner's Ethereum key.
-- **A revoked key.** If the owner revokes the key (lost, retired, compromised), pages still shipping it refuse it.
+- **A wrong key.** A mistake in a commit or a deploy, or a test key left in. The check in your build catches it first; the check in the page catches what gets past.
+- **A revoked key.** If the owner loses a key or it's stolen, they revoke it on-chain, and every page still shipping it refuses to encrypt to it straight away, with no redeploy.
 
 What it doesn't:
 
-- **A server that serves its own JavaScript.** Whoever can change your scripts can remove the check. The fix for that is a content-addressed site (IPFS + an ENS contenthash, as [thurin.id](https://thurin.id) is served) or a build anyone can verify: see [Verify a deploy](https://docs.thurin.id/guides/verify-deploy.md).
+- **Your server.** Whoever controls the server that serves your page can change the key, change which owner is checked, or remove the check. A check that runs in your page can't protect you from the server that serves it. The fix for that is a page the server can't change: content-addressed (IPFS + an ENS contenthash, as [thurin.id](https://thurin.id) is served), see [Verify a deploy](https://docs.thurin.id/guides/verify-deploy.md). With that in place, the check still adds revocation.
 - **Recipients without a claim.** The check only protects keys that have been [claimed](https://docs.thurin.id/guides/getting-started.md). No ETH needed: the relay can pay for the claim.
 - **Metadata.** Who writes to whom, and when, is outside the check.
 
