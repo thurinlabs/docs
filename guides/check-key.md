@@ -9,7 +9,7 @@ Your page ships a PGP key so visitors can encrypt to you. Whoever controls your 
 For a site with no build step. Copy two files next to your other scripts (see [Get the file](/guides/check-key?id=get-the-file)), then load the check:
 
 ```html
-<script src="js/thurin-check.min.js"></script>
+<script src="js/thurin-check.js"></script>
 ```
 
 Say whose key each recipient's is. Recipients without an owner work exactly as before:
@@ -78,10 +78,10 @@ ThurinCheck.checkKeyFor({ key, owner, rpc: 'https://your-node.example' })
 
 ## Get the file
 
-`thurin-check.min.js` is built from the kit and attached to each [kit release](https://github.com/thurinlabs/identity-kit/releases) with its SHA-256. Copy it into your site rather than loading it from someone else's server, and keep `thurin-check.LICENSES.txt` beside it: the file bundles [OpenPGP.js](https://openpgpjs.org) (LGPL-3.0) and MIT packages, and the licenses travel with it.
+`thurin-check.js` comes with each [kit release](https://github.com/thurinlabs/identity-kit/releases), next to `thurin-check.LICENSES.txt` and a `SHA256SUMS` signed by thurinlabs.eth's key and named on-chain: check it as in [Verify a release](/guides/verify-release). Copy both files into your site rather than loading them from someone else's server. The file bundles [OpenPGP.js](https://openpgpjs.org) (LGPL-3.0) and MIT packages, and the licenses travel with it.
 
 ```bash
-sha256sum thurin-check.min.js   # compare with the release
+sha256sum -c SHA256SUMS --ignore-missing   # in the folder with the files you downloaded
 ```
 
-It's about 250 KB gzipped, most of it OpenPGP.js. It's also in the npm package, at `dist/thurin-check.min.js`.
+It isn't minified, so you can read what you ship: each part is labelled with the package it comes from. It's about 316 KB gzipped, most of it OpenPGP.js. It's also in the npm package at `dist/thurin-check.js`, or build it yourself from the release's tag with `npm ci && npm run build`; it should match the release.

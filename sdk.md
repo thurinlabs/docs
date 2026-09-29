@@ -82,7 +82,7 @@ const r = await checkKeyFor(client, { key: armoredKey, owner: 'thurinlabs.eth' }
 
 `owner` is a `0x` address or an ENS name (the client resolves it). Any active, verified claim for the key counts. `mismatch` means don't encrypt to it: the owner's verified key is another one, the owner revoked this one, or it isn't a key. A node failure is `unreachable`, never `mismatch`. The answer carries `fingerprint`, `claimedFingerprint`, `address`, and the `claim` it rests on.
 
-For pages with no build step, the kit ships the same check as one file, `thurin-check.min.js` (`ThurinCheck.checkKeyFor({ key, owner, rpc, network })`). The guide: [Check a key before you encrypt to it](/guides/check-key).
+For pages with no build step, the kit ships the same check as one readable file, `thurin-check.js` (`ThurinCheck.checkKeyFor({ key, owner, rpc, network })`). The guide: [Check a key before you encrypt to it](/guides/check-key).
 
 ## Proofs
 
