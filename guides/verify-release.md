@@ -22,6 +22,14 @@ gpg --keyserver hkps://keys.thurin.id --recv-keys 08B9374FDFBEC67EFFA24E669D3D86
 
 That is the Thurin Labs key, `08B9 374F DFBE C67E FFA2 4E66 9D3D 86E3 5361 EF7B`. Its on-chain claim proves the GitHub organisation, both domains, and the Codeberg organisation: [thurin.id/ens/thurinlabs.eth](https://thurin.id/ens/thurinlabs.eth). To trust no server at all, run `thurin keyserver` locally instead.
 
+Or, leaving gpg's keyserver settings alone:
+
+```bash
+curl -s https://thurin.id/pgp/08B9374FDFBEC67EFFA24E669D3D86E35361EF7B.asc | gpg --import
+```
+
+gpg prints `key 9D3D86E35361EF7B: public key "Thurin Labs" imported`: the last 16 characters of the fingerprint above. To see the whole fingerprint before importing, use `gpg --import-options show-only --import`.
+
 ## 2. Verify the signature
 
 ```bash
@@ -29,7 +37,7 @@ gpg --verify SHA256SUMS.asc SHA256SUMS
 ```
 
 ```
-gpg: Good signature from "Thurin Labs <hello@thurin.id>"
+gpg: Good signature from "Thurin Labs"
 ```
 
 ## 3. Verify the file

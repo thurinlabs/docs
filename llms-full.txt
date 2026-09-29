@@ -186,6 +186,8 @@ The command uses the first key gpg can sign with. If the page names the wrong ke
 
 Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
 
+**Share your key** with a plain link: `https://thurin.id/eth/YOUR_ADDRESS.asc` is the key file itself, and so are `/ens/YOUR_NAME.asc` (once your ENS name points at the address) and `/pgp/YOUR_FINGERPRINT.asc`. Put it in an email signature, a profile, or a security.txt. It always serves your current verified key, and stops when you revoke it.
+
 Rather use a terminal? `npx @thurinlabs/thurin attest` does the same; see the [CLI](https://docs.thurin.id/cli.md).
 
 ### 5. Add a proof
@@ -900,6 +902,8 @@ A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what
 
 Write the `hkps://`: a bare `keys.thurin.id` means plain HKP to gpg.
 
+thurin.id's plain key links (`/pgp/<fingerprint>.asc`, `/eth/<address>.asc`, `/ens/<name>.asc`) are this keyserver behind three web-server rules that forward to `/pks/lookup?op=get&search=…`; a site of your own can do the same.
+
 ### Run a relay
 
 A relay is `thurin submit` behind an HTTP port: it takes permissions, runs the same checks, and pays for them from a hot keystore, within limits. Anyone can run one. Thurin Labs runs one at relay.thurin.id.
@@ -1047,6 +1051,14 @@ gpg --keyserver hkps://keys.thurin.id --recv-keys 08B9374FDFBEC67EFFA24E669D3D86
 
 That is the Thurin Labs key, `08B9 374F DFBE C67E FFA2 4E66 9D3D 86E3 5361 EF7B`. Its on-chain claim proves the GitHub organisation, both domains, and the Codeberg organisation: [thurin.id/ens/thurinlabs.eth](https://thurin.id/ens/thurinlabs.eth). To trust no server at all, run `thurin keyserver` locally instead.
 
+Or, leaving gpg's keyserver settings alone:
+
+```bash
+curl -s https://thurin.id/pgp/08B9374FDFBEC67EFFA24E669D3D86E35361EF7B.asc | gpg --import
+```
+
+gpg prints `key 9D3D86E35361EF7B: public key "Thurin Labs" imported`: the last 16 characters of the fingerprint above. To see the whole fingerprint before importing, use `gpg --import-options show-only --import`.
+
 ### 2. Verify the signature
 
 ```bash
@@ -1054,7 +1066,7 @@ gpg --verify SHA256SUMS.asc SHA256SUMS
 ```
 
 ```
-gpg: Good signature from "Thurin Labs <hello@thurin.id>"
+gpg: Good signature from "Thurin Labs"
 ```
 
 ### 3. Verify the file

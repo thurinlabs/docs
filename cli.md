@@ -252,6 +252,8 @@ A fetch by full fingerprint checks itself: gpg makes sure the key hashes to what
 
 Write the `hkps://`: a bare `keys.thurin.id` means plain HKP to gpg.
 
+thurin.id's plain key links (`/pgp/<fingerprint>.asc`, `/eth/<address>.asc`, `/ens/<name>.asc`) are this keyserver behind three web-server rules that forward to `/pks/lookup?op=get&search=…`; a site of your own can do the same.
+
 ## Run a relay
 
 A relay is `thurin submit` behind an HTTP port: it takes permissions, runs the same checks, and pays for them from a hot keystore, within limits. Anyone can run one. Thurin Labs runs one at relay.thurin.id.
