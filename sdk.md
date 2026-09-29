@@ -35,6 +35,8 @@ const { kind, claim } = keyStanding(claims)
 | `inactive` | the newest claim; every claim has ended |
 | `none` | `null`; the address never claimed a key |
 
+`keyStanding(claims, { fingerprint })` says the same for one key. An address can hold several active claims, so a key other than the newest can still be verified.
+
 Nothing from a claim that doesn't verify (its proofs, its names) should be shown: the stored key isn't the owner's until its signature binds it to the address.
 
 `findOwners(client, { fingerprint })` or `{ keyId }` goes the other way: every address that ever claimed the key, each with the fingerprint it claimed (a key ID can match more than one key). ENS is up to you: resolve the name with viem first.
@@ -66,6 +68,21 @@ claimFateText(fates.get(0)!)                      // 'Replaced by claim #1 on Se
 A fate is `active`, `revoked` (with the owner's reason), or `replaced` (by a reattest, with the new index). A replaced claim whose key was later marked compromised says so.
 
 **Is this key compromised?** Ask the contract: `keyStatus(owner, fingerprint)` returns `none`, `active`, `revoked`, or `compromised`. Don't infer it from the newest claim: a key can be marked compromised on an older claim while a newer one keeps its own reason. And it is per owner. Anyone can post a claim on any fingerprint and mark it compromised under their own address, so never count "compromised" across all owners of a key.
+
+## Check a key
+
+A key you already have (bundled in a page, pasted, from a keyserver): is it the owner's?
+
+```ts
+import { checkKeyFor } from '@thurinlabs/identity-kit'
+
+const r = await checkKeyFor(client, { key: armoredKey, owner: 'thurinlabs.eth' })
+// r.status: verified · mismatch · unverified · unreachable; r.reason is one sentence
+```
+
+`owner` is a `0x` address or an ENS name (the client resolves it). Any active, verified claim for the key counts. `mismatch` means don't encrypt to it: the owner's verified key is another one, the owner revoked this one, or it isn't a key. A node failure is `unreachable`, never `mismatch`. The answer carries `fingerprint`, `claimedFingerprint`, `address`, and the `claim` it rests on.
+
+For pages with no build step, the kit ships the same check as one file, `thurin-check.min.js` (`ThurinCheck.checkKeyFor({ key, owner, rpc, network })`). The guide: [Check a key before you encrypt to it](/guides/check-key).
 
 ## Proofs
 

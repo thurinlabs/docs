@@ -122,6 +122,7 @@ On mainnet a claim is about 430,000 gas, and `update-key` about 300,000. At 1 gw
 - [Verify a Thurin CLI release](https://docs.thurin.id/guides/verify-release.md)
 - [Verify a deploy](https://docs.thurin.id/guides/verify-deploy.md)
 - [Identity Kit](https://docs.thurin.id/sdk.md)
+- [Check a key before you encrypt to it](https://docs.thurin.id/guides/check-key.md)
 - [PGPRegistry](https://docs.thurin.id/contracts.md)
 - [Records](https://docs.thurin.id/records.md)
 - [Roadmap](https://docs.thurin.id/roadmap.md)

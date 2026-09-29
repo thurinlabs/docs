@@ -18,6 +18,7 @@
 - [Verify a deploy](/guides/verify-deploy)
 - **Build on it**
 - [Identity Kit](/sdk)
+- [Check a key](/guides/check-key)
 - [PGPRegistry](/contracts)
 - [Records](/records)
 - **Project**
