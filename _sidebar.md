@@ -5,6 +5,7 @@
 - [Managing notations](/guides/gnupg)
 - [ENS record](/guides/ens-record)
 - [Encrypt to an identity](/guides/encrypt)
+- [For security teams](/guides/security-teams)
 - Providers
   - [Codeberg](/guides/codeberg)
   - [DNS](/guides/dns)
