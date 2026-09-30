@@ -53,7 +53,7 @@ thurinlabs-thurin-<version>.tgz: OK
 ## 4. Check the chain names this release
 
 ```bash
-npx @thurinlabs/thurin record get thurinlabs.eth releases
+npx @thurinlabs/thurin@latest record get thurinlabs.eth releases
 ```
 
 ```
@@ -70,7 +70,7 @@ Find the line for the version you downloaded and compare its hash to your own `s
 npm pack @thurinlabs/thurin@<version> && sha256sum thurinlabs-thurin-<version>.tgz
 ```
 
-The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
+The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin@<version>` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
 
 ## What this proves, and what it doesn't
 

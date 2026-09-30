@@ -12,7 +12,7 @@ Two rules:
 ```bash
 npm install -g @thurinlabs/thurin
 # or, without installing:
-npx @thurinlabs/thurin status thurinlabs.eth
+npx @thurinlabs/thurin@latest status thurinlabs.eth
 ```
 
 Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases are signed; [Verify a release](/guides/verify-release) shows how to check one.
@@ -96,14 +96,14 @@ It signs and checks everything, then prints a `https://thurin.id/attest#handoff=
 **No ETH anywhere:** sign a permission instead of a transaction. It's free.
 
 ```bash
-thurin attest --authorize                   # a link anyone can publish and pay for
+thurin attest --authorize                   # a relay publishes it (mainnet), or you get a link
 thurin attest --authorize --out auth.json   # or a file
 thurin attest --authorize --deadline 1d     # default 7d
 ```
 
-Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
+On mainnet it goes straight to a relay that pays. If the relay can't (gone, out of budget for the day, or it has already paid for this address), you get the link instead. Anyone can publish that: thurin.id's own relay button, a friend opening the link with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
 
-Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](/contracts) from the same address. `--relay <url>` posts it to a [relay](/cli?id=run-a-relay) that pays, with no link at all.
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](/contracts) from the same address. `--relay <url>` uses another [relay](/cli?id=run-a-relay); `--no-relay` goes straight to the link. The relay sees your IP address, as any website would.
 
 **The PGP key isn't here** (a card, an air-gapped machine):
 

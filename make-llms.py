@@ -23,8 +23,8 @@ INTRO_INDEX = f"""# Thurin.id docs
 HEADER = f"""
 Thurin.id puts a PGP key on an Ethereum address: a claim in a contract nobody controls, checkable with gpg and
 any Ethereum node. Proofs on the key link it to accounts elsewhere. An agent can drive everything with the CLI
-(`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see [PGPRegistry]({SITE}/contracts.md)).
-Not installed? Use `npx @thurinlabs/thurin` wherever this says `thurin`.
+(`npx @thurinlabs/thurin@latest`, `--json`, exit codes) or with only `cast` and gpg (see [PGPRegistry]({SITE}/contracts.md)).
+Not installed? Use `npx @thurinlabs/thurin@latest` wherever this says `thurin`.
 
 ---
 

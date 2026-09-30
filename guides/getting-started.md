@@ -46,7 +46,7 @@ Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
 
 **Share your key** with a plain link: `https://thurin.id/eth/YOUR_ADDRESS.asc` is the key file itself, and so are `/ens/YOUR_NAME.asc` (once your ENS name points at the address) and `/pgp/YOUR_FINGERPRINT.asc`. Put it in an email signature, a profile, or a security.txt. It always serves your current verified key, and stops when you revoke it.
 
-Rather use a terminal? `npx @thurinlabs/thurin attest` does the same; see the [CLI](/cli).
+Rather use a terminal? `npx @thurinlabs/thurin@latest attest` does the same; see the [CLI](/cli).
 
 ## 5. Add a proof
 

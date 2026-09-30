@@ -5,8 +5,8 @@
 
 Thurin.id puts a PGP key on an Ethereum address: a claim in a contract nobody controls, checkable with gpg and
 any Ethereum node. Proofs on the key link it to accounts elsewhere. An agent can drive everything with the CLI
-(`npx @thurinlabs/thurin`, `--json`, exit codes) or with only `cast` and gpg (see [PGPRegistry](https://docs.thurin.id/contracts.md)).
-Not installed? Use `npx @thurinlabs/thurin` wherever this says `thurin`.
+(`npx @thurinlabs/thurin@latest`, `--json`, exit codes) or with only `cast` and gpg (see [PGPRegistry](https://docs.thurin.id/contracts.md)).
+Not installed? Use `npx @thurinlabs/thurin@latest` wherever this says `thurin`.
 
 ---
 
@@ -188,7 +188,7 @@ Your identity is then at `https://thurin.id/eth/YOUR_ADDRESS`.
 
 **Share your key** with a plain link: `https://thurin.id/eth/YOUR_ADDRESS.asc` is the key file itself, and so are `/ens/YOUR_NAME.asc` (once your ENS name points at the address) and `/pgp/YOUR_FINGERPRINT.asc`. Put it in an email signature, a profile, or a security.txt. It always serves your current verified key, and stops when you revoke it.
 
-Rather use a terminal? `npx @thurinlabs/thurin attest` does the same; see the [CLI](https://docs.thurin.id/cli.md).
+Rather use a terminal? `npx @thurinlabs/thurin@latest attest` does the same; see the [CLI](https://docs.thurin.id/cli.md).
 
 ### 5. Add a proof
 
@@ -662,7 +662,7 @@ Two rules:
 ```bash
 npm install -g @thurinlabs/thurin
 # or, without installing:
-npx @thurinlabs/thurin status thurinlabs.eth
+npx @thurinlabs/thurin@latest status thurinlabs.eth
 ```
 
 Node 20 or newer. GnuPG 2.2 or newer for anything that touches a key. Releases are signed; [Verify a release](https://docs.thurin.id/guides/verify-release.md) shows how to check one.
@@ -746,14 +746,14 @@ It signs and checks everything, then prints a `https://thurin.id/attest#handoff=
 **No ETH anywhere:** sign a permission instead of a transaction. It's free.
 
 ```bash
-thurin attest --authorize                   # a link anyone can publish and pay for
+thurin attest --authorize                   # a relay publishes it (mainnet), or you get a link
 thurin attest --authorize --out auth.json   # or a file
 thurin attest --authorize --deadline 1d     # default 7d
 ```
 
-Anyone can then publish it: a friend opening the link on thurin.id with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
+On mainnet it goes straight to a relay that pays. If the relay can't (gone, out of budget for the day, or it has already paid for this address), you get the link instead. Anyone can publish that: thurin.id's own relay button, a friend opening the link with any wallet, or `thurin submit auth.json` from a funded keystore. The claim lands under your address. `reattest`, `update-key`, `revoke`, and `record set` take `--authorize` too.
 
-Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](https://docs.thurin.id/contracts.md) from the same address. `--relay <url>` posts it to a [relay](https://docs.thurin.id/cli.md#run-a-relay) that pays, with no link at all.
+Before handing it out, the CLI checks that the permission recovers to your address and that the registry would take it. It can be used once, only before its deadline, which is printed every time. To stop it sooner, `thurin cancel` spends it (and any other unused permission you've signed) with a transaction of your own, so that one needs ETH. Without the CLI, call `cancelAuthorization()` on the [registry](https://docs.thurin.id/contracts.md) from the same address. `--relay <url>` uses another [relay](https://docs.thurin.id/cli.md#run-a-relay); `--no-relay` goes straight to the link. The relay sees your IP address, as any website would.
 
 **The PGP key isn't here** (a card, an air-gapped machine):
 
@@ -1000,7 +1000,7 @@ That signature was checked against a key that came from Ethereum, not from GitHu
 The key's on-chain claim carries proofs. [thurin.id/ens/ben.thurinlabs.eth](https://thurin.id/ens/ben.thurinlabs.eth) shows the claim and its GitHub proof for `benwoody`, the account the commits come from. From a terminal:
 
 ```bash
-npx @thurinlabs/thurin status ben.thurinlabs.eth
+npx @thurinlabs/thurin@latest status ben.thurinlabs.eth
 ```
 
 So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it.
@@ -1082,7 +1082,7 @@ thurinlabs-thurin-<version>.tgz: OK
 ### 4. Check the chain names this release
 
 ```bash
-npx @thurinlabs/thurin record get thurinlabs.eth releases
+npx @thurinlabs/thurin@latest record get thurinlabs.eth releases
 ```
 
 ```
@@ -1099,7 +1099,7 @@ Find the line for the version you downloaded and compare its hash to your own `s
 npm pack @thurinlabs/thurin@<version> && sha256sum thurinlabs-thurin-<version>.tgz
 ```
 
-The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
+The hash must match the line in `SHA256SUMS`. If it does, `npx @thurinlabs/thurin@<version>` runs exactly the bytes that were signed. (Fetch through `npm pack` rather than the registry's direct tarball URL, which can answer 404 for a while after a publish.)
 
 ### What this proves, and what it doesn't
 

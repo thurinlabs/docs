@@ -41,7 +41,7 @@ That signature was checked against a key that came from Ethereum, not from GitHu
 The key's on-chain claim carries proofs. [thurin.id/ens/ben.thurinlabs.eth](https://thurin.id/ens/ben.thurinlabs.eth) shows the claim and its GitHub proof for `benwoody`, the account the commits come from. From a terminal:
 
 ```bash
-npx @thurinlabs/thurin status ben.thurinlabs.eth
+npx @thurinlabs/thurin@latest status ben.thurinlabs.eth
 ```
 
 So the chain says: thurinlabs.eth issued the name ben.thurinlabs.eth; that address claims this key; this key proves this GitHub account. The commit's signature closes the loop. No server of ours is anywhere in it.
