@@ -10,7 +10,7 @@ On [codeberg.org](https://codeberg.org), create a public repository, for example
 thurin-id=openpgp4fpr:YOUR_FINGERPRINT
 ```
 
-It can be empty; only the description matters. Your account's visibility must be **Public**.
+Only the description is checked, but add a file, such as a short README saying what the repository is for, so visitors see a normal repository page rather than an empty one. Your account's visibility must be **Public**.
 
 ## 2. Add the notation
 

@@ -26,7 +26,7 @@ proof@thurin.id=https://gist.github.com/USERNAME/GIST_ID
 
 ## For an organisation
 
-1. Create a public repository under the organisation, for example `thurin-proof`, and set its **description** to `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`.
+1. Create a public repository under the organisation, for example `thurin-proof`, and set its **description** to `thurin-id=openpgp4fpr:YOUR_FINGERPRINT`. Add a file too, such as a short README: GitHub hides an empty repository's description, and the About box to edit it, until it has one. Only the description is checked.
 2. Add `proof@thurin.id=https://github.com/ORG/thurin-proof` as the notation on the organisation's key.
 3. Update the key on the organisation's claim.
 
