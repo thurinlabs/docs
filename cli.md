@@ -201,7 +201,13 @@ AuthorizedKeysCommand /usr/bin/thurin key ssh 0x<address> --rpc http://127.0.0.1
 AuthorizedKeysCommandUser nobody
 ```
 
-Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else. **Use your own Ethereum node** (`--rpc`): sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party; fine for looking people up, not for letting them into your server. Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. sshd needs the absolute path (`command -v thurin`), and Node must be installed system-wide: sshd's minimal PATH won't find one from nvm. The command asks the node at every login, so if the node can't be reached nobody gets in; keep a local key or a console as a way back. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
+Revoke the claim, or mark the key compromised, and the next login is refused. Use the address, not an ENS name: a name can be pointed somewhere else.
+
+**Ask a node you can check.** sshd trusts whatever the node answers, and a node that lies could hand it someone else's key. The default node is PublicNode, a third party: fine for looking people up, not for letting them into your server. You don't need a full node. A light client like [Helios](https://github.com/a16z/helios) checks every answer against Ethereum's consensus in about 30 MB and serves them on `127.0.0.1:8545`. It still fetches from a node, and most free ones won't serve the proofs it needs; MEV Blocker (`https://rpc.mevblocker.io`) does. That node learns when the address is looked up.
+
+**sshd is strict about the command.** It needs the absolute path (`command -v thurin`), and it only runs a program that root alone can change, in every directory up the path: not one under a home directory, and on NixOS not one in `/nix/store` (copy it to `/etc`, mode 555). Put every flag on the command line: sshd runs it as `nobody`, which can't read your `~/.config/thurin`. Node must be installed system-wide: sshd's minimal PATH won't find one from nvm.
+
+**Keep a way back.** sshd reads `authorized_keys` before it asks the command, so a fixed key there still works when the node or the light client can't be reached. Without one, nobody gets in. Ed25519, RSA, and NIST ECDSA keys work; OpenSSH has no Ed448, brainpool, or secp256k1.
 
 ## Wallet, which is not a wallet
 
