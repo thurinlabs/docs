@@ -8,7 +8,7 @@ An ENS profile lists the accounts a name owns: `com.github`, `com.twitter`, `url
 
 | key | value |
 |---|---|
-| `id.thurin` | the fingerprint of the key claimed by the address the name resolves to, 40 hex characters, uppercase, no spaces, no `0x` |
+| `id.thurin` | the fingerprint of the key claimed by the address the name resolves to, 40 hex characters (64 for a v6 key), uppercase, no spaces, no `0x` |
 
 For example, `ben.thurinlabs.eth` carries:
 

@@ -343,7 +343,7 @@ An ENS profile lists the accounts a name owns: `com.github`, `com.twitter`, `url
 
 | key | value |
 |---|---|
-| `id.thurin` | the fingerprint of the key claimed by the address the name resolves to, 40 hex characters, uppercase, no spaces, no `0x` |
+| `id.thurin` | the fingerprint of the key claimed by the address the name resolves to, 40 hex characters (64 for a v6 key), uppercase, no spaces, no `0x` |
 
 For example, `ben.thurinlabs.eth` carries:
 
@@ -836,6 +836,14 @@ thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
 ```
 
 Sign the line with no line break after it (`printf '%s'`, not `echo`). A clearsigned statement works too. From there every check runs as usual. `update-key` takes `--key-file` alone.
+
+**With Sequoia, or a v6 key** (gpg can't use v6 keys), `sq` makes the same two files:
+
+```bash
+printf '%s' 'I control the Ethereum address: 0x…' | sq sign --signer <fingerprint> --signature-file=s.sig
+sq cert export --cert <fingerprint> > pub.pgp
+thurin attest --key-file pub.pgp --statement-file s.sig --owner you.eth --no-key
+```
 
 **The Ethereum key isn't here either.** `--authorize` needs one EIP-712 signature, and anything that signs typed data can make it:
 

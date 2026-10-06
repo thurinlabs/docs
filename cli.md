@@ -117,6 +117,14 @@ thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
 
 Sign the line with no line break after it (`printf '%s'`, not `echo`). A clearsigned statement works too. From there every check runs as usual. `update-key` takes `--key-file` alone.
 
+**With Sequoia, or a v6 key** (gpg can't use v6 keys), `sq` makes the same two files:
+
+```bash
+printf '%s' 'I control the Ethereum address: 0x…' | sq sign --signer <fingerprint> --signature-file=s.sig
+sq cert export --cert <fingerprint> > pub.pgp
+thurin attest --key-file pub.pgp --statement-file s.sig --owner you.eth --no-key
+```
+
 **The Ethereum key isn't here either.** `--authorize` needs one EIP-712 signature, and anything that signs typed data can make it:
 
 ```bash
