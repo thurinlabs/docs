@@ -112,6 +112,7 @@ On mainnet a claim is about 430,000 gas, and `update-key` about 300,000. At 1 gw
 - [Managing notations](https://docs.thurin.id/guides/gnupg.md)
 - [Point your ENS name at your claim](https://docs.thurin.id/guides/ens-record.md)
 - [Encrypt to an identity](https://docs.thurin.id/guides/encrypt.md)
+- [Your key on a Keycard Shell](https://docs.thurin.id/guides/keycard.md)
 - [For security teams](https://docs.thurin.id/guides/security-teams.md)
 - [Codeberg](https://docs.thurin.id/guides/codeberg.md)
 - [DNS](https://docs.thurin.id/guides/dns.md)
