@@ -832,17 +832,17 @@ thurin attest --statement --owner you.eth    # prints the line to sign
 # where the key is:
 #   printf '%s' 'I control the Ethereum address: 0x…' | gpg --detach-sign --textmode --disable-signer-uid > s.sig
 #   gpg --export <fingerprint> > pub.gpg
-thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth --no-key
+thurin attest --key-file pub.gpg --statement-file s.sig --owner you.eth
 ```
 
-Sign the line with no line break after it (`printf '%s'`, not `echo`). A clearsigned statement works too. From there every check runs as usual. `update-key` takes `--key-file` alone.
+Sign the line with no line break after it (`printf '%s'`, not `echo`). A clearsigned statement works too. From there every check runs as usual, and the claim is sent from this machine's keystore; if the wallet is elsewhere too, add `--no-key` for a link to open where it is. `update-key` takes `--key-file` alone.
 
 **With Sequoia, or a v6 key** (gpg can't use v6 keys), `sq` makes the same two files:
 
 ```bash
 printf '%s' 'I control the Ethereum address: 0x…' | sq sign --signer <fingerprint> --signature-file=s.sig
 sq cert export --cert <fingerprint> > pub.pgp
-thurin attest --key-file pub.pgp --statement-file s.sig --owner you.eth --no-key
+thurin attest --key-file pub.pgp --statement-file s.sig --owner you.eth
 ```
 
 **The Ethereum key isn't here either.** `--authorize` needs one EIP-712 signature, and anything that signs typed data can make it:
